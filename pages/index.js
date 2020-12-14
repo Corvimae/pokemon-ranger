@@ -64,7 +64,12 @@ export default function Home() {
   const [evs, setEVs] = useState(0);
   const [combatStages, setCombatStages] = useState(0);
   const [movePower, setMovePower] = useState(50);
-  const [modifier, setModifier] = useState(1)
+  const [typeEffectiveness, setTypeEffectiveness] = useState(1);
+  const [stab, setSTAB] = useState(false);
+  const [multiTarget, setMultiTarget] = useState(false);
+  const [weatherBoosted, setWeatherBoosted] = useState(false);
+  const [weatherReduced, setWeatherReduced] = useState(false);
+  const [otherModifier, setOtherModifier] = useState(1)
   const [opponentStat, setOpponentStat] = useState(20);
   const [opponentCombatStages, setOpponentCombatStages] = useState(0);
 
@@ -98,13 +103,22 @@ export default function Home() {
         rangeSegments: rangeSegments.map(rangeSegment => {
           const playerStatAdjusted = applyCombatStages(rangeSegment.stat, combatStages);
           const opponentStatAdjusted = applyCombatStages(opponentStat, opponentCombatStages);
+
+          const combinedModifier = [
+            typeEffectiveness,
+            stab ? 1.5 : 1,
+            multiTarget ? 0.75 : 1,
+            weatherBoosted ? 1.5 : 1,
+            weatherReduced ? 0.5 : 1,
+            otherModifier
+          ].reduce((acc, value) => value * acc, 1);
           
           const damageValues = calculateDamageValues(
             level,
             movePower,
             offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
             offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
-            modifier
+            combinedModifier
           );
 
           return {
@@ -117,7 +131,7 @@ export default function Home() {
         }),
       };
     });
-  }, [level, baseStat, evs, movePower, modifier, opponentStat, combatStages, opponentCombatStages, offensiveMode]);
+  }, [level, baseStat, evs, movePower, typeEffectiveness, stab, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, offensiveMode]);
 
   return (
     <Layout>
@@ -140,50 +154,87 @@ export default function Home() {
             {offensiveMode && (
               <InputRow>
                 <label>Level</label>
-                <input defaultValue={level} onChange={event => setLevel(event.target.value)}/>
+                <input type="number" defaultValue={level} onChange={event => setLevel(event.target.value)}/>
               </InputRow>
             )}
             
             <InputRow>
               <label>{offensiveMode ? 'Offensive' : 'Defensive'} Base Stat</label>
-              <input defaultValue={baseStat} onChange={event => setBaseStat(event.target.value)}/>
+              <input type="number" defaultValue={baseStat} onChange={event => setBaseStat(event.target.value)}/>
             </InputRow>
             
             <InputRow>
               <label>{offensiveMode ? 'Offensive' : 'Defensive'} Stat EVs</label>
-              <input defaultValue={evs} onChange={event => setEVs(event.target.value)}/>
+              <input type="number" defaultValue={evs} onChange={event => setEVs(event.target.value)}/>
             </InputRow>
             
             <InputRow>
               <label>{offensiveMode ? 'Offensive' : 'Defensive'} Combat Stages</label>
-              <input defaultValue={combatStages} onChange={event => setCombatStages(event.target.value)}/>
+              <input type="number" defaultValue={combatStages} onChange={event => setCombatStages(event.target.value)}/>
             </InputRow>
 
             <InputSubheader>Move</InputSubheader>
             <InputRow>
               <label>Move Power</label>
-              <input defaultValue={movePower} onChange={event => setMovePower(event.target.value)}/>
+              <input type="number" defaultValue={movePower} onChange={event => setMovePower(event.target.value)}/>
             </InputRow>
+
             <InputRow>
-              <label>Modifier</label>
-              <input defaultValue={modifier} onChange={event => setModifier(event.target.value)}/>
+              <label>Type Effectiveness?</label>
+              <select defaultValue={typeEffectiveness} onChange={event => setTypeEffectiveness(event.target.value)}>
+                <option value={0.25}>&times;0.25</option>
+                <option value={0.5}>&times;0.5</option>
+                <option value={1}>&times;1</option>
+                <option value={2}>&times;2</option>
+                <option value={4}>&times;4</option>
+              </select>
+            </InputRow>
+
+            <InputRow>
+              <label>STAB?</label>
+              <Checkbox data-checked={stab} onClick={() => setSTAB(!stab)} />
+            </InputRow>
+
+            <InputRow>
+              <label>Weather Boosted?</label>
+              <Checkbox data-checked={weatherBoosted} onClick={() => setWeatherBoosted(!weatherBoosted)} />
+              <HelpText>Is this a Water-type move used during rain, or a Fire-type move used during harsh sunlight?</HelpText>
+            </InputRow>
+
+            <InputRow>
+              <label>Weather Reduced?</label>
+              <Checkbox data-checked={weatherReduced} onClick={() => setWeatherReduced(!weatherReduced)} />
+              <HelpText>Is this a Water-type move used during harsh sunlight, or a Fire-type move used during rain?</HelpText>
+            </InputRow>
+
+            <InputRow>
+              <label>Multi Target?</label>
+              <Checkbox data-checked={multiTarget} onClick={() => setMultiTarget(!multiTarget)} />
+              <HelpText>Only applicable to double and triple battles. Does not work for Gen 3.</HelpText>
+            </InputRow>
+
+            <InputRow>
+              <label>Other Modifier</label>
+              <input type="number" defaultValue={otherModifier} onChange={event => setOtherModifier(event.target.value)}/>
+              <HelpText>Any additional modifiers that aren't handled by Ranger.</HelpText>
             </InputRow>
 
             <InputSubheader>Opponent</InputSubheader>     
             {!offensiveMode && (
               <InputRow>
                 <label>Level</label>
-                <input defaultValue={level} onChange={event => setLevel(event.target.value)}/>
+                <input type="number" defaultValue={level} onChange={event => setLevel(event.target.value)}/>
               </InputRow>
             )}
             
             <InputRow>
               <label>{offensiveMode ? 'Defensive' : 'Offensive'} Stat</label>
-              <input defaultValue={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
+              <input type="number" defaultValue={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
             </InputRow>
+
             <InputRow>
               <label>{offensiveMode ? 'Defensive' : 'Offensive'} Combat Stages</label>
-              <input defaultValue={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
+              <input type="number" defaultValue={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
             </InputRow>
           </InputSection>
         </div>
@@ -244,7 +295,16 @@ const InputRow = styled.div`
   & > input {
     border-radius: 0.25rem;
     height: 2rem;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #999;
+  }
+
+  & > select {
+    border-radius: 0.25rem;
+    height: 2rem;
+    margin: 0 0 0.5rem;
     padding: 0.25rem 0.5rem;
     font-size: 1rem;
     border: 1px solid #999;
@@ -257,6 +317,14 @@ const InputSubheader = styled.div`
   font-weight: 700;
   color: #666;
   margin: 0.5rem 0;
+`;
+
+const HelpText = styled.div`
+  grid-column: 2;
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #666;
+  margin: -0.5rem 0 0.5rem;
 `;
 
 const ResultsHeader = styled.h2`
@@ -287,6 +355,28 @@ const Button = styled.button`
 
   & + & {
     margin-left: 1rem;
+  }
+`;
+
+const Checkbox = styled.button`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: ${props => props['data-checked'] ? '#30b878' : 'transparent'};
+  border: ${props => props['data-checked'] ? 'none' : '1px solid #999'};
+  border-radius: 0.25rem;
+  margin: 0.25rem 0 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
+
+  &::after {
+    content: '✓';
+    display: ${props => props['data-checked'] ? 'block' : 'none'};
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: -2px;
+    color: #fff;
   }
 `;
 
