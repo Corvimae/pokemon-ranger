@@ -20,6 +20,14 @@ function calculateStat(level, base, iv, ev, modifier) {
   return Math.floor((Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5) * modifier);
 }
 
+function applyCombatStages(stat, combatStages) {
+  if (combatStages === 0) return stat;
+
+  if (combatStages > 0) return Math.floor(stat * ((combatStages + 2) / 2));
+
+  return Math.floor(stat * (2 / (Math.abs(combatStages) + 2)));
+}
+
 function calculateDamageValues(level, power, attack, defense, modifier) {
   return [...Array(16).keys()].map(randomValue => (
     Math.floor((Math.floor(((Math.floor((2 * level) / 5) + 2) * power * Math.floor(attack / defense)) / 50) + 2) * modifier * (randomValue / 100 + 0.85))
@@ -30,9 +38,11 @@ export default function Home() {
   const [level, setLevel] = useState(5);
   const [baseStat, setBaseStat] = useState(20);
   const [evs, setEVs] = useState(0);
+  const [combatStages, setCombatStages] = useState(0);
   const [movePower, setMovePower] = useState(50);
   const [modifier, setModifier] = useState(1)
   const [opponentStat, setOpponentStat] = useState(20);
+  const [opponentCombatStages, setOpponentCombatStages] = useState(0);
 
   const results = useMemo(() => {
     return NATURE_MODIFIERS.map(natureModifierData => {
@@ -62,7 +72,7 @@ export default function Home() {
       return {
         name: natureModifierData.name,
         rangeSegments: rangeSegments.map(rangeSegment => {
-          const damageValues = calculateDamageValues(level, movePower, rangeSegment.stat, opponentStat, modifier);
+          const damageValues = calculateDamageValues(level, movePower, applyCombatStages(rangeSegment.stat, combatStages), applyCombatStages(opponentStat, opponentCombatStages), modifier);
 
           return {
             ...rangeSegment,
@@ -73,7 +83,7 @@ export default function Home() {
         }),
       };
     });
-  }, [level, baseStat, evs, movePower, modifier, opponentStat]);
+  }, [level, baseStat, evs, movePower, modifier, opponentStat, combatStages, opponentCombatStages]);
 
   return (
     <Container>
@@ -94,6 +104,11 @@ export default function Home() {
             <label>Offensive Stat EVs</label>
             <input defaultValue={evs} onChange={event => setEVs(event.target.value)}/>
           </InputRow>
+          
+          <InputRow>
+            <label>Offensive Combat Stages</label>
+            <input defaultValue={combatStages} onChange={event => setCombatStages(event.target.value)}/>
+          </InputRow>
 
           <InputSubheader>Move</InputSubheader>
           <InputRow>
@@ -109,6 +124,10 @@ export default function Home() {
           <InputRow>
             <label>Defensive Stat</label>
             <input defaultValue={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
+          </InputRow>
+          <InputRow>
+            <label>Defensive Combat Stages</label>
+            <input defaultValue={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
           </InputRow>
         </InputSection>
       </div>
