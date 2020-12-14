@@ -57,6 +57,7 @@ function formatDamageRange(values) {
 export default function Home() {
   const [displayExpanded, setDisplayExpanded] = useState(false);
   const [displayRolls, setDisplayRolls] = useState(false);
+  const [offensiveMode, setOffensiveMode] = useState(true);
   
   const [level, setLevel] = useState(5);
   const [baseStat, setBaseStat] = useState(20);
@@ -95,7 +96,16 @@ export default function Home() {
       return {
         name: natureModifierData.name,
         rangeSegments: rangeSegments.map(rangeSegment => {
-          const damageValues = calculateDamageValues(level, movePower, applyCombatStages(rangeSegment.stat, combatStages), applyCombatStages(opponentStat, opponentCombatStages), modifier);
+          const playerStatAdjusted = applyCombatStages(rangeSegment.stat, combatStages);
+          const opponentStatAdjusted = applyCombatStages(opponentStat, opponentCombatStages);
+          
+          const damageValues = calculateDamageValues(
+            level,
+            movePower,
+            offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
+            offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
+            modifier
+          );
 
           return {
             ...rangeSegment,
@@ -107,7 +117,7 @@ export default function Home() {
         }),
       };
     });
-  }, [level, baseStat, evs, movePower, modifier, opponentStat, combatStages, opponentCombatStages]);
+  }, [level, baseStat, evs, movePower, modifier, opponentStat, combatStages, opponentCombatStages, offensiveMode]);
 
   return (
     <Layout>
@@ -117,25 +127,35 @@ export default function Home() {
       </Head>
       <Container>
         <div>
+          <ResultsHeader>
+            {offensiveMode ? 'Offensive' : 'Defensive'} Range Calculator
+            <Button onClick={() => setOffensiveMode(!offensiveMode)}>
+              Calculate {offensiveMode ? 'Defensive' : 'Offensive'} Ranges
+            </Button>
+          </ResultsHeader>
+
           <InputSection>
             <InputSubheader>Pokémon</InputSubheader>
-            <InputRow>
-              <label>Level</label>
-              <input defaultValue={level} onChange={event => setLevel(event.target.value)}/>
-            </InputRow>
+
+            {offensiveMode && (
+              <InputRow>
+                <label>Level</label>
+                <input defaultValue={level} onChange={event => setLevel(event.target.value)}/>
+              </InputRow>
+            )}
             
             <InputRow>
-              <label>Offensive Base Stat</label>
+              <label>{offensiveMode ? 'Offensive' : 'Defensive'} Base Stat</label>
               <input defaultValue={baseStat} onChange={event => setBaseStat(event.target.value)}/>
             </InputRow>
             
             <InputRow>
-              <label>Offensive Stat EVs</label>
+              <label>{offensiveMode ? 'Offensive' : 'Defensive'} Stat EVs</label>
               <input defaultValue={evs} onChange={event => setEVs(event.target.value)}/>
             </InputRow>
             
             <InputRow>
-              <label>Offensive Combat Stages</label>
+              <label>{offensiveMode ? 'Offensive' : 'Defensive'} Combat Stages</label>
               <input defaultValue={combatStages} onChange={event => setCombatStages(event.target.value)}/>
             </InputRow>
 
@@ -149,13 +169,20 @@ export default function Home() {
               <input defaultValue={modifier} onChange={event => setModifier(event.target.value)}/>
             </InputRow>
 
-            <InputSubheader>Opponent</InputSubheader>
+            <InputSubheader>Opponent</InputSubheader>     
+            {!offensiveMode && (
+              <InputRow>
+                <label>Level</label>
+                <input defaultValue={level} onChange={event => setLevel(event.target.value)}/>
+              </InputRow>
+            )}
+            
             <InputRow>
-              <label>Defensive Stat</label>
+              <label>{offensiveMode ? 'Defensive' : 'Offensive'} Stat</label>
               <input defaultValue={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
             </InputRow>
             <InputRow>
-              <label>Defensive Combat Stages</label>
+              <label>{offensiveMode ? 'Defensive' : 'Offensive'} Combat Stages</label>
               <input defaultValue={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
             </InputRow>
           </InputSection>
