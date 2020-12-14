@@ -15,7 +15,7 @@ export const ExpandedDisplay = ({ results, displayRolls }) => (
           {rangeSegments.map(({ from, to, stat, damageValues, damageRangeOutput }) => (
             <React.Fragment key={`${from} - ${to}`}>
               <ResultsRow>
-                <div>{from === to ? from : `${from} - ${to}`}</div>
+                <div>{from === to ? from : `${from}–${to}`}</div>
                 <div>{stat}</div>
                 <div>{damageRangeOutput}</div>
               </ResultsRow>

@@ -33,7 +33,7 @@ function formatIVRange(value) {
   if(value.from === 0) return `${value.to}-`;
   if(value.to === 31) return `${value.from}+`;
 
-  return `${value.from} - ${value.to}`;
+  return `${value.from}–${value.to}`;
 }
 
 export const CompactDisplay = ({ results, displayRolls }) => {
@@ -55,7 +55,7 @@ export const CompactDisplay = ({ results, displayRolls }) => {
               {formatIVRange(positive)}
             </div>
             <div>
-              {statFrom === statTo ? statFrom : `${statFrom} - ${statTo}`}
+              {statFrom === statTo ? statFrom : `${statFrom}–${statTo}`}
             </div>
             <div>{damageRangeOutput}</div>
           </ResultsRow>
