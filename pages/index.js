@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import Head from 'next/head';
 
 const NATURE_MODIFIERS = [
   {
@@ -86,77 +87,83 @@ export default function Home() {
   }, [level, baseStat, evs, movePower, modifier, opponentStat, combatStages, opponentCombatStages]);
 
   return (
-    <Container>
-      <div>
-        <InputSection>
-          <InputSubheader>Pokemon</InputSubheader>
-          <InputRow>
-            <label>Level</label>
-            <input defaultValue={level} onChange={event => setLevel(event.target.value)}/>
-          </InputRow>
-          
-          <InputRow>
-            <label>Offensive Base Stat</label>
-            <input defaultValue={baseStat} onChange={event => setBaseStat(event.target.value)}/>
-          </InputRow>
-          
-          <InputRow>
-            <label>Offensive Stat EVs</label>
-            <input defaultValue={evs} onChange={event => setEVs(event.target.value)}/>
-          </InputRow>
-          
-          <InputRow>
-            <label>Offensive Combat Stages</label>
-            <input defaultValue={combatStages} onChange={event => setCombatStages(event.target.value)}/>
-          </InputRow>
+    <>
+      <Head>
+        <title>Pokémon Ranger</title>
+        <link rel="shortcut icon" href="/favicon.png" />
+      </Head>
+      <Container>
+        <div>
+          <InputSection>
+            <InputSubheader>Pokémon</InputSubheader>
+            <InputRow>
+              <label>Level</label>
+              <input defaultValue={level} onChange={event => setLevel(event.target.value)}/>
+            </InputRow>
+            
+            <InputRow>
+              <label>Offensive Base Stat</label>
+              <input defaultValue={baseStat} onChange={event => setBaseStat(event.target.value)}/>
+            </InputRow>
+            
+            <InputRow>
+              <label>Offensive Stat EVs</label>
+              <input defaultValue={evs} onChange={event => setEVs(event.target.value)}/>
+            </InputRow>
+            
+            <InputRow>
+              <label>Offensive Combat Stages</label>
+              <input defaultValue={combatStages} onChange={event => setCombatStages(event.target.value)}/>
+            </InputRow>
 
-          <InputSubheader>Move</InputSubheader>
-          <InputRow>
-            <label>Move Power</label>
-            <input defaultValue={movePower} onChange={event => setMovePower(event.target.value)}/>
-          </InputRow>
-          <InputRow>
-            <label>Modifier</label>
-            <input defaultValue={modifier} onChange={event => setModifier(event.target.value)}/>
-          </InputRow>
+            <InputSubheader>Move</InputSubheader>
+            <InputRow>
+              <label>Move Power</label>
+              <input defaultValue={movePower} onChange={event => setMovePower(event.target.value)}/>
+            </InputRow>
+            <InputRow>
+              <label>Modifier</label>
+              <input defaultValue={modifier} onChange={event => setModifier(event.target.value)}/>
+            </InputRow>
 
-          <InputSubheader>Opponent</InputSubheader>
-          <InputRow>
-            <label>Defensive Stat</label>
-            <input defaultValue={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
-          </InputRow>
-          <InputRow>
-            <label>Defensive Combat Stages</label>
-            <input defaultValue={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
-          </InputRow>
-        </InputSection>
-      </div>
-    <div>
-      <ResultsHeader>Results</ResultsHeader>
-        {results.map(({ name, rangeSegments }) => (
-        <>
-          <ResultsSubheader>{name}</ResultsSubheader>
-          <ResultsGrid>
-            <ResultsGridHeader>
-              <div>IVs</div>
-              <div>Stat</div>
-              <div>Damage</div>
-            </ResultsGridHeader>
-            {rangeSegments.map(({ from, to, stat, damageValues, minDamage, maxDamage }) => (
-              <>
-                <ResultsRow>
-                  <div>{from === to ? from : `${from} - ${to}`}</div>
-                  <div>{stat}</div>
-                  <div>{minDamage === maxDamage ? minDamage : `${minDamage} - ${maxDamage}`}</div>
-                </ResultsRow>
-                <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>
-              </>
-            ))}
-          </ResultsGrid>
-        </>
-      ))}
-    </div>
-   </Container>
+            <InputSubheader>Opponent</InputSubheader>
+            <InputRow>
+              <label>Defensive Stat</label>
+              <input defaultValue={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
+            </InputRow>
+            <InputRow>
+              <label>Defensive Combat Stages</label>
+              <input defaultValue={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
+            </InputRow>
+          </InputSection>
+        </div>
+        <div>
+          <ResultsHeader>Results</ResultsHeader>
+            {results.map(({ name, rangeSegments }) => (
+            <React.Fragment key={name}>
+              <ResultsSubheader>{name}</ResultsSubheader>
+              <ResultsGrid>
+                <ResultsGridHeader>
+                  <div>IVs</div>
+                  <div>Stat</div>
+                  <div>Damage</div>
+                </ResultsGridHeader>
+                {rangeSegments.map(({ from, to, stat, damageValues, minDamage, maxDamage }) => (
+                  <React.Fragment key={stat}>
+                    <ResultsRow>
+                      <div>{from === to ? from : `${from} - ${to}`}</div>
+                      <div>{stat}</div>
+                      <div>{minDamage === maxDamage ? minDamage : `${minDamage} - ${maxDamage}`}</div>
+                    </ResultsRow>
+                    <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>
+                  </React.Fragment>
+                ))}
+              </ResultsGrid>
+            </React.Fragment>
+          ))}
+        </div>
+      </Container>
+    </>
   );
 }
 const Container = styled.div`
