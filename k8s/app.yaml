@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pokemon-ranger-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: pokemon-ranger
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pokemon-ranger
+  labels:
+    app: pokemon-ranger
+    version: 1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pokemon-ranger
+  template:
+    metadata:
+      labels:
+        app: pokemon-ranger
+    spec:
+      containers:
+      - name: pokemon-ranger
+        image: corvimae/pokemon-ranger:latest
+        ports:
+        - containerPort: 3000
