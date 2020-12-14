@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResultsGrid, ResultsGridHeader, ResultsRow, ResultsDamageRow, ResultsSubheader } from './Layout';
 
-export const ExpandedDisplay = ({ results }) => (
+export const ExpandedDisplay = ({ results, displayRolls }) => (
   <>
     {results.map(({ name, rangeSegments }) => (
       <React.Fragment key={name}>
@@ -19,7 +19,7 @@ export const ExpandedDisplay = ({ results }) => (
                 <div>{stat}</div>
                 <div>{damageRangeOutput}</div>
               </ResultsRow>
-              <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>
+              {displayRolls && <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>}
             </React.Fragment>
           ))}
         </ResultsGrid>

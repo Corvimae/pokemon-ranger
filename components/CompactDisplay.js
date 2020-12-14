@@ -36,7 +36,7 @@ function formatIVRange(value) {
   return `${value.from} - ${value.to}`;
 }
 
-export const CompactDisplay = ({ results }) => {
+export const CompactDisplay = ({ results, displayRolls }) => {
   const compactedResults = useMemo(() => combineIdenticalLines(results), [results]);
 
   return (
@@ -59,7 +59,7 @@ export const CompactDisplay = ({ results }) => {
             </div>
             <div>{damageRangeOutput}</div>
           </ResultsRow>
-          <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>
+          {displayRolls && <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>}
         </React.Fragment>
       ))}
     </ResultsGrid>

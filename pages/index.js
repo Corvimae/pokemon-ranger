@@ -56,6 +56,7 @@ function formatDamageRange(values) {
 
 export default function Home() {
   const [displayExpanded, setDisplayExpanded] = useState(false);
+  const [displayRolls, setDisplayRolls] = useState(false);
   
   const [level, setLevel] = useState(5);
   const [baseStat, setBaseStat] = useState(20);
@@ -162,11 +163,14 @@ export default function Home() {
         <div>
           <ResultsHeader>
             Results
-            <Button onClick={() => setDisplayExpanded(!displayExpanded)}>{displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
+            <div>
+              <Button onClick={() => setDisplayExpanded(!displayExpanded)}>{displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
+              <Button onClick={() => setDisplayRolls(!displayRolls)}>{displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
+            </div>
           </ResultsHeader>
           
-          {displayExpanded && <ExpandedDisplay results={results} />}
-          {!displayExpanded && <CompactDisplay results={results} />}
+          {displayExpanded && <ExpandedDisplay results={results} displayRolls={displayRolls} />}
+          {!displayExpanded && <CompactDisplay results={results} displayRolls={displayRolls} />}
         </div>
       </Container>
     </>
@@ -240,5 +244,9 @@ const Button = styled.button`
   &:hover,
   &:active {
     background-color: #4ecf92;
+  }
+
+  & + & {
+    margin-left: 1rem;
   }
 `;
