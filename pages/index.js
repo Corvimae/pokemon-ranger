@@ -154,34 +154,34 @@ export default function Home() {
             {offensiveMode && (
               <InputRow>
                 <label>Level</label>
-                <input type="number" defaultValue={level} onChange={event => setLevel(event.target.value)}/>
+                <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
               </InputRow>
             )}
             
             <InputRow>
               <label>{offensiveMode ? 'Offensive' : 'Defensive'} Base Stat</label>
-              <input type="number" defaultValue={baseStat} onChange={event => setBaseStat(event.target.value)}/>
+              <input type="number" value={baseStat} onChange={event => setBaseStat(event.target.value)}/>
             </InputRow>
             
             <InputRow>
               <label>{offensiveMode ? 'Offensive' : 'Defensive'} Stat EVs</label>
-              <input type="number" defaultValue={evs} onChange={event => setEVs(event.target.value)}/>
+              <input type="number" value={evs} onChange={event => setEVs(event.target.value)}/>
             </InputRow>
             
             <InputRow>
               <label>{offensiveMode ? 'Offensive' : 'Defensive'} Combat Stages</label>
-              <input type="number" defaultValue={combatStages} onChange={event => setCombatStages(event.target.value)}/>
+              <input type="number" value={combatStages} onChange={event => setCombatStages(event.target.value)}/>
             </InputRow>
 
             <InputSubheader>Move</InputSubheader>
             <InputRow>
               <label>Move Power</label>
-              <input type="number" defaultValue={movePower} onChange={event => setMovePower(event.target.value)}/>
+              <input type="number" value={movePower} onChange={event => setMovePower(event.target.value)}/>
             </InputRow>
 
             <InputRow>
               <label>Type Effectiveness?</label>
-              <select defaultValue={typeEffectiveness} onChange={event => setTypeEffectiveness(event.target.value)}>
+              <select value={typeEffectiveness} onChange={event => setTypeEffectiveness(event.target.value)}>
                 <option value={0.25}>&times;0.25</option>
                 <option value={0.5}>&times;0.5</option>
                 <option value={1}>&times;1</option>
@@ -215,7 +215,7 @@ export default function Home() {
 
             <InputRow>
               <label>Other Modifier</label>
-              <input type="number" defaultValue={otherModifier} onChange={event => setOtherModifier(event.target.value)}/>
+              <input type="number" value={otherModifier} onChange={event => setOtherModifier(event.target.value)}/>
               <HelpText>Any additional modifiers that aren't handled by Ranger.</HelpText>
             </InputRow>
 
@@ -223,18 +223,18 @@ export default function Home() {
             {!offensiveMode && (
               <InputRow>
                 <label>Level</label>
-                <input type="number" defaultValue={level} onChange={event => setLevel(event.target.value)}/>
+                <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
               </InputRow>
             )}
             
             <InputRow>
               <label>{offensiveMode ? 'Defensive' : 'Offensive'} Stat</label>
-              <input type="number" defaultValue={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
+              <input type="number" value={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
             </InputRow>
 
             <InputRow>
               <label>{offensiveMode ? 'Defensive' : 'Offensive'} Combat Stages</label>
-              <input type="number" defaultValue={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
+              <input type="number" value={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
             </InputRow>
           </InputSection>
         </div>
