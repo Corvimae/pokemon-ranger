@@ -110,7 +110,7 @@ export default function Home() {
   }, [level, baseStat, evs, movePower, modifier, opponentStat, combatStages, opponentCombatStages]);
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>Pokémon Ranger</title>
         <link rel="shortcut icon" href="/favicon.png" />
@@ -173,9 +173,21 @@ export default function Home() {
           {!displayExpanded && <CompactDisplay results={results} displayRolls={displayRolls} />}
         </div>
       </Container>
-    </>
+      <Footer>
+        Created by <a href="https://twitter.com/Corvimae" target="_blank">@Corvimae</a>.&nbsp;
+        <a href="https://github.com/corvimae/pokemon-ranger" target="_blank">View the source.</a>
+      </Footer>
+    </Layout>
   );
 }
+
+const Layout = styled.div`
+  display: grid;
+  width: 100vw;
+  height: 100vh;
+  grid-template-rows: 1fr max-content;
+`;
+
 const Container = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -248,5 +260,15 @@ const Button = styled.button`
 
   & + & {
     margin-left: 1rem;
+  }
+`;
+
+const Footer = styled.div`
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  background-color: #30b878;
+
+  & > a {
+    color: #bceaf5;
   }
 `;
