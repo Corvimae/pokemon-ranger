@@ -51,7 +51,7 @@ function formatDamageRange(values) {
   const lowExtreme = firstValue !== secondValue && firstValue;
   const highExtreme = secondToLastValue !== lastValue && lastValue;
 
-  return `${lowExtreme ? `(${lowExtreme}) / ` : ''} ${secondValue === secondToLastValue ? secondValue : `${secondValue} - ${secondToLastValue}`} ${highExtreme ? `/ (${highExtreme})` : ''}`;
+  return `${lowExtreme ? `(${lowExtreme}) / ` : ''} ${secondValue === secondToLastValue ? secondValue : `${secondValue}–${secondToLastValue}`} ${highExtreme ? `/ (${highExtreme})` : ''}`;
 }
 
 export default function Home() {
