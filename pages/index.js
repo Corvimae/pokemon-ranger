@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Head from 'next/head';
+import { ExpandedDisplay } from '../components/ExpandedDisplay';
+import { CompactDisplay } from '../components/CompactDisplay';
 
 const NATURE_MODIFIERS = [
   {
@@ -38,7 +40,23 @@ function calculateDamageValues(level, power, attack, defense, modifier) {
   });
 }
 
+function formatDamageRange(values) {
+  const firstValue = values[0];
+  const secondValue = values[1];
+  const secondToLastValue = values[values.length - 2];
+  const lastValue = values[values.length - 1];
+
+  if (firstValue === lastValue) return firstValue;
+
+  const lowExtreme = firstValue !== secondValue && firstValue;
+  const highExtreme = secondToLastValue !== lastValue && lastValue;
+
+  return `${lowExtreme ? `(${lowExtreme}) / ` : ''} ${secondValue === secondToLastValue ? secondValue : `${secondValue} - ${secondToLastValue}`} ${highExtreme ? `/ (${highExtreme})` : ''}`;
+}
+
 export default function Home() {
+  const [displayExpanded, setDisplayExpanded] = useState(false);
+  
   const [level, setLevel] = useState(5);
   const [baseStat, setBaseStat] = useState(20);
   const [evs, setEVs] = useState(0);
@@ -81,6 +99,7 @@ export default function Home() {
           return {
             ...rangeSegment,
             damageValues,
+            damageRangeOutput: formatDamageRange(damageValues),
             minDamage: Math.min(...damageValues),
             maxDamage: Math.max(...damageValues),
           };
@@ -141,29 +160,13 @@ export default function Home() {
           </InputSection>
         </div>
         <div>
-          <ResultsHeader>Results</ResultsHeader>
-            {results.map(({ name, rangeSegments }) => (
-            <React.Fragment key={name}>
-              <ResultsSubheader>{name}</ResultsSubheader>
-              <ResultsGrid>
-                <ResultsGridHeader>
-                  <div>IVs</div>
-                  <div>Stat</div>
-                  <div>Damage</div>
-                </ResultsGridHeader>
-                {rangeSegments.map(({ from, to, stat, damageValues, minDamage, maxDamage }) => (
-                  <React.Fragment key={stat}>
-                    <ResultsRow>
-                      <div>{from === to ? from : `${from} - ${to}`}</div>
-                      <div>{stat}</div>
-                      <div>{minDamage === maxDamage ? minDamage : `${minDamage} - ${maxDamage}`}</div>
-                    </ResultsRow>
-                    <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>
-                  </React.Fragment>
-                ))}
-              </ResultsGrid>
-            </React.Fragment>
-          ))}
+          <ResultsHeader>
+            Results
+            <Button onClick={() => setDisplayExpanded(!displayExpanded)}>{displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
+          </ResultsHeader>
+          
+          {displayExpanded && <ExpandedDisplay results={results} />}
+          {!displayExpanded && <CompactDisplay results={results} />}
         </div>
       </Container>
     </>
@@ -214,46 +217,28 @@ const InputSubheader = styled.div`
 `;
 
 const ResultsHeader = styled.h2`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 1.25rem;
   color: #333;
   font-weight: 700;
   margin: 0.5rem 0;
 `;
 
-const ResultsSubheader = styled.h3`
-  font-size: 1rem;
-  color: #666;
-  font-weight: 700;
-  margin: 0.25rem 0;
-`;
-
-const ResultsGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  margin-bottom: 2rem;
-`;
-
-const ResultsGridHeader = styled.div`
-  display: contents;
-
-  & > div {
-    background-color: #eaeaea;
-    padding: 0.25rem 0.5rem;
-    font-weight: 700;
-  }
-`;
-
-const ResultsRow = styled.div`
-  display: contents;
-  
-  & > div {
-    padding: 0.25rem 0.5rem 0 0.5rem;
-  }
-`;
-
-const ResultsDamageRow = styled.div`
-  grid-column: 1 / -1;
-  color: #666;
-  font-size: 0.825rem;
+const Button = styled.button`
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
   padding: 0.25rem 0.5rem;
+  margin: 0;
+  background-color: #30b878;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+
+  &:hover,
+  &:active {
+    background-color: #4ecf92;
+  }
 `;
