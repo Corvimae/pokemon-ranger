@@ -30,9 +30,12 @@ function applyCombatStages(stat, combatStages) {
 }
 
 function calculateDamageValues(level, power, attack, defense, modifier) {
-  return [...Array(16).keys()].map(randomValue => (
-    Math.floor((Math.floor(((Math.floor((2 * level) / 5) + 2) * power * Math.floor(attack / defense)) / 50) + 2) * modifier * (randomValue / 100 + 0.85))
-  ));
+  return [...Array(16).keys()].map(randomValue => {
+    const levelModifier = Math.trunc(2 * Number(level) / 5) + 2;
+    const baseDamage = Math.trunc(Math.trunc(levelModifier * Number(power) * Number(attack) / Number(defense)) / 50) + 2;
+
+    return Math.trunc(Math.trunc(baseDamage * Number(modifier)) * (randomValue / 100 + 0.85));
+  });
 }
 
 export default function Home() {
