@@ -31,12 +31,14 @@ function applyCombatStages(stat, combatStages) {
   return Math.floor(stat * (2 / (Math.abs(combatStages) + 2)));
 }
 
-function calculateDamageValues(level, power, attack, defense, modifier) {
+function calculateDamageValues(level, power, attack, defense, modifiers) {
   return [...Array(16).keys()].map(randomValue => {
     const levelModifier = Math.trunc(2 * Number(level) / 5) + 2;
-    const baseDamage = Math.trunc(Math.trunc(levelModifier * Number(power) * Number(attack) / Number(defense)) / 50) + 2;
+    const baseDamage = Math.trunc(Math.floor(levelModifier * Number(power) * Number(attack) / Number(defense)) / 50) + 2;
 
-    return Math.trunc(Math.trunc(baseDamage * Number(modifier)) * (randomValue / 100 + 0.85));
+    return [(85 + randomValue) / 100, ...modifiers].reduce((acc, modifier) => (
+      Math.trunc(acc * Number(modifier))
+    ), baseDamage);
   });
 }
 
@@ -101,24 +103,22 @@ export default function Home() {
       return {
         name: natureModifierData.name,
         rangeSegments: rangeSegments.map(rangeSegment => {
-          const playerStatAdjusted = applyCombatStages(rangeSegment.stat, Number(combatStages));
-          const opponentStatAdjusted = applyCombatStages(opponentStat, Number(opponentCombatStages));
-
-          const combinedModifier = [
-            typeEffectiveness,
-            stab ? 1.5 : 1,
-            multiTarget ? 0.75 : 1,
-            weatherBoosted ? 1.5 : 1,
-            weatherReduced ? 0.5 : 1,
-            otherModifier
-          ].reduce((acc, value) => value * acc, 1);
+          const playerStatAdjusted = applyCombatStages(Number(rangeSegment.stat), Number(combatStages));
+          const opponentStatAdjusted = applyCombatStages(Number(opponentStat), Number(opponentCombatStages));
           
           const damageValues = calculateDamageValues(
             level,
             movePower,
             offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
             offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
-            combinedModifier
+            [
+              typeEffectiveness,
+              stab ? 1.5 : 1,
+              multiTarget ? 0.75 : 1,
+              weatherBoosted ? 1.5 : 1,
+              weatherReduced ? 0.5 : 1,
+              otherModifier
+            ]
           );
 
           return {
