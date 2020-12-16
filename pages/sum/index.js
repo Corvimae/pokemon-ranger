@@ -122,8 +122,8 @@ export default function Sum() {
           <InputSubheader>Damage Rolls</InputSubheader>
           {rolls.map((roll, index) => (
             <RemovableInputRow key={index}>
-              <input value={roll} onChange={event => handleUpdateRolls(event, index)} />
               {index === 0 ? <div /> : <RemoveButton onClick={() => handleRemoveRoll(index)}>&mdash;</RemoveButton>}
+              <input value={roll} onChange={event => handleUpdateRolls(event, index)} />
             </RemovableInputRow>
           ))}
           <AddRollRow>
@@ -255,7 +255,7 @@ const RemovableInputRow = styled(FullWidthInputRow)`
 
 const RemoveButton = styled(Button)`
   background-color: #c20d00;
-  margin: 0 0 0.5rem 1rem;
+  margin: 0 1rem 0.5rem 0;
   height: calc(100% - 0.5rem);
 
   &:hover,
