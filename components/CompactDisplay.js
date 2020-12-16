@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { ResultsGrid, ResultsGridHeader, ResultsRow, ResultsDamageRow } from './Layout';
+import { ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
+import { ResultsDamageRow } from './ResultsDamageRow';
 
 function combineIdenticalLines(results) {
   const [negative, neutral, positive] = results;
@@ -59,7 +60,7 @@ export const CompactDisplay = ({ results, displayRolls }) => {
             </div>
             <div>{damageRangeOutput}</div>
           </ResultsRow>
-          {displayRolls && <ResultsDamageRow>{damageValues.join(', ')}</ResultsDamageRow>}
+          {displayRolls && <ResultsDamageRow values={damageValues} />}
         </React.Fragment>
       ))}
     </ResultsGrid>

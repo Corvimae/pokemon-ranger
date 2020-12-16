@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import Head from 'next/head';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
+import { Header, InputSection, InputRow, InputSubheader, HelpText, Button, Checkbox } from '../components/Layout';
 
 const NATURE_MODIFIERS = [
   {
@@ -101,8 +101,8 @@ export default function Home() {
       return {
         name: natureModifierData.name,
         rangeSegments: rangeSegments.map(rangeSegment => {
-          const playerStatAdjusted = applyCombatStages(rangeSegment.stat, combatStages);
-          const opponentStatAdjusted = applyCombatStages(opponentStat, opponentCombatStages);
+          const playerStatAdjusted = applyCombatStages(rangeSegment.stat, Number(combatStages));
+          const opponentStatAdjusted = applyCombatStages(opponentStat, Number(opponentCombatStages));
 
           const combinedModifier = [
             typeEffectiveness,
@@ -134,137 +134,120 @@ export default function Home() {
   }, [level, baseStat, evs, movePower, typeEffectiveness, stab, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, offensiveMode]);
 
   return (
-    <Layout>
-      <Head>
-        <title>Pokémon Ranger</title>
-        <link rel="shortcut icon" href="/favicon.png" />
-      </Head>
-      <Container>
-        <div>
-          <ResultsHeader>
-            {offensiveMode ? 'Offensive' : 'Defensive'} Range Calculator
-            <Button onClick={() => setOffensiveMode(!offensiveMode)}>
-              Calculate {offensiveMode ? 'Defensive' : 'Offensive'} Ranges
-            </Button>
-          </ResultsHeader>
+    <Container>
+      <div>
+        <Header>
+          {offensiveMode ? 'Offensive' : 'Defensive'} Range Calculator
+          <Button onClick={() => setOffensiveMode(!offensiveMode)}>
+            Calculate {offensiveMode ? 'Defensive' : 'Offensive'} Ranges
+          </Button>
+        </Header>
 
-          <InputSection>
-            <InputSubheader>Pokémon</InputSubheader>
+        <InputSection>
+          <InputSubheader>Pokémon</InputSubheader>
 
-            {offensiveMode && (
-              <InputRow>
-                <label>Level</label>
-                <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
-              </InputRow>
-            )}
-            
+          {offensiveMode && (
             <InputRow>
-              <label>{offensiveMode ? 'Offensive' : 'Defensive'} Base Stat</label>
-              <input type="number" value={baseStat} onChange={event => setBaseStat(event.target.value)}/>
+              <label>Level</label>
+              <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
             </InputRow>
-            
-            <InputRow>
-              <label>{offensiveMode ? 'Offensive' : 'Defensive'} Stat EVs</label>
-              <input type="number" value={evs} onChange={event => setEVs(event.target.value)}/>
-            </InputRow>
-            
-            <InputRow>
-              <label>{offensiveMode ? 'Offensive' : 'Defensive'} Combat Stages</label>
-              <input type="number" value={combatStages} onChange={event => setCombatStages(event.target.value)}/>
-            </InputRow>
-
-            <InputSubheader>Move</InputSubheader>
-            <InputRow>
-              <label>Move Power</label>
-              <input type="number" value={movePower} onChange={event => setMovePower(event.target.value)}/>
-            </InputRow>
-
-            <InputRow>
-              <label>Type Effectiveness?</label>
-              <select value={typeEffectiveness} onChange={event => setTypeEffectiveness(event.target.value)}>
-                <option value={0.25}>&times;0.25</option>
-                <option value={0.5}>&times;0.5</option>
-                <option value={1}>&times;1</option>
-                <option value={2}>&times;2</option>
-                <option value={4}>&times;4</option>
-              </select>
-            </InputRow>
-
-            <InputRow>
-              <label>STAB?</label>
-              <Checkbox data-checked={stab} onClick={() => setSTAB(!stab)} />
-            </InputRow>
-
-            <InputRow>
-              <label>Weather Boosted?</label>
-              <Checkbox data-checked={weatherBoosted} onClick={() => setWeatherBoosted(!weatherBoosted)} />
-              <HelpText>Is this a Water-type move used during rain, or a Fire-type move used during harsh sunlight?</HelpText>
-            </InputRow>
-
-            <InputRow>
-              <label>Weather Reduced?</label>
-              <Checkbox data-checked={weatherReduced} onClick={() => setWeatherReduced(!weatherReduced)} />
-              <HelpText>Is this a Water-type move used during harsh sunlight, or a Fire-type move used during rain?</HelpText>
-            </InputRow>
-
-            <InputRow>
-              <label>Multi Target?</label>
-              <Checkbox data-checked={multiTarget} onClick={() => setMultiTarget(!multiTarget)} />
-              <HelpText>Only applicable to double and triple battles. Does not work for Gen 3.</HelpText>
-            </InputRow>
-
-            <InputRow>
-              <label>Other Modifier</label>
-              <input type="number" value={otherModifier} onChange={event => setOtherModifier(event.target.value)}/>
-              <HelpText>Any additional modifiers that aren't handled by Ranger.</HelpText>
-            </InputRow>
-
-            <InputSubheader>Opponent</InputSubheader>     
-            {!offensiveMode && (
-              <InputRow>
-                <label>Level</label>
-                <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
-              </InputRow>
-            )}
-            
-            <InputRow>
-              <label>{offensiveMode ? 'Defensive' : 'Offensive'} Stat</label>
-              <input type="number" value={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
-            </InputRow>
-
-            <InputRow>
-              <label>{offensiveMode ? 'Defensive' : 'Offensive'} Combat Stages</label>
-              <input type="number" value={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
-            </InputRow>
-          </InputSection>
-        </div>
-        <div>
-          <ResultsHeader>
-            Results
-            <div>
-              <Button onClick={() => setDisplayExpanded(!displayExpanded)}>{displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
-              <Button onClick={() => setDisplayRolls(!displayRolls)}>{displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
-            </div>
-          </ResultsHeader>
+          )}
           
-          {displayExpanded && <ExpandedDisplay results={results} displayRolls={displayRolls} />}
-          {!displayExpanded && <CompactDisplay results={results} displayRolls={displayRolls} />}
-        </div>
-      </Container>
-      <Footer>
-        Created by <a href="https://twitter.com/Corvimae" target="_blank">@Corvimae</a>.&nbsp;
-        <a href="https://github.com/corvimae/pokemon-ranger" target="_blank">View the source.</a>
-      </Footer>
-    </Layout>
+          <InputRow>
+            <label>{offensiveMode ? 'Offensive' : 'Defensive'} Base Stat</label>
+            <input type="number" value={baseStat} onChange={event => setBaseStat(event.target.value)}/>
+          </InputRow>
+          
+          <InputRow>
+            <label>{offensiveMode ? 'Offensive' : 'Defensive'} Stat EVs</label>
+            <input type="number" value={evs} onChange={event => setEVs(event.target.value)}/>
+          </InputRow>
+          
+          <InputRow>
+            <label>{offensiveMode ? 'Offensive' : 'Defensive'} Combat Stages</label>
+            <input type="number" value={combatStages} onChange={event => setCombatStages(event.target.value)}/>
+          </InputRow>
+
+          <InputSubheader>Move</InputSubheader>
+          <InputRow>
+            <label>Move Power</label>
+            <input type="number" value={movePower} onChange={event => setMovePower(event.target.value)}/>
+          </InputRow>
+
+          <InputRow>
+            <label>Type Effectiveness?</label>
+            <select value={typeEffectiveness} onChange={event => setTypeEffectiveness(event.target.value)}>
+              <option value={0.25}>&times;0.25</option>
+              <option value={0.5}>&times;0.5</option>
+              <option value={1}>&times;1</option>
+              <option value={2}>&times;2</option>
+              <option value={4}>&times;4</option>
+            </select>
+          </InputRow>
+
+          <InputRow>
+            <label>STAB?</label>
+            <Checkbox data-checked={stab} onClick={() => setSTAB(!stab)} />
+          </InputRow>
+
+          <InputRow>
+            <label>Weather Boosted?</label>
+            <Checkbox data-checked={weatherBoosted} onClick={() => setWeatherBoosted(!weatherBoosted)} />
+            <HelpText>Is this a Water-type move used during rain, or a Fire-type move used during harsh sunlight?</HelpText>
+          </InputRow>
+
+          <InputRow>
+            <label>Weather Reduced?</label>
+            <Checkbox data-checked={weatherReduced} onClick={() => setWeatherReduced(!weatherReduced)} />
+            <HelpText>Is this a Water-type move used during harsh sunlight, or a Fire-type move used during rain?</HelpText>
+          </InputRow>
+
+          <InputRow>
+            <label>Multi Target?</label>
+            <Checkbox data-checked={multiTarget} onClick={() => setMultiTarget(!multiTarget)} />
+            <HelpText>Only applicable to double and triple battles. Does not work for Gen 3.</HelpText>
+          </InputRow>
+
+          <InputRow>
+            <label>Other Modifier</label>
+            <input type="number" value={otherModifier} onChange={event => setOtherModifier(event.target.value)}/>
+            <HelpText>Any additional modifiers that aren't handled by Ranger.</HelpText>
+          </InputRow>
+
+          <InputSubheader>Opponent</InputSubheader>     
+          {!offensiveMode && (
+            <InputRow>
+              <label>Level</label>
+              <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
+            </InputRow>
+          )}
+          
+          <InputRow>
+            <label>{offensiveMode ? 'Defensive' : 'Offensive'} Stat</label>
+            <input type="number" value={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
+          </InputRow>
+
+          <InputRow>
+            <label>{offensiveMode ? 'Defensive' : 'Offensive'} Combat Stages</label>
+            <input type="number" value={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
+          </InputRow>
+        </InputSection>
+      </div>
+      <div>
+        <Header>
+          Results
+          <div>
+            <Button onClick={() => setDisplayExpanded(!displayExpanded)}>{displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
+            <Button onClick={() => setDisplayRolls(!displayRolls)}>{displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
+          </div>
+        </Header>
+        
+        {displayExpanded && <ExpandedDisplay results={results} displayRolls={displayRolls} />}
+        {!displayExpanded && <CompactDisplay results={results} displayRolls={displayRolls} />}
+      </div>
+    </Container>
   );
 }
-
-const Layout = styled.div`
-  display: grid;
-  width: 100vw;
-  height: 100vh;
-  grid-template-rows: 1fr max-content;
-`;
 
 const Container = styled.div`
   display: grid;
@@ -272,120 +255,5 @@ const Container = styled.div`
   
   & > div {
     padding: 1rem;
-  }
-`;
-
-const InputSection = styled.div`
-  display: grid;
-  grid-template-columns: max-content 1fr;
-`;
-
-const InputRow = styled.div`
-  display: contents;
-
-  & > label {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.5rem;
-    padding-right: 0.5rem;
-    font-weight: 700;
-    line-height: 1.75;
-  }
-
-  & > input {
-    border-radius: 0.25rem;
-    height: 2rem;
-    margin: 0 0 0.5rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #999;
-  }
-
-  & > select {
-    border-radius: 0.25rem;
-    height: 2rem;
-    margin: 0 0 0.5rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #999;
-  }
-`;
-
-const InputSubheader = styled.div`
-  grid-column: 1 / -1;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #666;
-  margin: 0.5rem 0;
-`;
-
-const HelpText = styled.div`
-  grid-column: 2;
-  font-size: 0.875rem;
-  font-style: italic;
-  color: #666;
-  margin: -0.5rem 0 0.5rem;
-`;
-
-const ResultsHeader = styled.h2`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1.25rem;
-  color: #333;
-  font-weight: 700;
-  margin: 0.5rem 0;
-`;
-
-const Button = styled.button`
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  margin: 0;
-  background-color: #30b878;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-
-  &:hover,
-  &:active {
-    background-color: #4ecf92;
-  }
-
-  & + & {
-    margin-left: 1rem;
-  }
-`;
-
-const Checkbox = styled.button`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: ${props => props['data-checked'] ? '#30b878' : 'transparent'};
-  border: ${props => props['data-checked'] ? 'none' : '1px solid #999'};
-  border-radius: 0.25rem;
-  margin: 0.25rem 0 0.75rem;
-  width: 1.5rem;
-  height: 1.5rem;
-
-  &::after {
-    content: '✓';
-    display: ${props => props['data-checked'] ? 'block' : 'none'};
-    font-size: 1rem;
-    font-weight: 700;
-    margin-top: -2px;
-    color: #fff;
-  }
-`;
-
-const Footer = styled.div`
-  padding: 0.5rem 0.75rem;
-  color: #fff;
-  background-color: #30b878;
-
-  & > a {
-    color: #bceaf5;
   }
 `;
