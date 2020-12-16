@@ -1,7 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
-import { Header, InputSection, InputRow, Checkbox, HelpText } from '../../components/Layout';
+import { Header, InputSection, InputRow, Button, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
+import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 
+function factorial(value, sum = 1) {
+  if (!value || value <= 1) return sum;
+
+  return factorial(value - 1, sum * value);
+}
 function parseRolls(values) {
   const result = values.split(',').map(value => Number(value.trim()));
 
@@ -11,67 +17,119 @@ function parseRolls(values) {
 }
 
 export default function Sum() {
-  const [rolls1, setRolls1] = useState('');
-  const [rolls2, setRolls2] = useState('');
+  const [rolls, setRolls] = useState(['', '']);
   const [hpThreshold, setHPThreshold] = useState(100);
   const [includeCrits, setIncludeCrits] = useState(false);
   const [critMultiplier, setCritMultiplier] = useState(2.0);
   const [critChanceDenominator, setCritChanceDenominator] = useState(16);
-  const [rolls1Adjusted, setRolls1Adjusted] = useState('');
-  const [rolls2Adjusted, setRolls2Adjusted] = useState('');
+  const [adjustedRolls, setAdjustedRolls] = useState(['', '']);
+
+  const handleUpdateRolls = useCallback((event, index) => {
+    const updatedRolls = [...rolls];
+
+    updatedRolls[index] = event.target.value;
+
+    setRolls(updatedRolls);
+  }, [rolls]);
+
+  const handleUpdateAdjustedRolls = useCallback((event, index) => {
+    const updatedAdjustedRolls = [...adjustedRolls];
+
+    updatedAdjustedRolls[index] = event.target.value;
+
+    setAdjustedRolls(updatedAdjustedRolls);
+  }, [adjustedRolls]);
+
+  const handleRemoveRoll = useCallback((index) => {
+    setRolls(rolls.filter((_value, rollIndex) => rollIndex !== index));
+    setAdjustedRolls(adjustedRolls.filter((_value, rollIndex) => rollIndex !== index));
+  }, [rolls, adjustedRolls]);
+
+  const handleAddRoll = useCallback(() => {
+    setRolls([...rolls, '']);
+    setAdjustedRolls([...adjustedRolls, '']);
+  }, [rolls, adjustedRolls]);
+
+  const combinationCount = useMemo(() => Math.pow(rolls.map(parseRolls)?.[0]?.length ?? 0, rolls.length), [rolls]);
 
   const results = useMemo(() => {
-    const values1 = parseRolls(rolls1);
-    const values2 = parseRolls(rolls2);
-    const values1Adjusted = parseRolls(rolls1Adjusted) || values1;
-    const values2Adjusted = parseRolls(rolls2Adjusted) || values2;
+    const values = rolls.map(parseRolls);
+    const adjustedValues = adjustedRolls.map(parseRolls);
 
-    if (values1 === null) return { valid: false, message: 'First damage roll input is invalid.' };
-    if (values2 === null) return { valid: false, message: 'Second damage roll input is invalid.' };
+    const invalidRollIndex = values.findIndex(roll => roll === null);
 
-    const {
-      successfulRolls,
-      successfulWithOneCrit,
-      successfulWithTwoCrits
-    } = values1.reduce((acc, value1, index1) => (
-      values2.reduce((acc2, value2, index2) => ({
-        successfulRolls: acc2.successfulRolls + (value1 + value2 >= hpThreshold ? 1 : 0),
-        successfulWithOneCrit:
-          acc2.successfulWithOneCrit + (values1Adjusted[index1] * critMultiplier + value2 >= hpThreshold || value1 + values2Adjusted[index2] * critMultiplier >= hpThreshold ? 1 : 0),
-        successfulWithTwoCrits:
-          acc2.successfulWithTwoCrits + (values1Adjusted[index1]  * critMultiplier + values2Adjusted[index2] * critMultiplier >= hpThreshold ? 1 : 0),
-      }), acc)
-    ), { successfulRolls: 0, successfulWithOneCrit: 0, successfulWithTwoCrits: 0 });
-  
-    const critChance = 1 / critChanceDenominator;
-    const noCritChance = 1 - critChance;
+    if (invalidRollIndex !== -1) return { valid: false, message: `Roll input is invalid: ${rolls[invalidRollIndex]}.` };
+
+    const valuesWithAdjustments = values.map((valueSet, index) => (
+      valueSet.slice(0, values[0].length).map((value, subIndex) => ({
+        value,
+        adjusted: adjustedValues[index]?.[subIndex] || value,
+        index,
+        subIndex,
+      }))
+    ));
     
-    const critlessSuccessOdds = (successfulRolls / 2.56) * Math.pow(noCritChance, 2);
-    const oneCritSuccessOdds = (successfulWithOneCrit / 2.56) * critChance * noCritChance * 2;
-    const twoCritSuccessOdds = (successfulWithTwoCrits / 2.56) * Math.pow(critChance, 2);
+    const results = [...new CartesianProduct(...valuesWithAdjustments)].reduce((critAcc, rolls) => [
+      ...critAcc,  
+      [...Array(rolls.length + 1).keys()].reduce((rollAcc, numCrits) => {
+        const combinations = numCrits === rolls.length + 1 ? [rolls] : [...new Combination(rolls, numCrits)];
+
+        const critSuccesses = combinations.reduce((critAcc, critValues) => {
+          const nonCritValues = rolls.filter(roll => !critValues.some(critRoll => critRoll.index === roll.index && critRoll.subIndex === roll.subIndex));
+
+          const nonCritDamage = nonCritValues.reduce((acc, { value }) => acc + value, 0);
+          const critDamage = critValues.reduce((acc, { value, adjusted }) => acc + Math.trunc((adjusted || value) * critMultiplier), 0);
+          
+          return critAcc + (nonCritDamage + critDamage >= hpThreshold ? 1 : 0);
+        }, 0);
+
+        return [
+          ...rollAcc, 
+          critSuccesses,
+        ];
+      }, [])
+    ], []);
+    
+    const summedResults = results.reduce((acc, rollResults) => (
+      rollResults.reduce((totals, successes, index) => {
+        totals[index] = (totals[index] || 0) + successes;
+
+        return totals;
+      }, acc)
+    ), []);
 
     return {
       valid: true,
-      successfulRolls,
-      successfulWithOneCrit,
-      successfulWithTwoCrits,
-      successfulCritPercentage: critlessSuccessOdds + oneCritSuccessOdds + twoCritSuccessOdds,
-    };
-  }, [rolls1, rolls2, hpThreshold, includeCrits, critMultiplier, critChanceDenominator, rolls1Adjusted, rolls2Adjusted]);
+      values: summedResults,
+    }
+  }, [rolls, hpThreshold, includeCrits, critMultiplier, critChanceDenominator, adjustedRolls]);
+
+  const critOdds = useMemo(() => {
+    const trialSize = rolls.length;
+    const critChance = 1 / critChanceDenominator;
+
+    return [...Array(rolls.length + 1).keys()].map(numCrits => ({
+      odds: Math.pow(critChance, numCrits) * Math.pow(1 - critChance, trialSize - numCrits),
+      binomialCoefficient: factorial(trialSize) / (factorial(numCrits) * factorial(trialSize - numCrits)),
+    }));
+  }, [rolls, critChanceDenominator]);
 
   return (
     <Container>
       <div>
         <Header>Damage Sum Calculator</Header>
         <InputSection>
-          <InputRow>
-            <label>First Damage Rolls</label>
-            <input value={rolls1} onChange={event => setRolls1(event.target.value)}/>
-          </InputRow>
-          <InputRow>
-            <label>Second Damage Rolls</label>
-            <input value={rolls2} onChange={event => setRolls2(event.target.value)}/>
-          </InputRow>
+          <InputSubheader>Damage Rolls</InputSubheader>
+          {rolls.map((roll, index) => (
+            <RemovableInputRow key={index}>
+              <input value={roll} onChange={event => handleUpdateRolls(event, index)} />
+              {index === 0 ? <div /> : <RemoveButton onClick={() => handleRemoveRoll(index)}>&mdash;</RemoveButton>}
+            </RemovableInputRow>
+          ))}
+          <AddRollRow>
+            <Button onClick={handleAddRoll}>+ Add Roll</Button>
+          </AddRollRow>
+
           <InputRow>
             <label>Target HP</label>
             <input value={hpThreshold} onChange={event => setHPThreshold(event.target.value)}/>
@@ -92,19 +150,21 @@ export default function Sum() {
                 <input value={critMultiplier} onChange={event => setCritMultiplier(event.target.value)}/>        
                 <HelpText>2.0 for Gen 2-5, 1.5 for Gen 6+</HelpText>
               </InputRow>
-              <InputRow>
-                <label>First Damage Rolls (Combat Stage Adjusted)</label>
-                <input value={rolls1Adjusted} onChange={event => setRolls1Adjusted(event.target.value)}/>
-                <HelpText>
-                  Critical hits ignore negative offensive combat stages and positive defensive combat stages. If
-                  this is relevant, you can provide the rolls with neutral combat stages and they will be used
-                  to calculate critical hits. If left blank, the standard rolls will be used.
-                </HelpText>
-              </InputRow>
-              <InputRow>
-                <label>Second Damage Rolls (Combat Stage Adjusted)</label>
-                <input value={rolls2Adjusted} onChange={event => setRolls2Adjusted(event.target.value)}/>
-              </InputRow>            
+              <InputSubheader>Adjusted Damage Rolls</InputSubheader>
+              <FullWidthHelpText>
+                Critical hits ignore negative offensive combat stages and positive defensive combat stages. If
+                this is relevant, you can provide the rolls with neutral combat stages and they will be used
+                to calculate critical hits. If left blank, the standard rolls will be used.
+              </FullWidthHelpText>
+              {rolls.map((_roll, index) => (
+                <FullWidthInputRow key={index}>
+                  <input
+                    value={adjustedRolls[index]}
+                    onChange={event => handleUpdateAdjustedRolls(event, index)}
+                    placeholder={rolls[index]}
+                  />
+                </FullWidthInputRow>
+              ))}     
             </>
           )}
 
@@ -116,16 +176,33 @@ export default function Sum() {
         {results.valid && (
           <>
             <div>
-              Of 256 possible {includeCrits && 'critless'} damage rolls,&nbsp;
-              <b>{results.successfulRolls} ({(results.successfulRolls / 2.56).toFixed(2)}%) </b>
+              Of {combinationCount} possible {includeCrits && 'critless'} damage rolls,&nbsp;
+              <b>{results.values[0]} ({(results.values[0] / combinationCount * 100).toFixed(2)}%) </b>
               deal at least {hpThreshold} damage.
             </div>
 
             {includeCrits && (
-              <CritData>
-                Including crits, <b>{results.successfulCritPercentage.toFixed(2)}%</b> of all
-                possible rolls deal at least {hpThreshold} damage.
-              </CritData>
+              <>
+                <CritData>
+                  Including crits,&nbsp;
+                  <b>{(results.values.reduce((acc, value, index) => acc + ((value / combinationCount) * critOdds[index]?.odds), 0) * 100).toFixed(2)}% </b>
+                  of all possible rolls deal at least {hpThreshold} damage.
+                </CritData>
+                <ResultsGrid>
+                  <ResultsGridHeader>
+                    <div>Number of crits</div>
+                    <div>Succesful combinations</div>
+                    <div>Odds</div>
+                  </ResultsGridHeader>
+                  {results.values.map((value, index) => (
+                    <ResultsRow key={index}>
+                      <div>{index}</div>
+                      <div>{results.values[index]} of {combinationCount * critOdds[index]?.binomialCoefficient}</div>
+                      <div>{((value / combinationCount) * critOdds[index]?.odds * 100).toFixed(2)}%</div>
+                    </ResultsRow>
+                  ))}
+                </ResultsGrid>
+              </>
             )}
           </>
         )}
@@ -144,5 +221,45 @@ const Container = styled.div`
 `;
 
 const CritData = styled.div`
-  margin-top: 1rem;
+  margin: 1rem 0;
+`;
+
+const FullWidthHelpText = styled(HelpText)`
+  grid-column: span 2;
+`;
+
+const FullWidthInputRow = styled(InputRow)`
+  display: block;
+  grid-column: 1 / -1;
+
+  & > input {
+    width: 100%;
+  }
+`;
+
+const AddRollRow = styled(FullWidthInputRow)`
+  margin-bottom: 1rem;
+`
+
+const RemovableInputRow = styled(FullWidthInputRow)`
+  display: flex;
+  align-items: center;
+  grid-column: span 2;
+
+  & > input {
+    min-width: 0;
+    flex-shrink: 1;
+    align-self: stretch;
+  }
+`;
+
+const RemoveButton = styled(Button)`
+  background-color: #c20d00;
+  margin: 0 0 0.5rem 1rem;
+  height: calc(100% - 0.5rem);
+
+  &:hover,
+  &:active {
+    background-color: #d4554c;
+  }
 `;
