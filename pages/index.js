@@ -1,8 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Button, Checkbox } from '../components/Layout';
+import { useParameterizedState } from '../utils/hooks';
+import { useRouter } from 'next/router';
 
 const NATURE_MODIFIERS = [
   {
@@ -57,23 +59,53 @@ function formatDamageRange(values) {
 }
 
 export default function Home() {
-  const [displayExpanded, setDisplayExpanded] = useState(false);
-  const [displayRolls, setDisplayRolls] = useState(false);
-  const [offensiveMode, setOffensiveMode] = useState(true);
+  const router = useRouter();
+
+  const [displayExpanded, setDisplayExpanded, resetDisplayExpanded] = useParameterizedState('expanded', false);
+  const [displayRolls, setDisplayRolls, resetDisplayRolls] = useParameterizedState('displayRolls', false);
+  const [offensiveMode, setOffensiveMode, resetOffensiveMode] = useParameterizedState('offensive', true);
   
-  const [level, setLevel] = useState(5);
-  const [baseStat, setBaseStat] = useState(20);
-  const [evs, setEVs] = useState(0);
-  const [combatStages, setCombatStages] = useState(0);
-  const [movePower, setMovePower] = useState(50);
-  const [typeEffectiveness, setTypeEffectiveness] = useState(1);
-  const [stab, setSTAB] = useState(false);
-  const [multiTarget, setMultiTarget] = useState(false);
-  const [weatherBoosted, setWeatherBoosted] = useState(false);
-  const [weatherReduced, setWeatherReduced] = useState(false);
-  const [otherModifier, setOtherModifier] = useState(1)
-  const [opponentStat, setOpponentStat] = useState(20);
-  const [opponentCombatStages, setOpponentCombatStages] = useState(0);
+  const [level, setLevel, resetLevel] = useParameterizedState('level', 5);
+  const [baseStat, setBaseStat, resetBaseStat] = useParameterizedState('baseStat', 20);
+  const [evs, setEVs, resetEVs] = useParameterizedState('evs', 0);
+  const [combatStages, setCombatStages, resetCombatStages] = useParameterizedState('combatStages', 0);
+  const [movePower, setMovePower, resetMovePower] = useParameterizedState('movePower', 50);
+  const [typeEffectiveness, setTypeEffectiveness, resetTypeEffectiveness] = useParameterizedState('typeEffectiveness', 1);
+  const [stab, setSTAB, resetSTAB] = useParameterizedState('stab', false);
+  const [multiTarget, setMultiTarget, resetMultiTarget] = useParameterizedState('multiTarget', false);
+  const [weatherBoosted, setWeatherBoosted, resetWeatherBoosted] = useParameterizedState('weatherBoosted', false);
+  const [weatherReduced, setWeatherReduced, resetWeatherReduced] = useParameterizedState('weatherReduced', false);
+  const [otherModifier, setOtherModifier, resetOtherModifier] = useParameterizedState('otherModifier', 1)
+  const [opponentStat, setOpponentStat, resetOpponentStat] = useParameterizedState('opponentStat', 20);
+  const [opponentCombatStages, setOpponentCombatStages, resetOpponentCombatStages] = useParameterizedState('opponentCombatStages', 0);
+
+  const handleResetValues = useCallback(() => {
+    resetDisplayExpanded();
+    resetDisplayRolls();
+    resetOffensiveMode();
+    resetLevel();
+    resetBaseStat();
+    resetEVs();
+    resetCombatStages();
+    resetMovePower();
+    resetTypeEffectiveness();
+    resetSTAB();
+    resetMultiTarget();
+    resetWeatherBoosted();
+    resetWeatherReduced();
+    resetOtherModifier();
+    resetOpponentStat();
+    resetOpponentCombatStages();
+
+    router.push(
+      {
+        pathname: router.pathname, 
+        query: {},
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [router]);
 
   const results = useMemo(() => {
     return NATURE_MODIFIERS.map(natureModifierData => {
@@ -138,9 +170,12 @@ export default function Home() {
       <div>
         <Header>
           {offensiveMode ? 'Offensive' : 'Defensive'} Range Calculator
-          <Button onClick={() => setOffensiveMode(!offensiveMode)}>
-            Calculate {offensiveMode ? 'Defensive' : 'Offensive'} Ranges
-          </Button>
+          <div>
+            <Button onClick={handleResetValues}>Reset</Button>
+            <Button onClick={() => setOffensiveMode(!offensiveMode)}>
+              Calculate {offensiveMode ? 'Defensive' : 'Offensive'} Ranges
+            </Button>
+          </div>
         </Header>
 
         <InputSection>
@@ -175,7 +210,7 @@ export default function Home() {
           </InputRow>
 
           <InputRow>
-            <label>Type Effectiveness?</label>
+            <label>Type Effectiveness</label>
             <select value={typeEffectiveness} onChange={event => setTypeEffectiveness(event.target.value)}>
               <option value={0.25}>&times;0.25</option>
               <option value={0.5}>&times;0.5</option>

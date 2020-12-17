@@ -2,6 +2,8 @@ import { useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { Header, InputSection, InputRow, Button, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
 import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
+import { useRouter } from 'next/router';
+import { useParameterizedState } from '../../utils/hooks';
 
 function factorial(value, sum = 1) {
   if (!value || value <= 1) return sum;
@@ -17,12 +19,32 @@ function parseRolls(values) {
 }
 
 export default function Sum() {
-  const [rolls, setRolls] = useState(['', '']);
-  const [hpThreshold, setHPThreshold] = useState(100);
-  const [includeCrits, setIncludeCrits] = useState(false);
-  const [critMultiplier, setCritMultiplier] = useState(2.0);
-  const [critChanceDenominator, setCritChanceDenominator] = useState(16);
-  const [adjustedRolls, setAdjustedRolls] = useState(['', '']);
+  const router = useRouter();
+
+  const [rolls, setRolls, resetRolls] = useParameterizedState('rolls', ['', '']);
+  const [hpThreshold, setHPThreshold, resetHPThreshold] = useParameterizedState('hpThreshold', 100);
+  const [includeCrits, setIncludeCrits, resetIncludeCrits] = useParameterizedState('includeCrits', false);
+  const [critMultiplier, setCritMultiplier, resetCritMultiplier] = useParameterizedState('critMultiplier', 2.0);
+  const [critChanceDenominator, setCritChanceDenominator, resetCritChanceDenominator] = useParameterizedState('critChanceDenominator', 16);
+  const [adjustedRolls, setAdjustedRolls, resetAdjustedRolls] = useParameterizedState('adjustedRolls', ['', '']);
+
+  const handleResetValues = useCallback(() => {
+    resetRolls();
+    resetHPThreshold();
+    resetIncludeCrits();
+    resetCritMultiplier();
+    resetCritChanceDenominator();
+    resetAdjustedRolls();
+
+    router.push(
+      {
+        pathname: router.pathname, 
+        query: {},
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [router]);
 
   const handleUpdateRolls = useCallback((event, index) => {
     const updatedRolls = [...rolls];
@@ -117,7 +139,12 @@ export default function Sum() {
   return (
     <Container>
       <div>
-        <Header>Damage Sum Calculator</Header>
+        <Header>
+          Damage Sum Calculator
+          <div>
+            <Button onClick={handleResetValues}>Reset</Button>
+          </div>
+        </Header>
         <InputSection>
           <InputSubheader>Damage Rolls</InputSubheader>
           {rolls.map((roll, index) => (
