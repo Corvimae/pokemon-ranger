@@ -1,14 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import { Button } from './Layout';
 
 export const ResultsDamageRow = ({ values }) => {
+
   const handleCopy = useCallback(() => {
-    navigator.permissions.query({ name: 'clipboard-write' }).then(result => {
-      if (result.state === 'granted' || result.state === 'prompt') {
-        navigator.clipboard.writeText(values.join(','));
-      }
-    });
+    const copyArea = document.createElement('textarea');
+
+    copyArea.textContent = values.join(',');
+    document.body.appendChild(copyArea);
+
+    copyArea.select();
+    document.execCommand("copy");
+    
+    document.body.removeChild(copyArea);
   }, [values]);
 
   return (
