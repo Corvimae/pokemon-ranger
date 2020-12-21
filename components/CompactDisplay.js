@@ -29,10 +29,13 @@ function combineIdenticalLines(results) {
 
 function formatIVRange(value) {
   if (!value) return 'x';
-  if(value.from === 0 && value.to === 31) return '#';
+  if (value.from === 0 && value.to === 31) return '#';
 
-  if(value.from === 0) return `${value.to}-`;
-  if(value.to === 31) return `${value.from}+`;
+
+  if  (value.from === 0) return `${value.to}${value.to === 0 ? '' : '-'}`;
+  if  (value.to === 31) return `${value.from}${value.from === 31 ? '' : '+'}`;
+
+  if (value.from === value.to) return value.from;
 
   return `${value.from}–${value.to}`;
 }

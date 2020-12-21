@@ -38,7 +38,7 @@ export function useParameterizedState(paramName, defaultValue) {
     if (JSON.stringify(normalizedValue) === JSON.stringify(defaultValue)) {
       updatedQueryParams = Object.entries(updatedQueryParams).filter(([key]) => key !== paramName).reduce((acc, [key, value]) => ({
         ...acc,
-        [key]: normalizedValue,
+        [key]: value,
       }), {});
     }
 
