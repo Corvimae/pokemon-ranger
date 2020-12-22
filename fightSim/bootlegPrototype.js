@@ -1,7 +1,8 @@
 import { Pokemon, Move } from './pokeClasses.js'
+import { FetchPokemonByName } from './dataFetchers.js'
 
-export let starly = new Pokemon(40, 55, 30, 30, 30, 60, ['Normal','Flying'], 5);
-starly.pokeName = 'Starly';
+let starly = new Pokemon(FetchPokemonByName('Starly', 5));
+/*starly.pokeName = 'Starly';
 
 starly.IVs['hp'] = 15;
 starly.IVs['attack'] = 15;
@@ -20,14 +21,14 @@ starly.moves[0] = new Move('physical', //category
     100, //accuracy
     0, //priority
     true //contact
-);
+);*/
 
-starly.moves[0].moveName = 'Tackle';
+//starly.moves[0].moveName = 'Tackle';
 
-export let lillipup = new Pokemon(45, 60, 45, 25, 45, 55, ['Normal'], 5);
-lillipup.pokeName = 'Lillipup';
+let lillipup = new Pokemon(FetchPokemonByName('Lillipup', 5));
+//lillipup.pokeName = 'Lillipup';
 
-export function BullyLillipup() {
+function BullyLillipup() {
     'use strict';
     console.log('Starly tackled Lillipup!');
     starly.moves[0].UseMove(null, starly, lillipup);
@@ -39,3 +40,6 @@ export function BullyLillipup() {
 };
 
 
+BullyLillipup();
+
+const debugDummy = 0;

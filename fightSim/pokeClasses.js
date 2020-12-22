@@ -1,29 +1,51 @@
 import { typeEnumerator, FetchTypeMatchup } from './typeMatrix.js';
-
-
+import { FetchMoveByName } from './dataFetchers.js'
 
 export class Pokemon {
-    constructor(baseHp, baseAttack, baseDefense, baseSpecialAttack, baseSpecialDefense, baseSpeed, type, generation) {
+    constructor(pokeJSON) {
         //this.IVs = new StatBlock([0, 31], [0, 31], [0, 31], [0, 31], [0, 31], [0, 31]);
-        this.IVs = new StatBlock(0, 0, 0, 0, 0, 0);
 
-        this.EVs = new StatBlock(0, 0, 0, 0, 0, 0);
+        //let pokeData = JSON.parse(pokeJson);
 
-        this.baseStats = new StatBlock(baseHp, baseAttack, baseDefense, baseSpecialAttack, baseSpecialDefense, baseSpeed);
+        this.IVs = new StatBlock(pokeJSON.IVs.hp, 
+            pokeJSON.IVs.attack, 
+            pokeJSON.IVs.defense, 
+            pokeJSON.IVs.specialAttack,
+            pokeJSON.IVs.specialDefense,
+            pokeJSON.IVs.speed);
 
-        this.nature = new StatBlock(1, 1, 1, 1, 1, 1);
+        this.EVs = new StatBlock(pokeJSON.EVs.hp,
+            pokeJSON.EVs.attack,
+            pokeJSON.EVs.defense,
+            pokeJSON.EVs.specialAttack,
+            pokeJSON.EVs.specialDefense,
+            pokeJSON.EVs.speed);
 
-        this.generation = generation
+        this.baseStats = new StatBlock(pokeJSON.baseStats.hp,
+            pokeJSON.baseStats.attack,
+            pokeJSON.baseStats.defense,
+            pokeJSON.baseStats.specialAttack,
+            pokeJSON.baseStats.specialDefense,
+            pokeJSON.baseStats.speed);
 
-        this.level = 2;
+        this.nature = new StatBlock(1,
+            pokeJSON.nature.attack,
+            pokeJSON.nature.defense,
+            pokeJSON.nature.specialAttack,
+            pokeJSON.nature.specialDefense,
+            pokeJSON.nature.speed);
+
+        this.generation = pokeJSON.generation
+
+        this.level = pokeJSON.level;
         // either [type] or [type, type]
-        this.type = type
+        this.type = pokeJSON.type
 
-        this.pokeName = null
+        this.pokeName = pokeJSON.pokeName
 
         //**** me abilities will be annoying to implement
-        this.ability = null;
-        this.item = null;
+        this.ability = pokeJSON.ability;
+        this.item = pokeJSON.item;
 
         this.actualStats = new StatBlock(this.CalcHP(this.generation),
             this.CalcStat(this.generation, 'attack'),
@@ -32,11 +54,15 @@ export class Pokemon {
             this.CalcStat(this.generation, 'specialDefense'),
             this.CalcStat(this.generation, 'speed'));
 
-        this.moves = [null, null, null, null];
+        //Implement Move Fetcher
+        this.moves = [(pokeJSON.moves[0] === null)? null : new Move(FetchMoveByName(pokeJSON.moves[0], this.generation)),
+            (pokeJSON.moves[1] === null)? null : new Move(FetchMoveByName(pokeJSON.moves[1], this.generation)),
+            (pokeJSON.moves[2] === null)? null : new Move(FetchMoveByName(pokeJSON.moves[2], this.generation)),
+            (pokeJSON.moves[3] === null)? null : new Move(FetchMoveByName(pokeJSON.moves[3], this.generation))];
 
 
         this.currentHp = this.actualStats['hp'];
-        this.persistentStatus = null;
+        this.persistentStatus = pokeJSON.persistentStatus;
         this.temporaryStatus = [];
 
         this.battleStages = new BattleStageManager();
@@ -94,7 +120,7 @@ export class Pokemon {
         //Here's where we can check for certain ability/item triggers. When that is set up at least.
 
         this.currentHp -= damage;
-        console.log(damage.toString() + ' was dealt!')
+        console.log(damage.toString() + ' damage was dealt!')
 
         if (this.currentHp <= 0) {
             this.currentHp = 0
@@ -229,33 +255,36 @@ export class EvAccStatStage {
 
 export class Move {
 
-    constructor(category, type, maxPP, power, accuracy, priority, contact) {
+    //constructor(category, type, maxPP, power, accuracy, priority, contact) {
+    constructor(moveJSON) {
 
-        this.category = category;
-        if (this.category === "physical") {
+
+        this.category = moveJSON.category;
+        /* if (this.category === "physical") {
             this.calcStats = ['attack', 'defense']
         } else if (this.category === "special") {
             this.calcStats = ['specialAttack', 'specialDefense']
         } else {
             this.calcStats = [null, null]
-        };
-        this.type = type;
-        this.maxPP = maxPP;
-        this.currentPP = maxPP;
-        this.power = power;
-        this.accuracy = accuracy;
-        this.priority = priority;
-        this.contact = contact;
-        this.moveName = null
+        }; */
+        this.calcStats = moveJSON.calcStats;
+        this.type = moveJSON.type;
+        this.maxPP = moveJSON.maxPP;
+        this.currentPP = moveJSON.currentPP;
+        this.power = moveJSON.power;
+        this.accuracy = moveJSON.accuracy;
+        this.priority = moveJSON.priority;
+        this.contact = moveJSON.contact;
+        this.moveName = moveJSON.moveName;
 
-        this.stabMulti = 1.5;
+        this.stabMulti = moveJSON.stabMulti;
 
         //[[self, allyNear, allyFar], [enemyAcross, enemyNear, enemyFar]]
-        this.targeting = [[null, null, null], [null, null, null]]
+        this.targeting = moveJSON.targeting;
 
         //Just gonna assume gen 5 for now since that's the current priority target
         //Remove this when this.CalcDamageMultiplier() is updated.
-        this.typeMatrix = FetchTypeMatchup(5)
+        this.typeMatrix = FetchTypeMatchup(5);
 
     };
 

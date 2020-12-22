@@ -1,0 +1,28 @@
+{
+    "category": "physical",
+    "calcStats": [
+        "attack",
+        "defense"
+    ],
+    "type": "Normal",
+    "maxPP": 35,
+    "currentPP": 35,
+    "power": 50,
+    "accuracy": 100,
+    "priority": 0,
+    "contact": true,
+    "moveName": "Tackle",
+    "stabMulti": 1.5,
+    "targeting": [
+        [
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null
+        ]
+    ]
+}
