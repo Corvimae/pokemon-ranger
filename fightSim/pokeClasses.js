@@ -1,4 +1,4 @@
-import { typeEnumerator, FetchTypeMatchup } from './typeMatrix.js';
+import { Move } from './moveClasses.js'
 import { FetchMoveByName } from './dataFetchers.js'
 
 export class Pokemon {
