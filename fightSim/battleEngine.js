@@ -56,3 +56,11 @@ class Listener{
     
 
 };
+
+class Event{
+
+    constructor(){
+
+    };
+
+};
