@@ -228,8 +228,8 @@ export class EvAccStatStage {
         return this.isEvasion ? this.multiplierMap[-this.stage + 6] : this.multiplierMap[this.stage + 6]
     };
 
-    static calcAccMultiplier(attackingPokemon, defendingPokemon, generation) {
-        if (generation < 3) {
+    static calcAccMultiplier(moveContext, attackingPokemon, defendingPokemon) {
+        if (moveContext.generation < 3) {
 
             return attackingPokemon.battleStages.accuracy.statMultiplier * defendingPokemon.evasion.statMultiplier;
 
