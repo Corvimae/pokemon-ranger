@@ -282,6 +282,11 @@ export class Move {
         //[[self, allyNear, allyFar], [enemyAcross, enemyNear, enemyFar]]
         this.targeting = moveJSON.targeting;
 
+        //All of the random rolls will be fed to the move through
+        //moveContext in class methods. Most moves need at least
+        //three rolls, accuracyCheck, critCheck, damageRange
+        this.randomRolls = moveJSON.randomRolls;
+
         //Just gonna assume gen 5 for now since that's the current priority target
         //Remove this when this.CalcDamageMultiplier() is updated.
         this.typeMatrix = FetchTypeMatchup(5);
