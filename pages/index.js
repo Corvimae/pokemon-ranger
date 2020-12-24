@@ -77,6 +77,7 @@ export default function Home() {
   const [weatherReduced, setWeatherReduced, resetWeatherReduced] = useParameterizedState('weatherReduced', false);
   const [otherModifier, setOtherModifier, resetOtherModifier] = useParameterizedState('otherModifier', 1)
   const [opponentStat, setOpponentStat, resetOpponentStat] = useParameterizedState('opponentStat', 20);
+  const [opponentLevel, setOpponentLevel, resetOpponentLevel] = useParameterizedState('opponentLevel', 5);
   const [opponentCombatStages, setOpponentCombatStages, resetOpponentCombatStages] = useParameterizedState('opponentCombatStages', 0);
 
   const handleResetValues = useCallback(() => {
@@ -96,6 +97,7 @@ export default function Home() {
     resetOtherModifier();
     resetOpponentStat();
     resetOpponentCombatStages();
+    resetOpponentLevel();
 
     router.push(
       {
@@ -105,7 +107,7 @@ export default function Home() {
       undefined,
       { shallow: true },
     );
-  }, [router]);
+  }, [router, resetDisplayExpanded, resetDisplayRolls, resetOffensiveMode, resetLevel, resetBaseStat, resetEVs, resetCombatStages, resetMovePower, resetTypeEffectiveness, resetTypeEffectiveness, resetSTAB, resetMultiTarget, resetWeatherBoosted, resetWeatherReduced, resetOtherModifier, resetOpponentStat, resetOpponentCombatStages, resetOpponentLevel]);
 
   const results = useMemo(() => {
     return NATURE_MODIFIERS.map(natureModifierData => {
@@ -139,7 +141,7 @@ export default function Home() {
           const opponentStatAdjusted = applyCombatStages(Number(opponentStat), Number(opponentCombatStages));
           
           const damageValues = calculateDamageValues(
-            level,
+            offensiveMode ? level : opponentLevel,
             movePower,
             offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
             offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
@@ -163,7 +165,7 @@ export default function Home() {
         }),
       };
     });
-  }, [level, baseStat, evs, movePower, typeEffectiveness, stab, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, offensiveMode]);
+  }, [level, baseStat, evs, movePower, typeEffectiveness, stab, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, opponentLevel, offensiveMode]);
 
   return (
     <Container>
@@ -181,12 +183,10 @@ export default function Home() {
         <InputSection>
           <InputSubheader>Pokémon</InputSubheader>
 
-          {offensiveMode && (
-            <InputRow>
-              <label>Level</label>
-              <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
-            </InputRow>
-          )}
+          <InputRow>
+            <label>Level</label>
+            <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
+          </InputRow>
           
           <InputRow>
             <label>{offensiveMode ? 'Offensive' : 'Defensive'} Base Stat</label>
@@ -253,7 +253,7 @@ export default function Home() {
           {!offensiveMode && (
             <InputRow>
               <label>Level</label>
-              <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
+              <input type="number" value={opponentLevel} onChange={event => setOpponentLevel(event.target.value)}/>
             </InputRow>
           )}
           
