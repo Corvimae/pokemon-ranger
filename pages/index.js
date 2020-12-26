@@ -33,12 +33,12 @@ function applyCombatStages(stat, combatStages) {
   return Math.floor(stat * (2 / (Math.abs(combatStages) + 2)));
 }
 
-function calculateDamageValues(level, power, attack, defense, modifiers) {
+function calculateDamageValues(level, power, attack, defense, preRandModifiers, postRandModifiers) {
   return [...Array(16).keys()].map(randomValue => {
     const levelModifier = Math.trunc(2 * Number(level) / 5) + 2;
     const baseDamage = Math.trunc(Math.floor(levelModifier * Number(power) * Number(attack) / Number(defense)) / 50) + 2;
 
-    return [(85 + randomValue) / 100, ...modifiers].reduce((acc, modifier) => (
+    return [...preRandModifiers, (85 + randomValue) / 100, ...postRandModifiers].reduce((acc, modifier) => (
       Math.trunc(acc * Number(modifier))
     ), baseDamage);
   });
@@ -143,12 +143,14 @@ export default function Home() {
             movePower,
             offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
             offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
-            [
-              typeEffectiveness,
-              stab ? 1.5 : 1,
+            [ 
               multiTarget ? 0.75 : 1,
               weatherBoosted ? 1.5 : 1,
-              weatherReduced ? 0.5 : 1,
+              weatherReduced ? 0.5 : 1
+            ],
+            [
+              stab ? 1.5 : 1,
+              typeEffectiveness,
               otherModifier
             ]
           );
