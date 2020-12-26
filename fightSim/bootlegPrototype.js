@@ -1,5 +1,7 @@
-import { Pokemon, Move } from './pokeClasses.js'
+import { Pokemon } from './pokeClasses.js'
+import { Move } from './moveClasses.js'
 import { FetchPokemonByName } from './dataFetchers.js'
+import { FetchMoveByName } from './dataFetchers.js'
 
 let starly = new Pokemon(FetchPokemonByName('Starly', 5));
 /*starly.pokeName = 'Starly';
@@ -28,10 +30,14 @@ starly.moves[0] = new Move('physical', //category
 let lillipup = new Pokemon(FetchPokemonByName('Lillipup', 5));
 //lillipup.pokeName = 'Lillipup';
 
+let moveContext = {
+    random : 1
+};
+
 function BullyLillipup() {
     'use strict';
     console.log('Starly tackled Lillipup!');
-    starly.moves[0].UseMove(null, starly, lillipup);
+    starly.moves[0].UseMove(moveContext, starly, lillipup);
 
     if (lillipup.currentHp <= 0) {
         console.log('A kind stranger has healed Lillipup to full!');

@@ -67,15 +67,17 @@ export class Move {
         //  Pretty sure these are the two biggest sources of variance between fights (IVs and ranges)
 
         const statRatio = attacker.EffectiveStat(this.calcStats[0]) / defender.EffectiveStat(this.calcStats[1]);
-        const random = (85 + Math.random() * 16) / 100;
+        //const random = (85 + Math.random() * 16) / 100;
 
         const baseDamage = (Math.floor(Math.floor((Math.floor(0.4 * attacker.level) + 2) * this.power * statRatio) / 50) + 2)
 
         //might want to do some sort of .reduce call on an array of multis from this.CalcDamageMultiplier to better mimic damage calcs in game
-        return Math.floor(baseDamage * this.CalcDamageMultiplier(moveContext, attacker, defender) * random)
+        return this.CalcDamageMultipliers(moveContext, attacker, defender).reduce(
+            (acc,currentMulti) => Math.floor(acc*currentMulti), 
+            baseDamage);
     };
 
-    CalcDamageMultiplier(moveContext, attacker, defender) {
+    CalcDamageMultipliers(moveContext, attacker, defender) {
         //Implement this.
         //Includes:
         //  Targets Gen III + : Gen III - 1 or 0.5, Gen IV+ 1 or 0.75
@@ -98,7 +100,7 @@ export class Move {
             1.0);
         console.log(typeEffect);
 
-        return stab*typeEffect
+        return [moveContext.random, stab, typeEffect]
     }
 
 };
