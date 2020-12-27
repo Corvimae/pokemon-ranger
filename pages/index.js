@@ -72,6 +72,7 @@ export default function Home() {
   const [movePower, setMovePower, resetMovePower] = useParameterizedState('movePower', 50);
   const [typeEffectiveness, setTypeEffectiveness, resetTypeEffectiveness] = useParameterizedState('typeEffectiveness', 1);
   const [stab, setSTAB, resetSTAB] = useParameterizedState('stab', false);
+  const [gen3, setGen3, resetGen3] = useParameterizedState('gen3', false);
   const [multiTarget, setMultiTarget, resetMultiTarget] = useParameterizedState('multiTarget', false);
   const [weatherBoosted, setWeatherBoosted, resetWeatherBoosted] = useParameterizedState('weatherBoosted', false);
   const [weatherReduced, setWeatherReduced, resetWeatherReduced] = useParameterizedState('weatherReduced', false);
@@ -91,6 +92,7 @@ export default function Home() {
     resetMovePower();
     resetTypeEffectiveness();
     resetSTAB();
+    resetGen3();
     resetMultiTarget();
     resetWeatherBoosted();
     resetWeatherReduced();
@@ -107,7 +109,7 @@ export default function Home() {
       undefined,
       { shallow: true },
     );
-  }, [router, resetDisplayExpanded, resetDisplayRolls, resetOffensiveMode, resetLevel, resetBaseStat, resetEVs, resetCombatStages, resetMovePower, resetTypeEffectiveness, resetTypeEffectiveness, resetSTAB, resetMultiTarget, resetWeatherBoosted, resetWeatherReduced, resetOtherModifier, resetOpponentStat, resetOpponentCombatStages, resetOpponentLevel]);
+  }, [router, resetDisplayExpanded, resetDisplayRolls, resetOffensiveMode, resetLevel, resetBaseStat, resetEVs, resetCombatStages, resetMovePower, resetTypeEffectiveness, resetTypeEffectiveness, resetSTAB, resetGen3, resetMultiTarget, resetWeatherBoosted, resetWeatherReduced, resetOtherModifier, resetOpponentStat, resetOpponentCombatStages, resetOpponentLevel]);
 
   const results = useMemo(() => {
     return NATURE_MODIFIERS.map(natureModifierData => {
@@ -140,19 +142,24 @@ export default function Home() {
           const playerStatAdjusted = applyCombatStages(Number(rangeSegment.stat), Number(combatStages));
           const opponentStatAdjusted = applyCombatStages(Number(opponentStat), Number(opponentCombatStages));
           
+          const stabAndTypeEffectivenessModifier = [
+            stab ? 1.5 : 1,
+            typeEffectiveness,
+          ];
+
           const damageValues = calculateDamageValues(
             offensiveMode ? level : opponentLevel,
             movePower,
             offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
             offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
             [ 
-              multiTarget ? 0.75 : 1,
+              multiTarget ? (gen3 ? 0.5 : 0.75) : 1,
               weatherBoosted ? 1.5 : 1,
-              weatherReduced ? 0.5 : 1
+              weatherReduced ? 0.5 : 1,
+              ...(gen3 ? stabAndTypeEffectivenessModifier : []),
             ],
             [
-              stab ? 1.5 : 1,
-              typeEffectiveness,
+              ...(gen3 ? [] : stabAndTypeEffectivenessModifier),
               otherModifier
             ]
           );
@@ -167,7 +174,7 @@ export default function Home() {
         }),
       };
     });
-  }, [level, baseStat, evs, movePower, typeEffectiveness, stab, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, opponentLevel, offensiveMode]);
+  }, [level, baseStat, evs, movePower, typeEffectiveness, stab, gen3, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, opponentLevel, offensiveMode]);
 
   return (
     <Container>
@@ -228,6 +235,12 @@ export default function Home() {
           </InputRow>
 
           <InputRow>
+            <label>Gen 3?</label>
+            <Checkbox data-checked={gen3} onClick={() => setGen3(!gen3)} />
+            <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula.</HelpText>
+          </InputRow>
+
+          <InputRow>
             <label>Weather Boosted?</label>
             <Checkbox data-checked={weatherBoosted} onClick={() => setWeatherBoosted(!weatherBoosted)} />
             <HelpText>Is this a Water-type move used during rain, or a Fire-type move used during harsh sunlight?</HelpText>
@@ -242,7 +255,7 @@ export default function Home() {
           <InputRow>
             <label>Multi Target?</label>
             <Checkbox data-checked={multiTarget} onClick={() => setMultiTarget(!multiTarget)} />
-            <HelpText>Only applicable to double and triple battles. Does not work for Gen 3.</HelpText>
+            <HelpText>Only applicable to double and triple battles. For Gen 3, only select this if using a move that targets all adjacent foes.</HelpText>
           </InputRow>
 
           <InputRow>
