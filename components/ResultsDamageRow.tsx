@@ -2,8 +2,11 @@ import React, { useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import { Button } from './Layout';
 
-export const ResultsDamageRow = ({ values }) => {
+interface ResultsDamageRowProps {
+  values: number[];
+};
 
+export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values }) => {
   const handleCopy = useCallback(() => {
     const copyArea = document.createElement('textarea');
 

@@ -115,7 +115,7 @@ export const Button = styled.button`
   }
 `;
 
-export const Checkbox = styled.button`
+export const Checkbox = styled.button<{ 'data-checked': boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;

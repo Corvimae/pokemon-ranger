@@ -1,8 +1,14 @@
 import React from 'react';
+import { NatureResult } from '../utils/calculations';
 import { ResultsGrid, ResultsGridHeader, ResultsRow, ResultsSubheader } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 
-export const ExpandedDisplay = ({ results, displayRolls }) => (
+interface ExpandedDisplayProps {
+  results: NatureResult[];
+  displayRolls: boolean;
+}
+
+export const ExpandedDisplay: React.FC<ExpandedDisplayProps> = ({ results, displayRolls }) => (
   <>
     {results.map(({ name, rangeSegments }) => (
       <React.Fragment key={name}>

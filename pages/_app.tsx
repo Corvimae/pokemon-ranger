@@ -3,8 +3,9 @@ import Head from 'next/head';
 import Link from 'next/link'
 
 import '../styles/globals.css'
+import { AppProps } from 'next/dist/next-server/lib/router/router';
 
-function Ranger({ Component, pageProps }) {
+function Ranger({ Component, pageProps }: AppProps) {
   return (
     <Layout>
       <Head>

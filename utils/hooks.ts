@@ -1,7 +1,11 @@
-import { useState, useCallback, useEffect, useRef, useReducer } from 'react';
+import { Reducer, Dispatch, useState, useCallback, useEffect, useRef, useReducer } from 'react';
 import { useRouter } from 'next/router';
 
-export function useParameterizedReducer(reducer, defaultState, setInitialState) {
+export function useParameterizedReducer<S extends Record<string, unknown>, A>(
+  reducer: Reducer<S, A>,
+  defaultState: S,
+  setInitialState: (state: S) => A,
+): [S, Dispatch<A>] {
   const router = useRouter();
   const hasSetInitialState = useRef(false);
   const previousQueryState = useRef(defaultState);
@@ -19,7 +23,7 @@ export function useParameterizedReducer(reducer, defaultState, setInitialState) 
             try {
               return {
                 ...acc,
-                [key]: JSON.parse(decodeURIComponent(value)),
+                [key]: JSON.parse(decodeURIComponent(value as string)),
               }
             } catch {
               return acc;
@@ -59,7 +63,7 @@ export function useParameterizedReducer(reducer, defaultState, setInitialState) 
   return [state, dispatch];
 }
 
-export function useParameterizedState(paramName, defaultValue) {
+export function useParameterizedState<T>(paramName: string, defaultValue: T): [T, (value: T) => void, () => void] {
   const router = useRouter();
   const hasSetInitialState = useRef(false);
 
@@ -74,7 +78,7 @@ export function useParameterizedState(paramName, defaultValue) {
         setState(defaultValue);
       } else {
         try {
-          setState(JSON.parse(decodeURIComponent(paramValue)));
+          setState(JSON.parse(decodeURIComponent(paramValue as string)));
         } catch {
           setState(defaultValue);
         }

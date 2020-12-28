@@ -1,16 +1,18 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { Header, InputSection, InputRow, Button, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
-import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
+import { Combination, CartesianProduct } from 'js-combinatorics';
 import { useRouter } from 'next/router';
 import { useParameterizedState } from '../../utils/hooks';
 
-function factorial(value, sum = 1) {
+type RollResults = { valid: false; message: string; } | { valid: true, values: number[] };
+
+function factorial(value: number, sum = 1): number {
   if (!value || value <= 1) return sum;
 
   return factorial(value - 1, sum * value);
 }
-function parseRolls(values) {
+function parseRolls(values: string): number[] | null {
   const result = values.split(',').map(value => Number(value.trim()));
 
   if (result.some(Number.isNaN) || !values.trim().length) return null;
@@ -74,7 +76,7 @@ export default function Sum() {
 
   const combinationCount = useMemo(() => Math.pow(rolls.map(parseRolls)?.[0]?.length ?? 0, rolls.length), [rolls]);
 
-  const results = useMemo(() => {
+  const results = useMemo<RollResults>(() => {
     const values = rolls.map(parseRolls);
     const adjustedValues = adjustedRolls.map(parseRolls);
 
@@ -83,7 +85,7 @@ export default function Sum() {
     if (invalidRollIndex !== -1) return { valid: false, message: `Roll input is invalid: ${rolls[invalidRollIndex]}.` };
 
     const valuesWithAdjustments = values.map((valueSet, index) => (
-      valueSet.slice(0, values[0].length).map((value, subIndex) => ({
+      (valueSet as number[]).slice(0, values[0]?.length).map((value, subIndex) => ({
         value,
         adjusted: adjustedValues[index]?.[subIndex] || value,
         index,
@@ -91,9 +93,9 @@ export default function Sum() {
       }))
     ));
     
-    const results = [...new CartesianProduct(...valuesWithAdjustments)].reduce((critAcc, rolls) => [
+    const results = [...new CartesianProduct(...valuesWithAdjustments)].reduce<number[][]>((critAcc, rolls) => [
       ...critAcc,  
-      [...Array(rolls.length + 1).keys()].reduce((rollAcc, numCrits) => {
+      [...Array(rolls.length + 1).keys()].reduce<number[]>((rollAcc, numCrits) => {
         const combinations = numCrits === rolls.length + 1 ? [rolls] : [...new Combination(rolls, numCrits)];
 
         const critSuccesses = combinations.reduce((critAcc, critValues) => {
@@ -159,7 +161,7 @@ export default function Sum() {
 
           <InputRow>
             <label>Target HP</label>
-            <input value={hpThreshold} onChange={event => setHPThreshold(event.target.value)}/>
+            <input value={hpThreshold} onChange={event => setHPThreshold(Number(event.target.value))}/>
           </InputRow>
           <InputRow>
             <label>Include Crits?</label>
@@ -169,12 +171,12 @@ export default function Sum() {
             <>
               <InputRow>
                 <label>Crit Chance Denominator</label>
-                <input value={critChanceDenominator} onChange={event => setCritChanceDenominator(event.target.value)}/>        
+                <input value={critChanceDenominator} onChange={event => setCritChanceDenominator(Number(event.target.value))}/>        
                 <HelpText>16 for Gen 2-6, 24 for Gen 7+</HelpText>
               </InputRow>
               <InputRow>
                 <label>Crit Multiplier</label>
-                <input value={critMultiplier} onChange={event => setCritMultiplier(event.target.value)}/>        
+                <input value={critMultiplier} onChange={event => setCritMultiplier(Number(event.target.value))}/>        
                 <HelpText>2.0 for Gen 2-5, 1.5 for Gen 6+</HelpText>
               </InputRow>
               <InputSubheader>Adjusted Damage Rolls</InputSubheader>
