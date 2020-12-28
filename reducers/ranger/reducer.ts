@@ -1,7 +1,7 @@
 import { useParameterizedReducer } from '../../utils/hooks';
 import { RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_DISPLAY_EXPANDED, SET_DISPLAY_ROLLS, SET_EVS, SET_GENERATION, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_STAB, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
 
-const defaultState = {
+const defaultState: RangerReducerState = {
   displayExpanded: false,
   displayRolls: false,
   offensiveMode: true,

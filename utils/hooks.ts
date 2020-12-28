@@ -1,7 +1,7 @@
 import { Reducer, Dispatch, useState, useCallback, useEffect, useRef, useReducer } from 'react';
 import { useRouter } from 'next/router';
 
-export function useParameterizedReducer<S extends Record<string, unknown>, A>(
+export function useParameterizedReducer<S, A>(
   reducer: Reducer<S, A>,
   defaultState: S,
   setInitialState: (state: S) => A,
@@ -37,7 +37,7 @@ export function useParameterizedReducer<S extends Record<string, unknown>, A>(
 
   useEffect(() => {
     if (hasSetInitialState.current && previousQueryState.current !== state)  {
-      const updatedQueryParams = Object.entries(state).reduce((acc, [key, value]) => {
+      const updatedQueryParams = (Object.entries(state) as [keyof S, unknown][]).reduce((acc, [key, value]) => {
         const normalizedValue = typeof defaultState[key] === 'number' ? Number(value) : value;
 
         if (JSON.stringify(normalizedValue) === JSON.stringify(defaultState[key])) {
