@@ -9,6 +9,7 @@ export const SET_MOVE_POWER = 'SET_MOVE_POWER';
 export const SET_TYPE_EFFECTIVENESS = 'SET_TYPE_EFFECTIVENESS';
 export const SET_STAB = 'SET_STAB';
 export const SET_GENERATION = 'SET_GENERATION';
+export const SET_CRITICAL_HIT = 'SET_CRITICAL_HIT';
 export const SET_MULTI_TARGET = 'SET_MULTI_TARGET';
 export const SET_WEATHER_BOOSTED = 'SET_WEATHER_BOOSTED';
 export const SET_WEATHER_REDUCED = 'SET_WEATHER_REDUCED';
@@ -32,6 +33,7 @@ export interface RangerReducerState {
   typeEffectiveness: number;
   stab: boolean;
   generation: number;
+  criticalHit: boolean;
   multiTarget: boolean;
   weatherBoosted: boolean;
   weatherReduced: boolean;
@@ -118,6 +120,13 @@ type SetGenerationAction = {
   };
 };
 
+type SetCriticalHitAction = {
+  type: typeof SET_CRITICAL_HIT;
+  payload: {
+    criticalHit: boolean;
+  };
+}
+
 type SetMultiTargetAction = {
   type: typeof SET_MULTI_TARGET;
   payload: {
@@ -188,6 +197,7 @@ export type RangerReducerAction =
   SetTypeEffectivenessAction |
   SetSTABAction |
   SetGenerationAction |
+  SetCriticalHitAction |
   SetMultiTargetAction |
   SetWeatherBoostedAction |
   SetWeatherReducedAction |

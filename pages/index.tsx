@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Button, Checkbox } from '../components/Layout';
-import { resetState, setBaseStat, setCombatStages, setDisplayExpanded, setDisplayRolls, setEVs, setGeneration, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayExpanded, setDisplayRolls, setEVs, setGeneration, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { calculateRanges } from '../utils/calculations';
 
 export default function Home() {
@@ -25,6 +25,7 @@ export default function Home() {
   const handleSetTypeEffectiveness = useCallback(event => dispatch(setTypeEffectiveness(Number(event.target.value))), [dispatch]);
   const handleSetSTAB = useCallback(() => dispatch(setSTAB(!state.stab)), [state.stab, dispatch]);
   const handleSetGeneration = useCallback(event => dispatch(setGeneration(Number(event.target.value))), [dispatch]);
+  const handleSetCriticalHit = useCallback(() => dispatch(setCriticalHit(!state.criticalHit)), [state.criticalHit, dispatch]);
   const handleSetMultiTarget = useCallback(() => dispatch(setMultiTarget(!state.multiTarget)), [state.multiTarget, dispatch]);
   const handleSetWeatherBoosted = useCallback(() => dispatch(setWeatherBoosted(!state.weatherBoosted)), [state.weatherBoosted, dispatch]);
   const handleSetWeatherReduced = useCallback(() => dispatch(setWeatherReduced(!state.weatherReduced)), [state.weatherReduced, dispatch]);
@@ -100,11 +101,18 @@ export default function Home() {
             <label>Generation</label>
             <select value={state.generation} onChange={handleSetGeneration}>
               <option value={3}>3</option>
-              <option value={4}>4&ndash;6</option>
+              <option value={4}>4&ndash;5</option>
               <option value={6}>6+</option>
             </select>
             <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula. Critical hits deal less damage in Gen 6+.</HelpText>
           </InputRow>
+
+          <InputRow>
+            <label>Critical Hit?</label>
+            <Checkbox data-checked={state.criticalHit} onClick={handleSetCriticalHit} />
+            <HelpText>Critical hits deal 2&times; damage in Gen 3&ndash;5 and 1.5&times; damage in Gen 6+.</HelpText>
+          </InputRow>
+
 
           <InputRow>
             <label>Weather Boosted?</label>
