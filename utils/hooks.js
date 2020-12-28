@@ -22,7 +22,6 @@ export function useParameterizedReducer(reducer, defaultState, setInitialState) 
                 [key]: JSON.parse(decodeURIComponent(value)),
               }
             } catch {
-              console.log('errorrrr');
               return acc;
             }
           }, defaultState)
