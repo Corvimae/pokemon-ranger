@@ -58,6 +58,7 @@ export interface CalculateRangesParameters {
   offensiveMode: boolean;
   movePower: number;
   criticalHit: boolean;
+  torrent: boolean;
   multiTarget: boolean;
   weatherBoosted: boolean;
   weatherReduced: boolean;
@@ -78,6 +79,7 @@ export function calculateRanges({
   offensiveMode,
   movePower,
   criticalHit,
+  torrent,
   multiTarget,
   weatherBoosted,
   weatherReduced,
@@ -123,12 +125,14 @@ export function calculateRanges({
         ];
 
         const critMultiplier = generation <= 5 ? 2.0 : 1.5;
+        const offensiveStat = offensiveMode ? playerStatAdjusted : opponentStatAdjusted;
+        const defensiveStat =  offensiveMode ? opponentStatAdjusted : playerStatAdjusted;
 
         const damageValues = calculateDamageValues(
           offensiveMode ? level : opponentLevel,
-          movePower,
-          offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
-          offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
+          torrent && generation <= 4 ? movePower * 1.5 : movePower,
+          torrent && generation >= 5 ? offensiveStat * 1.5 : offensiveStat,
+          defensiveStat,
           [ 
             multiTarget ? (generation === 3 ? 0.5 : 0.75) : 1,
             weatherBoosted ? 1.5 : 1,

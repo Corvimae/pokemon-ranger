@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Button, Checkbox } from '../components/Layout';
-import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayExpanded, setDisplayRolls, setEVs, setGeneration, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayExpanded, setDisplayRolls, setEVs, setGeneration, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { calculateRanges } from '../utils/calculations';
 
 export default function Home() {
@@ -26,6 +26,7 @@ export default function Home() {
   const handleSetSTAB = useCallback(() => dispatch(setSTAB(!state.stab)), [state.stab, dispatch]);
   const handleSetGeneration = useCallback(event => dispatch(setGeneration(Number(event.target.value))), [dispatch]);
   const handleSetCriticalHit = useCallback(() => dispatch(setCriticalHit(!state.criticalHit)), [state.criticalHit, dispatch]);
+  const handleSetTorrent = useCallback(() => dispatch(setTorrent(!state.torrent)), [state.torrent, dispatch]);
   const handleSetMultiTarget = useCallback(() => dispatch(setMultiTarget(!state.multiTarget)), [state.multiTarget, dispatch]);
   const handleSetWeatherBoosted = useCallback(() => dispatch(setWeatherBoosted(!state.weatherBoosted)), [state.weatherBoosted, dispatch]);
   const handleSetWeatherReduced = useCallback(() => dispatch(setWeatherReduced(!state.weatherReduced)), [state.weatherReduced, dispatch]);
@@ -100,9 +101,10 @@ export default function Home() {
           <InputRow>
             <label>Generation</label>
             <select value={state.generation} onChange={handleSetGeneration}>
-              <option value={3}>3</option>
-              <option value={4}>4&ndash;5</option>
-              <option value={6}>6+</option>
+              <option value={3}>3 (Ruby/Sapphire/Emerald)</option>
+              <option value={4}>4 (Diamond/Pearl/Platinum)</option>
+              <option value={5}>5 (Black/White and Black 2/White 2)</option>
+              <option value={6}>6+ (X/Y and beyond)</option>
             </select>
             <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula. Critical hits deal less damage in Gen 6+.</HelpText>
           </InputRow>
@@ -113,6 +115,11 @@ export default function Home() {
             <HelpText>Critical hits deal 2&times; damage in Gen 3&ndash;5 and 1.5&times; damage in Gen 6+.</HelpText>
           </InputRow>
 
+          <InputRow>
+            <label>Torrent/Overgrow/Blaze?</label>
+            <Checkbox data-checked={state.torrent} onClick={handleSetTorrent} />
+            <HelpText>These abilities double the base power in Gen 3&ndash;4, and boost Attack or Sp. Attack by 50% in Gen 5+.</HelpText>
+          </InputRow>
 
           <InputRow>
             <label>Weather Boosted?</label>

@@ -1,5 +1,5 @@
 import { useParameterizedReducer } from '../../utils/hooks';
-import { RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_EXPANDED, SET_DISPLAY_ROLLS, SET_EVS, SET_GENERATION, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_STAB, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
+import { RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_EXPANDED, SET_DISPLAY_ROLLS, SET_EVS, SET_GENERATION, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
 
 const defaultState: RangerReducerState = {
   displayExpanded: false,
@@ -14,6 +14,7 @@ const defaultState: RangerReducerState = {
   stab: false,
   generation: 4,
   criticalHit: false,
+  torrent: false,
   multiTarget: false,
   weatherBoosted: false,
   weatherReduced: false,
@@ -95,6 +96,12 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
       return {
         ...state,
         criticalHit: action.payload.criticalHit,
+      };
+
+    case SET_TORRENT:
+      return {
+        ...state,
+        torrent: action.payload.torrent,
       };
 
     case SET_MULTI_TARGET:
@@ -234,6 +241,13 @@ export function setCriticalHit(criticalHit: boolean): RangerReducerAction {
     type: SET_CRITICAL_HIT,
     payload: { criticalHit },
   }
+}
+
+export function setTorrent(torrent: boolean): RangerReducerAction {
+  return {
+    type: SET_TORRENT,
+    payload: { torrent },
+  };
 }
 
 export function setMultiTarget(multiTarget: boolean): RangerReducerAction {
