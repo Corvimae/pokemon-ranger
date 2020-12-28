@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Button, Checkbox } from '../components/Layout';
-import { useParameterizedState } from '../utils/hooks';
-import { useRouter } from 'next/router';
+import { resetState, setBaseStat, setCombatStages, setDisplayExpanded, setDisplayRolls, setEVs, setGeneration, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/rangerReducer';
 
 const NATURE_MODIFIERS = [
   {
@@ -59,57 +58,50 @@ function formatDamageRange(values) {
 }
 
 export default function Home() {
-  const router = useRouter();
-
-  const [displayExpanded, setDisplayExpanded, resetDisplayExpanded] = useParameterizedState('expanded', false);
-  const [displayRolls, setDisplayRolls, resetDisplayRolls] = useParameterizedState('displayRolls', false);
-  const [offensiveMode, setOffensiveMode, resetOffensiveMode] = useParameterizedState('offensive', true);
-  
-  const [level, setLevel, resetLevel] = useParameterizedState('level', 5);
-  const [baseStat, setBaseStat, resetBaseStat] = useParameterizedState('baseStat', 20);
-  const [evs, setEVs, resetEVs] = useParameterizedState('evs', 0);
-  const [combatStages, setCombatStages, resetCombatStages] = useParameterizedState('combatStages', 0);
-  const [movePower, setMovePower, resetMovePower] = useParameterizedState('movePower', 50);
-  const [typeEffectiveness, setTypeEffectiveness, resetTypeEffectiveness] = useParameterizedState('typeEffectiveness', 1);
-  const [stab, setSTAB, resetSTAB] = useParameterizedState('stab', false);
-  const [gen3, setGen3, resetGen3] = useParameterizedState('gen3', false);
-  const [multiTarget, setMultiTarget, resetMultiTarget] = useParameterizedState('multiTarget', false);
-  const [weatherBoosted, setWeatherBoosted, resetWeatherBoosted] = useParameterizedState('weatherBoosted', false);
-  const [weatherReduced, setWeatherReduced, resetWeatherReduced] = useParameterizedState('weatherReduced', false);
-  const [otherModifier, setOtherModifier, resetOtherModifier] = useParameterizedState('otherModifier', 1)
-  const [opponentStat, setOpponentStat, resetOpponentStat] = useParameterizedState('opponentStat', 20);
-  const [opponentLevel, setOpponentLevel, resetOpponentLevel] = useParameterizedState('opponentLevel', 5);
-  const [opponentCombatStages, setOpponentCombatStages, resetOpponentCombatStages] = useParameterizedState('opponentCombatStages', 0);
+  const [{
+    displayExpanded,
+    displayRolls,
+    offensiveMode,
+    level,
+    baseStat,
+    evs,
+    combatStages,
+    movePower,
+    typeEffectiveness,
+    stab,
+    generation,
+    multiTarget,
+    weatherBoosted,
+    weatherReduced,
+    otherModifier,
+    opponentStat,
+    opponentLevel,
+    opponentCombatStages,
+  }, dispatch] = useRangerReducer();
 
   const handleResetValues = useCallback(() => {
-    resetDisplayExpanded();
-    resetDisplayRolls();
-    resetOffensiveMode();
-    resetLevel();
-    resetBaseStat();
-    resetEVs();
-    resetCombatStages();
-    resetMovePower();
-    resetTypeEffectiveness();
-    resetSTAB();
-    resetGen3();
-    resetMultiTarget();
-    resetWeatherBoosted();
-    resetWeatherReduced();
-    resetOtherModifier();
-    resetOpponentStat();
-    resetOpponentCombatStages();
-    resetOpponentLevel();
+    dispatch(resetState());
+  }, [dispatch]);
 
-    router.push(
-      {
-        pathname: router.pathname, 
-        query: {},
-      },
-      undefined,
-      { shallow: true },
-    );
-  }, [router, resetDisplayExpanded, resetDisplayRolls, resetOffensiveMode, resetLevel, resetBaseStat, resetEVs, resetCombatStages, resetMovePower, resetTypeEffectiveness, resetTypeEffectiveness, resetSTAB, resetGen3, resetMultiTarget, resetWeatherBoosted, resetWeatherReduced, resetOtherModifier, resetOpponentStat, resetOpponentCombatStages, resetOpponentLevel]);
+  const handleSetDisplayExpanded = useCallback(() => dispatch(setDisplayExpanded(!displayExpanded)), [displayExpanded, dispatch]);
+  const handleSetDisplayRolls = useCallback(() => dispatch(setDisplayRolls(!displayRolls)), [displayRolls, dispatch]);
+  const handleSetOffensiveMode = useCallback(() => dispatch(setOffensiveMode(!offensiveMode)), [offensiveMode, dispatch]);
+
+  const handleSetLevel = useCallback(event => dispatch(setLevel(event.target.value)), [dispatch]);
+  const handleSetBaseStat = useCallback(event => dispatch(setBaseStat(event.target.value)), [dispatch]);
+  const handleSetEVs = useCallback(event => dispatch(setEVs(event.target.value)), [dispatch]);
+  const handleSetCombatStages = useCallback(event => dispatch(setCombatStages(event.target.value)), [dispatch]);
+  const handleSetMovePower = useCallback(event => dispatch(setMovePower(event.target.value)), [dispatch]);
+  const handleSetTypeEffectiveness = useCallback(event => dispatch(setTypeEffectiveness(event.target.value)), [dispatch]);
+  const handleSetSTAB = useCallback(() => dispatch(setSTAB(!stab)), [stab, dispatch]);
+  const handleSetGeneration = useCallback(event => dispatch(setGeneration(event.target.value)), [dispatch]);
+  const handleSetMultiTarget = useCallback(() => dispatch(setMultiTarget(!multiTarget)), [multiTarget, dispatch]);
+  const handleSetWeatherBoosted = useCallback(() => dispatch(setWeatherBoosted(!weatherBoosted)), [weatherBoosted, dispatch]);
+  const handleSetWeatherReduced = useCallback(() => dispatch(setWeatherReduced(!weatherReduced)), [weatherReduced, dispatch]);
+  const handleSetOtherModifier = useCallback(event => dispatch(setOtherModifier(event.target.value)), [dispatch]);
+  const handleSetOpponentStat = useCallback(event => dispatch(setOpponentStat(event.target.value)), [dispatch]);
+  const handleSetOpponentLevel = useCallback(event => dispatch(setOpponentLevel(event.target.value)), [dispatch]);
+  const handleSetOpponentCombatStages = useCallback(event => dispatch(setOpponentCombatStages(event.target.value)), [dispatch]);
 
   const results = useMemo(() => {
     return NATURE_MODIFIERS.map(natureModifierData => {
@@ -153,13 +145,13 @@ export default function Home() {
             offensiveMode ? playerStatAdjusted : opponentStatAdjusted,
             offensiveMode ? opponentStatAdjusted : playerStatAdjusted,
             [ 
-              multiTarget ? (gen3 ? 0.5 : 0.75) : 1,
+              multiTarget ? (generation === 3 ? 0.5 : 0.75) : 1,
               weatherBoosted ? 1.5 : 1,
               weatherReduced ? 0.5 : 1,
-              ...(gen3 ? stabAndTypeEffectivenessModifier : []),
+              ...(generation === 3 ? stabAndTypeEffectivenessModifier : []),
             ],
             [
-              ...(gen3 ? [] : stabAndTypeEffectivenessModifier),
+              ...(generation === 3 ? [] : stabAndTypeEffectivenessModifier),
               otherModifier
             ]
           );
@@ -174,7 +166,7 @@ export default function Home() {
         }),
       };
     });
-  }, [level, baseStat, evs, movePower, typeEffectiveness, stab, gen3, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, opponentLevel, offensiveMode]);
+  }, [level, baseStat, evs, movePower, typeEffectiveness, stab, generation, multiTarget, weatherBoosted, weatherReduced, otherModifier, opponentStat, combatStages, opponentCombatStages, opponentLevel, offensiveMode]);
 
   return (
     <Container>
@@ -183,7 +175,7 @@ export default function Home() {
           {offensiveMode ? 'Offensive' : 'Defensive'} Range Calculator
           <div>
             <Button onClick={handleResetValues}>Reset</Button>
-            <Button onClick={() => setOffensiveMode(!offensiveMode)}>
+            <Button onClick={handleSetOffensiveMode}>
               Calculate {offensiveMode ? 'Defensive' : 'Offensive'} Ranges
             </Button>
           </div>
@@ -194,33 +186,33 @@ export default function Home() {
 
           <InputRow>
             <label>Level</label>
-            <input type="number" value={level} onChange={event => setLevel(event.target.value)}/>
+            <input type="number" value={level} onChange={handleSetLevel}/>
           </InputRow>
           
           <InputRow>
             <label>{offensiveMode ? 'Offensive' : 'Defensive'} Base Stat</label>
-            <input type="number" value={baseStat} onChange={event => setBaseStat(event.target.value)}/>
+            <input type="number" value={baseStat} onChange={handleSetBaseStat}/>
           </InputRow>
           
           <InputRow>
             <label>{offensiveMode ? 'Offensive' : 'Defensive'} Stat EVs</label>
-            <input type="number" value={evs} onChange={event => setEVs(event.target.value)}/>
+            <input type="number" value={evs} onChange={handleSetEVs}/>
           </InputRow>
           
           <InputRow>
             <label>{offensiveMode ? 'Offensive' : 'Defensive'} Combat Stages</label>
-            <input type="number" value={combatStages} onChange={event => setCombatStages(event.target.value)}/>
+            <input type="number" value={combatStages} onChange={handleSetCombatStages}/>
           </InputRow>
 
           <InputSubheader>Move</InputSubheader>
           <InputRow>
             <label>Move Power</label>
-            <input type="number" value={movePower} onChange={event => setMovePower(event.target.value)}/>
+            <input type="number" value={movePower} onChange={handleSetMovePower}/>
           </InputRow>
 
           <InputRow>
             <label>Type Effectiveness</label>
-            <select value={typeEffectiveness} onChange={event => setTypeEffectiveness(event.target.value)}>
+            <select value={typeEffectiveness} onChange={handleSetTypeEffectiveness}>
               <option value={0.25}>&times;0.25</option>
               <option value={0.5}>&times;0.5</option>
               <option value={1}>&times;1</option>
@@ -231,36 +223,40 @@ export default function Home() {
 
           <InputRow>
             <label>STAB?</label>
-            <Checkbox data-checked={stab} onClick={() => setSTAB(!stab)} />
+            <Checkbox data-checked={stab} onClick={handleSetSTAB} />
           </InputRow>
 
           <InputRow>
-            <label>Gen 3?</label>
-            <Checkbox data-checked={gen3} onClick={() => setGen3(!gen3)} />
-            <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula.</HelpText>
+            <label>Generation</label>
+            <select value={generation} onChange={handleSetGeneration}>
+              <option value={3}>3</option>
+              <option value={4}>4&ndash;6</option>
+              <option value={6}>6+</option>
+            </select>
+            <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula. Critical hits deal less damage in Gen 6+.</HelpText>
           </InputRow>
 
           <InputRow>
             <label>Weather Boosted?</label>
-            <Checkbox data-checked={weatherBoosted} onClick={() => setWeatherBoosted(!weatherBoosted)} />
+            <Checkbox data-checked={weatherBoosted} onClick={handleSetWeatherBoosted} />
             <HelpText>Is this a Water-type move used during rain, or a Fire-type move used during harsh sunlight?</HelpText>
           </InputRow>
 
           <InputRow>
             <label>Weather Reduced?</label>
-            <Checkbox data-checked={weatherReduced} onClick={() => setWeatherReduced(!weatherReduced)} />
+            <Checkbox data-checked={weatherReduced} onClick={handleSetWeatherReduced} />
             <HelpText>Is this a Water-type move used during harsh sunlight, or a Fire-type move used during rain?</HelpText>
           </InputRow>
 
           <InputRow>
             <label>Multi Target?</label>
-            <Checkbox data-checked={multiTarget} onClick={() => setMultiTarget(!multiTarget)} />
+            <Checkbox data-checked={multiTarget} onClick={handleSetMultiTarget} />
             <HelpText>Only applicable to double and triple battles. For Gen 3, only select this if using a move that targets all adjacent foes.</HelpText>
           </InputRow>
 
           <InputRow>
             <label>Other Modifier</label>
-            <input type="number" value={otherModifier} onChange={event => setOtherModifier(event.target.value)}/>
+            <input type="number" value={otherModifier} onChange={handleSetOtherModifier}/>
             <HelpText>Any additional modifiers that aren't handled by Ranger.</HelpText>
           </InputRow>
 
@@ -268,18 +264,18 @@ export default function Home() {
           {!offensiveMode && (
             <InputRow>
               <label>Level</label>
-              <input type="number" value={opponentLevel} onChange={event => setOpponentLevel(event.target.value)}/>
+              <input type="number" value={opponentLevel} onChange={handleSetOpponentLevel} />
             </InputRow>
           )}
           
           <InputRow>
             <label>{offensiveMode ? 'Defensive' : 'Offensive'} Stat</label>
-            <input type="number" value={opponentStat} onChange={event => setOpponentStat(event.target.value)}/>
+            <input type="number" value={opponentStat} onChange={handleSetOpponentStat}/>
           </InputRow>
 
           <InputRow>
             <label>{offensiveMode ? 'Defensive' : 'Offensive'} Combat Stages</label>
-            <input type="number" value={opponentCombatStages} onChange={event => setOpponentCombatStages(event.target.value)}/>
+            <input type="number" value={opponentCombatStages} onChange={handleSetOpponentCombatStages}/>
           </InputRow>
         </InputSection>
       </div>
@@ -287,8 +283,8 @@ export default function Home() {
         <Header>
           Results
           <div>
-            <Button onClick={() => setDisplayExpanded(!displayExpanded)}>{displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
-            <Button onClick={() => setDisplayRolls(!displayRolls)}>{displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
+            <Button onClick={handleSetDisplayExpanded}>{displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
+            <Button onClick={handleSetDisplayRolls}>{displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
           </div>
         </Header>
         
