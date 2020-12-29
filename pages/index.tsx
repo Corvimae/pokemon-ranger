@@ -102,16 +102,25 @@ export default function Home() {
             <Checkbox data-checked={state.stab} onClick={handleSetSTAB} />
           </InputRow>
 
+          <InputSubheader>Opponent</InputSubheader>     
+          {!state.offensiveMode && (
+            <InputRow>
+              <label>Level</label>
+              <input type="number" value={state.opponentLevel} onChange={handleSetOpponentLevel} />
+            </InputRow>
+          )}
+          
           <InputRow>
-            <label>Generation</label>
-            <select value={state.generation} onChange={handleSetGeneration}>
-              <option value={3}>3 (Ruby/Sapphire/Emerald)</option>
-              <option value={4}>4 (Diamond/Pearl/Platinum)</option>
-              <option value={5}>5 (Black/White and Black 2/White 2)</option>
-              <option value={6}>6+ (X/Y and beyond)</option>
-            </select>
-            <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula. Critical hits deal less damage in Gen 6+.</HelpText>
+            <label>{opponentStatPrefix} Stat</label>
+            <input type="number" value={state.opponentStat} onChange={handleSetOpponentStat}/>
           </InputRow>
+
+          <InputRow>
+            <label>{opponentStatPrefix} Combat Stages</label>
+            <input type="number" value={state.opponentCombatStages} onChange={handleSetOpponentCombatStages}/>
+          </InputRow>
+
+          <InputSubheader>Modifiers</InputSubheader>
 
           <InputRow>
             <label>Critical Hit?</label>
@@ -149,22 +158,16 @@ export default function Home() {
             <HelpText>Any additional modifiers that aren't handled by Ranger.</HelpText>
           </InputRow>
 
-          <InputSubheader>Opponent</InputSubheader>     
-          {!state.offensiveMode && (
-            <InputRow>
-              <label>Level</label>
-              <input type="number" value={state.opponentLevel} onChange={handleSetOpponentLevel} />
-            </InputRow>
-          )}
-          
+          <InputSubheader>Settings</InputSubheader>
           <InputRow>
-            <label>{opponentStatPrefix} Stat</label>
-            <input type="number" value={state.opponentStat} onChange={handleSetOpponentStat}/>
-          </InputRow>
-
-          <InputRow>
-            <label>{opponentStatPrefix} Combat Stages</label>
-            <input type="number" value={state.opponentCombatStages} onChange={handleSetOpponentCombatStages}/>
+            <label>Generation</label>
+            <select value={state.generation} onChange={handleSetGeneration}>
+              <option value={3}>3 (Ruby/Sapphire/Emerald)</option>
+              <option value={4}>4 (Diamond/Pearl/Platinum)</option>
+              <option value={5}>5 (Black/White and Black 2/White 2)</option>
+              <option value={6}>6+ (X/Y and beyond)</option>
+            </select>
+            <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula. Critical hits deal less damage in Gen 6+.</HelpText>
           </InputRow>
         </InputSection>
       </div>
