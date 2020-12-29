@@ -55,7 +55,7 @@ export const InputRow = styled.div`
     margin-bottom: 0.5rem;
     padding-right: 0.5rem;
     font-weight: 700;
-    line-height: 1.75;
+    line-height: 2;
   }
 
   & > input {
@@ -105,9 +105,13 @@ export const Button = styled.button`
   font-weight: 700;
   cursor: pointer;
 
-  &:hover,
-  &:active {
+  &:not(:disabled):hover,
+  &:not(:disabled):active {
     background-color: #4ecf92;
+  }
+
+  &:disabled {
+    opacity: 0.5;
   }
 
   & + & {

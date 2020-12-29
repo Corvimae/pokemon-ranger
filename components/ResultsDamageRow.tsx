@@ -4,9 +4,10 @@ import { Button } from './Layout';
 
 interface ResultsDamageRowProps {
   values: number[];
+  className?: string;
 };
 
-export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values }) => {
+export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values, className }) => {
   const handleCopy = useCallback(() => {
     const copyArea = document.createElement('textarea');
 
@@ -20,7 +21,7 @@ export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values }) =>
   }, [values]);
 
   return (
-    <Container>
+    <Container className={className}>
       {values.join(', ')}
       <CopyButton onClick={handleCopy}>Copy</CopyButton>
     </Container>

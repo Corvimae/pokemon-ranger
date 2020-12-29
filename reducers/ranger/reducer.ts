@@ -1,8 +1,8 @@
 import { useParameterizedReducer } from '../../utils/hooks';
-import { RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_EXPANDED, SET_DISPLAY_ROLLS, SET_EVS, SET_GENERATION, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
+import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
 
 const defaultState: RangerReducerState = {
-  displayExpanded: false,
+  displayMode: 'compact',
   displayRolls: false,
   offensiveMode: true,
   level: 5,
@@ -22,14 +22,15 @@ const defaultState: RangerReducerState = {
   opponentStat: 20,
   opponentLevel: 5,
   opponentCombatStages: 0,
+  healthThreshold: 50,
 };
 
 const reducer = (state: RangerReducerState, action: RangerReducerAction): RangerReducerState => {
   switch (action.type) {
-    case SET_DISPLAY_EXPANDED:
+    case SET_DISPLAY_MODE:
       return {
         ...state,
-        displayExpanded: action.payload.displayExpanded,
+        displayMode: action.payload.displayMode,
       };
 
     case SET_DISPLAY_ROLLS:
@@ -146,6 +147,12 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
         opponentCombatStages: action.payload.opponentCombatStages
       };
 
+    case SET_HEALTH_THRESHOLD:
+      return {
+        ...state,
+        healthThreshold: action.payload.healthThreshold,
+      }
+
     case SET_INITIAL_STATE:
       return { ...action.payload };  
 
@@ -159,10 +166,10 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
 
 export const useRangerReducer = () => useParameterizedReducer(reducer, defaultState, setInitialState);
 
-export function setDisplayExpanded(displayExpanded: boolean): RangerReducerAction {
+export function setDisplayMode(displayMode: DisplayMode): RangerReducerAction {
   return {
-    type: SET_DISPLAY_EXPANDED,
-    payload: { displayExpanded },
+    type: SET_DISPLAY_MODE,
+    payload: { displayMode },
   };
 }
 
@@ -183,35 +190,35 @@ export function setOffensiveMode(offensiveMode: boolean): RangerReducerAction {
 export function setLevel(level: number): RangerReducerAction {
   return {
     type: SET_LEVEL,
-    payload: { level: Number(level) },
+    payload: { level },
   };
 }
 
 export function setBaseStat(baseStat: number): RangerReducerAction {
   return {
     type: SET_BASE_STAT,
-    payload: { baseStat: Number(baseStat) },
+    payload: { baseStat },
   };
 }
 
 export function setEVs(evs: number): RangerReducerAction {
   return {
     type: SET_EVS,
-    payload: { evs: Number(evs) },
+    payload: { evs },
   };
 }
 
 export function setCombatStages(combatStages: number): RangerReducerAction {
   return {
     type: SET_COMBAT_STAGES,
-    payload: { combatStages: Number(combatStages) },
+    payload: { combatStages },
   };
 }
 
 export function setMovePower(movePower: number): RangerReducerAction {
   return {
     type: SET_MOVE_POWER,
-    payload: { movePower: Number(movePower) },
+    payload: { movePower },
   };
 }
 
@@ -274,29 +281,36 @@ export function setWeatherReduced(weatherReduced: boolean): RangerReducerAction 
 export function setOtherModifier(otherModifier: number): RangerReducerAction {
   return {
     type: SET_OTHER_MODIFIER,
-    payload: { otherModifier: Number(otherModifier) },
+    payload: { otherModifier },
   };
 }
 
 export function setOpponentStat(opponentStat: number): RangerReducerAction {
   return {
     type: SET_OPPONENT_STAT,
-    payload: { opponentStat: Number(opponentStat) },
+    payload: { opponentStat },
   };
 }
 
 export function setOpponentLevel(opponentLevel: number): RangerReducerAction {
   return {
     type: SET_OPPONENT_LEVEL,
-    payload: { opponentLevel: Number(opponentLevel) },
+    payload: { opponentLevel },
   };
 }
 
 export function setOpponentCombatStages(opponentCombatStages: number): RangerReducerAction {
   return {
     type: SET_OPPONENT_COMBAT_STAGES,
-    payload: { opponentCombatStages: Number(opponentCombatStages) },
+    payload: { opponentCombatStages },
   };
+}
+
+export function setHealthThreshold(healthThreshold: number): RangerReducerAction {
+  return {
+    type: SET_HEALTH_THRESHOLD,
+    payload: { healthThreshold },
+  }
 }
 
 export function setInitialState(state: RangerReducerState): RangerReducerAction {

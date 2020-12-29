@@ -21,6 +21,16 @@ export interface NatureResult {
   rangeSegments: RangeResult[];
 }
 
+export interface CompactRange extends RangeResult {
+  statFrom: number;
+  statTo: number;
+  negative: StatRange;
+  neutral: StatRange;
+  positive: StatRange;
+}
+
+export type NatureKey = 'negative' | 'neutral' | 'positive';
+
 export const NATURE_MODIFIERS: NatureModifier[] = [
   {
     name: 'Negative Nature',
@@ -176,6 +186,17 @@ export function calculateDamageValues(
   });
 }
 
+export function mergeStatRanges(a: StatRange | undefined, b: StatRange): StatRange {
+  if (!a) return b;
+  if (!b) return a;
+
+  return {
+    stat: -1,
+    from: Math.min(a.from, b.from),
+    to: Math.max(a.to, b.to),
+  };
+}
+
 export function formatDamageRange(values: number[]): string {
   const firstValue = values[0];
   const secondValue = values[1];
@@ -188,4 +209,47 @@ export function formatDamageRange(values: number[]): string {
   const highExtreme = secondToLastValue !== lastValue && lastValue;
 
   return `${lowExtreme ? `(${lowExtreme}) / ` : ''} ${secondValue === secondToLastValue ? secondValue : `${secondValue}–${secondToLastValue}`} ${highExtreme ? `/ (${highExtreme})` : ''}`;
+}
+
+export function combineIdenticalLines(results: NatureResult[]): Record<string, CompactRange> {
+  const [negative, neutral, positive] = results;
+
+  return (Object.entries({ negative, neutral, positive }) as [NatureKey, NatureResult][])
+    .reduce<Record<string, CompactRange>>((output, [key, { rangeSegments }]) => (
+      rangeSegments.reduce((acc, result) => {
+        const currentValue = acc[result.damageRangeOutput];
+
+        return {
+          ...acc,
+          [result.damageRangeOutput]: {
+            ...currentValue,
+            damageValues: result.damageValues,
+            statFrom: currentValue?.statFrom ?? result.stat,
+            statTo: result.stat,
+            [key]: {
+              ...currentValue?.[key],
+              from: (currentValue || {})[key]?.from ?? result.from,
+              to: result.to,
+            }
+          },
+        }
+      }, output)
+    ), {});
+}
+
+export function formatIVRange(value: StatRange): string {
+  if (!value) return 'x';
+  if (value.from === 0 && value.to === 31) return '#';
+
+
+  if  (value.from === 0) return `${value.to}${value.to === 0 ? '' : '-'}`;
+  if  (value.to === 31) return `${value.from}${value.from === 31 ? '' : '+'}`;
+
+  if (value.from === value.to) return `${value.from}`;
+
+  return `${value.from}–${value.to}`;
+}
+
+export function formatStatRange(from: number, to: number): string {
+  return from === to ? `${from}` : `${from}–${to}`;
 }

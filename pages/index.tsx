@@ -3,8 +3,11 @@ import styled from 'styled-components';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Button, Checkbox } from '../components/Layout';
-import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayExpanded, setDisplayRolls, setEVs, setGeneration, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { calculateRanges } from '../utils/calculations';
+import { OneShotDisplay } from '../components/OneShotDisplay';
+import { DisplayMode } from '../reducers/ranger/types';
+import { DisplayModeToggle } from '../components/DisplayModeToggle';
 
 export default function Home() {
   const [state, dispatch] = useRangerReducer();
@@ -13,7 +16,7 @@ export default function Home() {
     dispatch(resetState());
   }, [dispatch]);
 
-  const handleSetDisplayExpanded = useCallback(() => dispatch(setDisplayExpanded(!state.displayExpanded)), [state.displayExpanded, dispatch]);
+  const handleSetDisplayMode = useCallback((mode: DisplayMode) => dispatch(setDisplayMode(mode)), [dispatch]);
   const handleSetDisplayRolls = useCallback(() => dispatch(setDisplayRolls(!state.displayRolls)), [state.displayRolls, dispatch]);
   const handleSetOffensiveMode = useCallback(() => dispatch(setOffensiveMode(!state.offensiveMode)), [state.offensiveMode, dispatch]);
 
@@ -34,6 +37,7 @@ export default function Home() {
   const handleSetOpponentStat = useCallback(event => dispatch(setOpponentStat(Number(event.target.value))), [dispatch]);
   const handleSetOpponentLevel = useCallback(event => dispatch(setOpponentLevel(Number(event.target.value))), [dispatch]);
   const handleSetOpponentCombatStages = useCallback(event => dispatch(setOpponentCombatStages(Number(event.target.value))), [dispatch]);
+  const handleSetHealthThreshold = useCallback(event => dispatch(setHealthThreshold(Number(event.target.value))), [dispatch]);
 
   const results = useMemo(() => calculateRanges(state), [state]);
 
@@ -168,13 +172,21 @@ export default function Home() {
         <Header>
           Results
           <div>
-            <Button onClick={handleSetDisplayExpanded}>{state.displayExpanded ? 'Show Compact' : 'Show Expanded'}</Button>
+            <DisplayModeToggle displayMode={state.displayMode} setDisplayMode={handleSetDisplayMode} />
             <Button onClick={handleSetDisplayRolls}>{state.displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
           </div>
         </Header>
-        
-        {state.displayExpanded && <ExpandedDisplay results={results} displayRolls={state.displayRolls} />}
-        {!state.displayExpanded && <CompactDisplay results={results} displayRolls={state.displayRolls} />}
+
+        {state.displayMode === 'expanded' && <ExpandedDisplay results={results} displayRolls={state.displayRolls} />}
+        {state.displayMode === 'compact' && <CompactDisplay results={results} displayRolls={state.displayRolls} />}
+        {state.displayMode === 'ohko' && (
+          <OneShotDisplay
+            results={results}
+            healthThreshold={state.healthThreshold}
+            setHealthThreshold={handleSetHealthThreshold}
+            displayRolls={state.displayRolls}
+          />
+        )}
       </div>
     </Container>
   );

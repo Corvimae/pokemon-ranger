@@ -1,4 +1,6 @@
-export const SET_DISPLAY_EXPANDED = 'SET_DISPLAY_EXPANDED';
+export const DISPLAY_MODES = ['expanded', 'compact', 'ohko'] as const;
+
+export const SET_DISPLAY_MODE = 'SET_DISPLAY_MODE';
 export const SET_DISPLAY_ROLLS = 'SET_DISPLAY_ROLLS';
 export const SET_OFFENSIVE_MODE = 'SET_OFFENSIVE_MODE';
 export const SET_LEVEL = 'SET_LEVEL';
@@ -18,12 +20,15 @@ export const SET_OTHER_MODIFIER = 'SET_OTHER_MODIFIER';
 export const SET_OPPONENT_STAT = 'SET_OPPONENT_STAT';
 export const SET_OPPONENT_LEVEL = 'SET_OPPONENT_LEVEL'
 export const SET_OPPONENT_COMBAT_STAGES = 'SET_OPPONENT_COMBAT_STAGES';
+export const SET_HEALTH_THRESHOLD = 'SET_HEALTH_THRESHOLD';
 
 export const SET_INITIAL_STATE = 'SET_INITIAL_STATE';
 export const RESET_STATE = 'RESET_STATE';
 
+export type DisplayMode = typeof DISPLAY_MODES[number];
+
 export interface RangerReducerState {
-  displayExpanded: boolean;
+  displayMode: DisplayMode;
   displayRolls: boolean;
   offensiveMode: boolean;
   level: number;
@@ -43,12 +48,13 @@ export interface RangerReducerState {
   opponentStat: number;
   opponentLevel: number;
   opponentCombatStages: number;
+  healthThreshold: number;
 }
 
-type SetDisplayExpandedAction = {
-  type: typeof SET_DISPLAY_EXPANDED,
+type SetDisplayModeAction = {
+  type: typeof SET_DISPLAY_MODE,
   payload: {
-    displayExpanded: boolean;
+    displayMode: DisplayMode;
   };
 };
 
@@ -185,6 +191,13 @@ type SetOpponentCombatStagesAction = {
   };
 };
 
+type SetHealthThresholdAction = {
+  type: typeof SET_HEALTH_THRESHOLD;
+  payload: {
+    healthThreshold: number;
+  };
+};
+
 type ResetStateAction = {
   type: typeof RESET_STATE;
 }
@@ -195,7 +208,7 @@ type SetInitialStateAction = {
 };
 
 export type RangerReducerAction = 
-  SetDisplayExpandedAction |
+  SetDisplayModeAction |
   SetDisplayRollsAction |
   SetOffensiveModeAction |
   SetLevelAction |
@@ -215,5 +228,6 @@ export type RangerReducerAction =
   SetOpponentStatAction |
   SetOpponentLevelAction |
   SetOpponentCombatStagesAction |
+  SetHealthThresholdAction |
   ResetStateAction |
   SetInitialStateAction;
