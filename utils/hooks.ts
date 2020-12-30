@@ -156,7 +156,7 @@ export function useGridCopy(ref: React.RefObject<HTMLElement>) {
             const cellContents = element.textContent?.trim() ?? '';
             
             if (element.getAttribute('data-range-merge')) {
-              return [...remainingSegments, (lastSegment ?? '') + cellContents];
+              return [...remainingSegments, `${(lastSegment ?? '')} ${cellContents}`];
             } else {
               return [...acc, cellContents];
             }
@@ -165,7 +165,11 @@ export function useGridCopy(ref: React.RefObject<HTMLElement>) {
           return mergedLineContents.join('\t\t\t');
         }).join('\n');
 
-        navigator.clipboard.writeText(text);
+        try {
+          navigator.clipboard.writeText(text);
+        } catch (e) {
+          console.log('Unable to copy to clipboard: ', e);
+        }
       }
     };
 
