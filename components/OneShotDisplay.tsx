@@ -1,6 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import styled from 'styled-components';
-import { combineIdenticalLines, CompactRange, formatIVRange, formatStatRange, mergeStatRanges, NatureResult, StatRange } from '../utils/calculations';
+import { combineIdenticalLines, CompactRange, mergeStatRanges, NatureResult, StatRange } from '../utils/calculations';
+import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
 import { useGridCopy } from '../utils/hooks';
 import { InputRow, ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
