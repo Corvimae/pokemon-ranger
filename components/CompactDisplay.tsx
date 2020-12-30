@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { combineIdenticalLines, formatIVRange, formatStatRange, NatureResult } from '../utils/calculations';
+import { useGridCopy } from '../utils/hooks';
 import { ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 
@@ -9,10 +10,13 @@ interface CompactDisplayProps {
 }
 
 export const CompactDisplay: React.FC<CompactDisplayProps> = ({ results, displayRolls }) => {
+  const gridRef = useRef<HTMLDivElement>(null);
   const compactedResults = useMemo(() => combineIdenticalLines(results), [results]);
 
+  useGridCopy(gridRef);
+
   return (
-    <ResultsGrid>
+    <ResultsGrid ref={gridRef}>
       <ResultsGridHeader>
         <div>IVs</div>
         <div>Stat</div>

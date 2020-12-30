@@ -1,5 +1,7 @@
 import { Reducer, Dispatch, useState, useCallback, useEffect, useRef, useReducer } from 'react';
 import { useRouter } from 'next/router';
+import { hasParentElement, splitOnLastElement } from './utils';
+import { browser } from 'process';
 
 export function useParameterizedReducer<S, A>(
   reducer: Reducer<S, A>,
@@ -119,4 +121,58 @@ export function useParameterizedState<T>(paramName: string, defaultValue: T): [T
   }, [defaultValue]);
 
   return [state, updateState, resetState];
+}
+
+export function useGridCopy(ref: React.RefObject<HTMLElement>) {
+  useEffect(() => {
+    const handleCopy = (event: ClipboardEvent) => {
+      event.stopPropagation();
+      event.preventDefault();
+      
+      if(ref.current && event.target instanceof HTMLElement && hasParentElement(event.target, ref.current)) {
+        const selection = window.getSelection();
+        const range = selection?.getRangeAt(0);
+        const elementsFromAncestorSelections = (range?.commonAncestorContainer as Element).getElementsByTagName('*');
+
+        const allSelectedElements = Array.from(elementsFromAncestorSelections).reduce<Element[]>((elements, element) => {
+          const excluded = element.getAttribute('data-range-excluded');
+          
+          return selection?.containsNode(element, true) && !excluded ? [...elements, element] : elements
+        }, []);
+
+        const [, groups] = allSelectedElements.reduce<[Element | null, Element[][]]>(([parent, groups], element) => {
+          const [remainingGroups, lastGroup] = splitOnLastElement(groups);
+
+          if (parent && hasParentElement(element, parent)) {
+            return [parent, [...remainingGroups, [...(lastGroup || []), element]]];
+          } else {
+            return [element, [...groups, []]];
+          }
+        }, [null, []]);
+
+        const text = groups.map(row => {
+          const mergedLineContents = row.reduce<string[]>((acc, element) => {
+            const [remainingSegments, lastSegment] = splitOnLastElement(acc);
+            const cellContents = element.textContent?.trim() ?? '';
+            
+            if (element.getAttribute('data-range-merge')) {
+              return [...remainingSegments, (lastSegment ?? '') + cellContents];
+            } else {
+              return [...acc, cellContents];
+            }
+          }, []);
+
+          return mergedLineContents.join('\t\t\t');
+        }).join('\n');
+
+        navigator.clipboard.writeText(text);
+      }
+    };
+
+    document.body.addEventListener('copy', handleCopy);
+
+    return () => {
+      document.body.removeEventListener('copy', handleCopy);
+    };
+  }, []);
 }

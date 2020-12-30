@@ -9,19 +9,11 @@ interface ResultsDamageRowProps {
 
 export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values, className }) => {
   const handleCopy = useCallback(() => {
-    const copyArea = document.createElement('textarea');
-
-    copyArea.textContent = values.join(',');
-    document.body.appendChild(copyArea);
-
-    copyArea.select();
-    document.execCommand("copy");
-    
-    document.body.removeChild(copyArea);
+    navigator.clipboard.writeText(values.join(','));
   }, [values]);
 
   return (
-    <Container className={className}>
+    <Container className={className} data-range-excluded={true}>
       {values.join(', ')}
       <CopyButton onClick={handleCopy}>Copy</CopyButton>
     </Container>

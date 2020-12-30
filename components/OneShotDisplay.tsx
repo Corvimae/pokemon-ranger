@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import { combineIdenticalLines, CompactRange, formatIVRange, formatStatRange, mergeStatRanges, NatureResult, StatRange } from '../utils/calculations';
+import { useGridCopy } from '../utils/hooks';
 import { InputRow, ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 
@@ -22,6 +23,7 @@ interface OneShotDisplayProps {
 }
 
 export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, displayRolls, healthThreshold, setHealthThreshold }) => {
+  const gridRef = useRef<HTMLDivElement>(null);
   const compactedResults = useMemo(() => (
     Object.values(combineIdenticalLines(results))
       .reduce<Record<number, OneShotResult>>((acc, result) => {
@@ -46,10 +48,10 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
       }, {})
   ), [results]);
 
-  console.log(compactedResults);
-  
+  useGridCopy(gridRef);
+
   return (
-    <OneShotResultsGrid>
+    <OneShotResultsGrid ref={gridRef}>
       <HealthThresholdInputRow>
         <label>Target Health</label>
         <input type="number" value={healthThreshold} onChange={setHealthThreshold}/>
@@ -71,12 +73,12 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
               {formatStatRange(statFrom, statTo)}
             </div>
             <SuccessesCell>{successes}&nbsp;</SuccessesCell>
-            <DenominatorCell>/ 16</DenominatorCell>
+            <DenominatorCell data-range-merge={true}>/ 16</DenominatorCell>
           </ResultsRow>
-          <DamageRolls>
+          <DamageRolls data-range-excluded={true}>
             {displayRolls && componentResults.map(({ statFrom: rollFrom, statTo: rollTo, damageValues }) => (
               <React.Fragment key={`${rollFrom} - ${rollTo}`}>
-                <DamageRollRange>{formatStatRange(rollFrom, rollTo)}</DamageRollRange>
+                <DamageRollRange data-range-excluded={true}>{formatStatRange(rollFrom, rollTo)}</DamageRollRange>
                 <OneShotDamageRow values={damageValues} />
               </React.Fragment>
             ))}
