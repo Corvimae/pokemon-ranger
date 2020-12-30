@@ -1,23 +1,19 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { Button } from './Layout';
+import { Button } from './Button';
 
-export const ResultsDamageRow = ({ values }) => {
+interface ResultsDamageRowProps {
+  values: number[];
+  className?: string;
+};
 
+export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values, className }) => {
   const handleCopy = useCallback(() => {
-    const copyArea = document.createElement('textarea');
-
-    copyArea.textContent = values.join(',');
-    document.body.appendChild(copyArea);
-
-    copyArea.select();
-    document.execCommand("copy");
-    
-    document.body.removeChild(copyArea);
+    navigator.clipboard.writeText(values.join(','));
   }, [values]);
 
   return (
-    <Container>
+    <Container className={className} data-range-excluded={true}>
       {values.join(', ')}
       <CopyButton onClick={handleCopy}>Copy</CopyButton>
     </Container>

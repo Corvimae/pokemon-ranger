@@ -1,16 +1,18 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
-import { Header, InputSection, InputRow, Button, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
+import { Header, InputSection, InputRow, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
+import { Button } from '../../components/Button';
 import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
-import { useRouter } from 'next/router';
-import { useParameterizedState } from '../../utils/hooks';
+import { resetState, useSumReducer, setAdjustedRoll, setRoll, removeRoll, addRoll, setHPThreshold, setCritMultiplier, setCritChanceDenominator, setIncludeCrits } from '../../reducers/sum/reducer';
 
-function factorial(value, sum = 1) {
+type RollResults = { valid: false; message: string; } | { valid: true, values: number[] };
+
+function factorial(value: number, sum = 1): number {
   if (!value || value <= 1) return sum;
 
   return factorial(value - 1, sum * value);
 }
-function parseRolls(values) {
+function parseRolls(values: string): number[] | null {
   const result = values.split(',').map(value => Number(value.trim()));
 
   if (result.some(Number.isNaN) || !values.trim().length) return null;
@@ -19,71 +21,59 @@ function parseRolls(values) {
 }
 
 export default function Sum() {
-  const router = useRouter();
-
-  const [rolls, setRolls, resetRolls] = useParameterizedState('rolls', ['', '']);
-  const [hpThreshold, setHPThreshold, resetHPThreshold] = useParameterizedState('hpThreshold', 100);
-  const [includeCrits, setIncludeCrits, resetIncludeCrits] = useParameterizedState('includeCrits', false);
-  const [critMultiplier, setCritMultiplier, resetCritMultiplier] = useParameterizedState('critMultiplier', 2.0);
-  const [critChanceDenominator, setCritChanceDenominator, resetCritChanceDenominator] = useParameterizedState('critChanceDenominator', 16);
-  const [adjustedRolls, setAdjustedRolls, resetAdjustedRolls] = useParameterizedState('adjustedRolls', ['', '']);
-
+  const [state, dispatch] = useSumReducer();
+  
   const handleResetValues = useCallback(() => {
-    resetRolls();
-    resetHPThreshold();
-    resetIncludeCrits();
-    resetCritMultiplier();
-    resetCritChanceDenominator();
-    resetAdjustedRolls();
+    dispatch(resetState());
+  }, [dispatch]);
 
-    router.push(
-      {
-        pathname: router.pathname, 
-        query: {},
-      },
-      undefined,
-      { shallow: true },
-    );
-  }, [router]);
+  const handleUpdateRoll = useCallback((event, index) => {
+    dispatch(setRoll(event.target.value, index));
+  }, [dispatch, state.rolls]);
 
-  const handleUpdateRolls = useCallback((event, index) => {
-    const updatedRolls = [...rolls];
+  const handleUpdateAdjustedRoll = useCallback((event, index) => {
+    dispatch(setAdjustedRoll(event.target.value, index));
+  }, [dispatch]);
 
-    updatedRolls[index] = event.target.value;
 
-    setRolls(updatedRolls);
-  }, [rolls]);
+  const handleSetIncludeCrits = useCallback(event => {
+    dispatch(setIncludeCrits(!state.includeCrits));
+  }, [dispatch, state.includeCrits]);
 
-  const handleUpdateAdjustedRolls = useCallback((event, index) => {
-    const updatedAdjustedRolls = [...adjustedRolls];
+  const handleSetHPThreshold = useCallback(event => {
+    dispatch(setHPThreshold(Number(event.target.value)));
+  }, [dispatch]);
+  
+  const handleSetCritMultiplier = useCallback(event => {
+    dispatch(setCritMultiplier(Number(event.target.value)));
+  }, [dispatch]);
 
-    updatedAdjustedRolls[index] = event.target.value;
-
-    setAdjustedRolls(updatedAdjustedRolls);
-  }, [adjustedRolls]);
+  const handleSetCritChanceDenominator = useCallback(event => {
+    dispatch(setCritChanceDenominator(Number(event.target.value)))
+  }, [dispatch]);
 
   const handleRemoveRoll = useCallback((index) => {
-    setRolls(rolls.filter((_value, rollIndex) => rollIndex !== index));
-    setAdjustedRolls(adjustedRolls.filter((_value, rollIndex) => rollIndex !== index));
-  }, [rolls, adjustedRolls]);
+    dispatch(removeRoll(index))
+  }, [dispatch]);
 
   const handleAddRoll = useCallback(() => {
-    setRolls([...rolls, '']);
-    setAdjustedRolls([...adjustedRolls, '']);
-  }, [rolls, adjustedRolls]);
+    dispatch(addRoll());
+  }, [dispatch]);
 
-  const combinationCount = useMemo(() => Math.pow(rolls.map(parseRolls)?.[0]?.length ?? 0, rolls.length), [rolls]);
+  const combinationCount = useMemo(() => (
+    Math.pow(state.rolls.map(parseRolls)?.[0]?.length ?? 0, state.rolls.length)
+  ), [state.rolls]);
 
-  const results = useMemo(() => {
-    const values = rolls.map(parseRolls);
-    const adjustedValues = adjustedRolls.map(parseRolls);
+  const results = useMemo<RollResults>(() => {
+    const values = state.rolls.map(parseRolls);
+    const adjustedValues = state.adjustedRolls.map(parseRolls);
 
     const invalidRollIndex = values.findIndex(roll => roll === null);
 
-    if (invalidRollIndex !== -1) return { valid: false, message: `Roll input is invalid: ${rolls[invalidRollIndex]}.` };
+    if (invalidRollIndex !== -1) return { valid: false, message: `Roll input is invalid: ${state.rolls[invalidRollIndex]}.` };
 
     const valuesWithAdjustments = values.map((valueSet, index) => (
-      valueSet.slice(0, values[0].length).map((value, subIndex) => ({
+      (valueSet as number[]).slice(0, values[0]?.length).map((value, subIndex) => ({
         value,
         adjusted: adjustedValues[index]?.[subIndex] || value,
         index,
@@ -91,18 +81,18 @@ export default function Sum() {
       }))
     ));
     
-    const results = [...new CartesianProduct(...valuesWithAdjustments)].reduce((critAcc, rolls) => [
+    const results = [...new CartesianProduct(...valuesWithAdjustments)].reduce<number[][]>((critAcc, rolls) => [
       ...critAcc,  
-      [...Array(rolls.length + 1).keys()].reduce((rollAcc, numCrits) => {
+      [...Array(rolls.length + 1).keys()].reduce<number[]>((rollAcc, numCrits) => {
         const combinations = numCrits === rolls.length + 1 ? [rolls] : [...new Combination(rolls, numCrits)];
 
         const critSuccesses = combinations.reduce((critAcc, critValues) => {
           const nonCritValues = rolls.filter(roll => !critValues.some(critRoll => critRoll.index === roll.index && critRoll.subIndex === roll.subIndex));
 
           const nonCritDamage = nonCritValues.reduce((acc, { value }) => acc + value, 0);
-          const critDamage = critValues.reduce((acc, { value, adjusted }) => acc + Math.trunc((adjusted || value) * critMultiplier), 0);
+          const critDamage = critValues.reduce((acc, { value, adjusted }) => acc + Math.trunc((adjusted || value) * state.critMultiplier), 0);
           
-          return critAcc + (nonCritDamage + critDamage >= hpThreshold ? 1 : 0);
+          return critAcc + (nonCritDamage + critDamage >= state.hpThreshold ? 1 : 0);
         }, 0);
 
         return [
@@ -124,17 +114,17 @@ export default function Sum() {
       valid: true,
       values: summedResults,
     }
-  }, [rolls, hpThreshold, includeCrits, critMultiplier, critChanceDenominator, adjustedRolls]);
+  }, [state]);
 
   const critOdds = useMemo(() => {
-    const trialSize = rolls.length;
-    const critChance = 1 / critChanceDenominator;
+    const trialSize = state.rolls.length;
+    const critChance = 1 / state.critChanceDenominator;
 
-    return [...Array(rolls.length + 1).keys()].map(numCrits => ({
+    return [...Array(state.rolls.length + 1).keys()].map(numCrits => ({
       odds: Math.pow(critChance, numCrits) * Math.pow(1 - critChance, trialSize - numCrits),
       binomialCoefficient: factorial(trialSize) / (factorial(numCrits) * factorial(trialSize - numCrits)),
     }));
-  }, [rolls, critChanceDenominator]);
+  }, [state.rolls, state.critChanceDenominator]);
 
   return (
     <Container>
@@ -147,10 +137,10 @@ export default function Sum() {
         </Header>
         <InputSection>
           <InputSubheader>Damage Rolls</InputSubheader>
-          {rolls.map((roll, index) => (
+          {state.rolls.map((roll, index) => (
             <RemovableInputRow key={index}>
               {index === 0 ? <div /> : <RemoveButton onClick={() => handleRemoveRoll(index)}>&mdash;</RemoveButton>}
-              <input value={roll} onChange={event => handleUpdateRolls(event, index)} />
+              <input value={roll} onChange={event => handleUpdateRoll(event, index)} />
             </RemovableInputRow>
           ))}
           <AddRollRow>
@@ -159,22 +149,22 @@ export default function Sum() {
 
           <InputRow>
             <label>Target HP</label>
-            <input value={hpThreshold} onChange={event => setHPThreshold(event.target.value)}/>
+            <input value={state.hpThreshold} onChange={handleSetHPThreshold}/>
           </InputRow>
           <InputRow>
             <label>Include Crits?</label>
-            <Checkbox data-checked={includeCrits} onClick={() => setIncludeCrits(!includeCrits)} />
+            <Checkbox data-checked={state.includeCrits} onClick={handleSetIncludeCrits} />
           </InputRow>
-          {includeCrits && (
+          {state.includeCrits && (
             <>
               <InputRow>
                 <label>Crit Chance Denominator</label>
-                <input value={critChanceDenominator} onChange={event => setCritChanceDenominator(event.target.value)}/>        
+                <input value={state.critChanceDenominator} onChange={handleSetCritChanceDenominator}/>        
                 <HelpText>16 for Gen 2-6, 24 for Gen 7+</HelpText>
               </InputRow>
               <InputRow>
                 <label>Crit Multiplier</label>
-                <input value={critMultiplier} onChange={event => setCritMultiplier(event.target.value)}/>        
+                <input value={state.critMultiplier} onChange={handleSetCritMultiplier}/>        
                 <HelpText>2.0 for Gen 2-5, 1.5 for Gen 6+</HelpText>
               </InputRow>
               <InputSubheader>Adjusted Damage Rolls</InputSubheader>
@@ -183,12 +173,12 @@ export default function Sum() {
                 this is relevant, you can provide the rolls with neutral combat stages and they will be used
                 to calculate critical hits. If left blank, the standard rolls will be used.
               </FullWidthHelpText>
-              {rolls.map((_roll, index) => (
+              {state.rolls.map((_roll, index) => (
                 <FullWidthInputRow key={index}>
                   <input
-                    value={adjustedRolls[index]}
-                    onChange={event => handleUpdateAdjustedRolls(event, index)}
-                    placeholder={rolls[index]}
+                    value={state.adjustedRolls[index]}
+                    onChange={event => handleUpdateAdjustedRoll(event, index)}
+                    placeholder={state.rolls[index]}
                   />
                 </FullWidthInputRow>
               ))}     
@@ -203,17 +193,17 @@ export default function Sum() {
         {results.valid && (
           <>
             <div>
-              Of {combinationCount} possible {includeCrits && 'critless'} damage rolls,&nbsp;
+              Of {combinationCount} possible {state.includeCrits && 'critless'} damage rolls,&nbsp;
               <b>{results.values[0]} ({(results.values[0] / combinationCount * 100).toFixed(2)}%) </b>
-              deal at least {hpThreshold} damage.
+              deal at least {state.hpThreshold} damage.
             </div>
 
-            {includeCrits && (
+            {state.includeCrits && (
               <>
                 <CritData>
                   Including crits,&nbsp;
                   <b>{(results.values.reduce((acc, value, index) => acc + ((value / combinationCount) * critOdds[index]?.odds), 0) * 100).toFixed(2)}% </b>
-                  of all possible rolls deal at least {hpThreshold} damage.
+                  of all possible rolls deal at least {state.hpThreshold} damage.
                 </CritData>
                 <ResultsGrid>
                   <ResultsGridHeader>
