@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { DisplayMode, DISPLAY_MODES } from '../reducers/ranger/types';
-import { Button } from './Layout';
+import { Button } from './Button';
 
 interface DisplayModeToggleProps {
   displayMode: DisplayMode,

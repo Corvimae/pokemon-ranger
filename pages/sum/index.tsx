@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
-import { Header, InputSection, InputRow, Button, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
+import { Header, InputSection, InputRow, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
+import { Button } from '../../components/Button';
 import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 import { resetState, useSumReducer, setAdjustedRoll, setRoll, removeRoll, addRoll, setHPThreshold, setCritMultiplier, setCritChanceDenominator, setIncludeCrits } from '../../reducers/sum/reducer';
 

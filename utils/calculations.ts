@@ -31,6 +31,16 @@ export interface CompactRange extends RangeResult {
   positive: StatRange;
 }
 
+export interface OneShotResult {
+  successes: number;
+  statFrom: number;
+  statTo: number;
+  negative: StatRange;
+  neutral: StatRange;
+  positive: StatRange;
+  componentResults: CompactRange[];
+}
+
 export type NatureKey = 'negative' | 'neutral' | 'positive';
 
 export const NATURE_MODIFIERS: NatureModifier[] = [
@@ -212,6 +222,7 @@ export function combineIdenticalLines(results: NatureResult[]): Record<string, C
           [result.damageRangeOutput]: {
             ...currentValue,
             damageValues: result.damageValues,
+            damageRangeOutput: result.damageRangeOutput,
             statFrom: currentValue?.statFrom ?? result.stat,
             statTo: result.stat,
             [key]: {

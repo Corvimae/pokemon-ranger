@@ -1,6 +1,6 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { Button } from './Layout';
+import { Button } from './Button';
 
 interface ResultsDamageRowProps {
   values: number[];

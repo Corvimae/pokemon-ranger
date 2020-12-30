@@ -1,20 +1,11 @@
 import React, { useMemo, useRef } from 'react';
 import styled from 'styled-components';
-import { combineIdenticalLines, CompactRange, mergeStatRanges, NatureResult, StatRange } from '../utils/calculations';
+import { combineIdenticalLines, CompactRange, mergeStatRanges, NatureResult, OneShotResult, StatRange } from '../utils/calculations';
 import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
 import { useGridCopy } from '../utils/hooks';
 import { InputRow, ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
-
-interface OneShotResult {
-  successes: number;
-  statFrom: number;
-  statTo: number;
-  negative: StatRange;
-  neutral: StatRange;
-  positive: StatRange;
-  componentResults: CompactRange[];
-}
+import { CopyGridButton } from './CopyGridButton';
 
 interface OneShotDisplayProps {
   results: NatureResult[];
@@ -25,6 +16,7 @@ interface OneShotDisplayProps {
 
 export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, displayRolls, healthThreshold, setHealthThreshold }) => {
   const gridRef = useRef<HTMLDivElement>(null);
+
   const compactedResults = useMemo(() => (
     Object.values(combineIdenticalLines(results))
       .reduce<Record<number, OneShotResult>>((acc, result) => {
@@ -52,41 +44,45 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
   useGridCopy(gridRef);
 
   return (
-    <OneShotResultsGrid ref={gridRef}>
+    <>
       <HealthThresholdInputRow>
         <label>Target Health</label>
         <input type="number" value={healthThreshold} onChange={setHealthThreshold}/>
       </HealthThresholdInputRow>
-      <ResultsGridHeader>
-        <div>IVs</div>
-        <div>Stat</div>
-        <ChanceToKillHeader>Chance to Kill</ChanceToKillHeader>
-      </ResultsGridHeader>
-      {Object.values(compactedResults).map(({ successes, statFrom, statTo, negative, neutral, positive, componentResults }) => (
-        <React.Fragment key={`${statFrom} - ${statTo}`}>
-          <ResultsRow>
-            <div>
-              {formatIVRange(negative)}&nbsp;/&nbsp;
-              {formatIVRange(neutral)}&nbsp;/&nbsp;
-              {formatIVRange(positive)}
-            </div>
-            <div>
-              {formatStatRange(statFrom, statTo)}
-            </div>
-            <SuccessesCell>{successes}&nbsp;</SuccessesCell>
-            <DenominatorCell data-range-merge={true}>/ 16</DenominatorCell>
-          </ResultsRow>
-          <DamageRolls data-range-excluded={true}>
-            {displayRolls && componentResults.map(({ statFrom: rollFrom, statTo: rollTo, damageValues }) => (
-              <React.Fragment key={`${rollFrom} - ${rollTo}`}>
-                <DamageRollRange data-range-excluded={true}>{formatStatRange(rollFrom, rollTo)}</DamageRollRange>
-                <OneShotDamageRow values={damageValues} />
-              </React.Fragment>
-            ))}
-          </DamageRolls>
-        </React.Fragment>
-      ))}
-    </OneShotResultsGrid>
+      <OneShotResultsGrid ref={gridRef}>
+        <CopyGridButton results={Object.values(compactedResults)} />
+
+        <ResultsGridHeader>
+          <div>IVs</div>
+          <div>Stat</div>
+          <ChanceToKillHeader>Chance to Kill</ChanceToKillHeader>
+        </ResultsGridHeader>
+        {Object.values(compactedResults).map(({ successes, statFrom, statTo, negative, neutral, positive, componentResults }) => (
+          <React.Fragment key={`${statFrom} - ${statTo}`}>
+            <ResultsRow>
+              <div>
+                {formatIVRange(negative)}&nbsp;/&nbsp;
+                {formatIVRange(neutral)}&nbsp;/&nbsp;
+                {formatIVRange(positive)}
+              </div>
+              <div>
+                {formatStatRange(statFrom, statTo)}
+              </div>
+              <SuccessesCell>{successes}&nbsp;</SuccessesCell>
+              <DenominatorCell data-range-merge={true}>/ 16</DenominatorCell>
+            </ResultsRow>
+            <DamageRolls data-range-excluded={true}>
+              {displayRolls && componentResults.map(({ statFrom: rollFrom, statTo: rollTo, damageValues }) => (
+                <React.Fragment key={`${rollFrom} - ${rollTo}`}>
+                  <DamageRollRange data-range-excluded={true}>{formatStatRange(rollFrom, rollTo)}</DamageRollRange>
+                  <OneShotDamageRow values={damageValues} />
+                </React.Fragment>
+              ))}
+            </DamageRolls>
+          </React.Fragment>
+        ))}
+      </OneShotResultsGrid>
+    </>
   );
 }
 
@@ -97,7 +93,6 @@ const OneShotResultsGrid = styled(ResultsGrid)`
 const HealthThresholdInputRow = styled(InputRow)`
   display: grid;
   grid-template-columns: max-content 1fr;
-  grid-column: 1 / -1;
 `;
 
 const ChanceToKillHeader = styled.div`

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { CopyGridButton } from './CopyGridButton';
 
 export const Header = styled.h2`
   display: flex;
@@ -18,9 +19,18 @@ export const ResultsSubheader = styled.h3`
 `;
 
 export const ResultsGrid = styled.div`
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   margin-bottom: 2rem;
+
+  & ${CopyGridButton} {
+    display: none;
+  }
+
+  &:hover ${CopyGridButton} {
+    display: block;
+  }
 `;
 
 export const ResultsGridHeader = styled.div`
@@ -91,32 +101,6 @@ export const HelpText = styled.div`
   font-style: italic;
   color: #666;
   margin: -0.5rem 0 0.5rem;
-`;
-
-export const Button = styled.button`
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  margin: 0;
-  background-color: #30b878;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-
-  &:not(:disabled):hover,
-  &:not(:disabled):active {
-    background-color: #4ecf92;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-  }
-
-  & + & {
-    margin-left: 1rem;
-  }
 `;
 
 export const Checkbox = styled.button<{ 'data-checked': boolean }>`

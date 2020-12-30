@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
 import { NatureResult, RangeResult } from '../utils/calculations';
 import { useGridCopy } from '../utils/hooks';
+import { CopyGridButton } from './CopyGridButton';
 import { ResultsGrid, ResultsGridHeader, ResultsRow, ResultsSubheader } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
-
 
 interface ExpandedDisplayGridProps {
   name: string;
@@ -25,6 +25,9 @@ const ExpandedDisplayGrid: React.FC<ExpandedDisplayGridProps> = ({ name, rangeSe
           <div>Stat</div>
           <div>Damage</div>
         </ResultsGridHeader>
+        
+        <CopyGridButton results={Object.values(rangeSegments)} />
+
         {rangeSegments.map(({ from, to, stat, damageValues, damageRangeOutput }) => (
           <React.Fragment key={`${from} - ${to}`}>
             <ResultsRow>

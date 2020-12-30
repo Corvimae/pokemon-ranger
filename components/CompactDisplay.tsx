@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import { combineIdenticalLines, NatureResult } from '../utils/calculations';
 import { useGridCopy } from '../utils/hooks';
 import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
+import { CopyGridButton } from './CopyGridButton';
 import { ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 
@@ -23,6 +24,9 @@ export const CompactDisplay: React.FC<CompactDisplayProps> = ({ results, display
         <div>Stat</div>
         <div>Damage</div>
       </ResultsGridHeader>
+
+      <CopyGridButton results={Object.values(compactedResults)} />
+
       {Object.entries(compactedResults).map(([damageRangeOutput, { damageValues, statFrom, statTo, negative, neutral, positive }]) => (
         <React.Fragment key={`${statFrom} - ${statTo}`}>
           <ResultsRow>
