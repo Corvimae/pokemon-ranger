@@ -49,18 +49,68 @@ class MoveContext{
 class Listener{
 
     constructor(){
-        this.Reactions = []
+        this.eventsListeningFor = {}
         this.isActive = false;
     };
 
-    
+    registerReaction(reaction){
 
-};
+        if (!this.eventsListeningFor.hasOwnProperty(eventName)){
 
-class Event{
+            this.eventsListeningFor[eventName] = [reaction];
 
-    constructor(){
+        } else {
+
+            this.eventsListeningFor[eventName].Append(reaction);
+            this.eventsListeningFor[eventName].sort((Element1, Element2) => Element1.priority - Element2.priority)
+        };
 
     };
 
+    Emit(eventName, eventContext){
+
+        if (!this.eventsListeningFor.hasOwnProperty(eventName)){
+            return 1
+        };
+
+        let spliceTargets = []
+
+        for (const [index, reaction] in this.eventsListeningFor[eventName].entries()) {
+            if (reaction.CheckExistence() && reaction.CheckCondition()) {
+                //execute Reaction callback here        
+                //reaction.callBack(eventContext);
+            };
+
+            if (!reaction.CheckExistence()){
+                spliceTargets.Append(index)
+            };
+        }
+
+        if(spliceTargets.length){
+            spliceTargets.reverse();
+
+            for (const target in spliceTargets) {
+                
+                this.eventsListeningFor[eventName].splice(target)
+                
+            };
+        };
+    };
+
 };
+
+class Reaction{
+
+    constructor(eventNames, priority, conditions, callBack, existenceConditions){
+
+        this.eventNames = eventNames;
+        this.priority = priority; //Lower priority reactions occur first
+        this.conditions = conditions;
+        this.callBack = callBack; //Figure out how to implement this
+        this.existenceConditions = {
+            existenceConditions : existenceConditions,
+            deleteThis : False
+        };
+    };
+};
+
