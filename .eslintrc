@@ -45,6 +45,7 @@
     "no-use-before-define": "off",
     "arrow-parens": ["error", "as-needed"],
     "no-confusing-arrow": "off",
+    "no-trailing-spaces": ["error", { "skipBlankLines": true }],
     "no-console": ["error", { "allow": ["warn", "error", "info" ] }],
     "react/jsx-filename-extension": ["error", { "extensions": [".tsx", ".jsx"] }],
     "react/no-array-index-key": "off",

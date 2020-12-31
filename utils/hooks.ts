@@ -136,6 +136,17 @@ export function useGridCopy(): React.RefObject<HTMLDivElement> {
       if (ref.current && event.target instanceof HTMLElement && hasParentElement(event.target, ref.current)) {
         const selection = window.getSelection();
         const range = selection?.getRangeAt(0);
+
+        if (range?.commonAncestorContainer.nodeName === '#text') {
+          try {
+            navigator.clipboard.writeText(selection?.toString() ?? '');
+
+            return;
+          } catch (e) {
+            console.error('Unable to copy to clipboard: ', e);
+          }
+        }
+        
         const elementsFromAncestorSelections = (range?.commonAncestorContainer as Element).getElementsByTagName('*');
 
         const allSelectedElements = Array.from(elementsFromAncestorSelections).reduce<Element[]>((elements, element) => {
