@@ -1,5 +1,5 @@
 export function hasParentElement(child: Element | null, parent: Element): boolean {
-  if (child === parent) return true; 
+  if (child === parent) return true;
   if (!child) return false;
 
   return hasParentElement(child.parentElement, parent);

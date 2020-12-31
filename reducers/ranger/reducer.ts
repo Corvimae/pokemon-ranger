@@ -1,3 +1,4 @@
+import { Dispatch } from 'react';
 import { useParameterizedReducer } from '../../utils/hooks';
 import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
 
@@ -110,8 +111,8 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
         ...state,
         multiTarget: action.payload.multiTarget,
       };
-  
-    case SET_WEATHER_BOOSTED: 
+
+    case SET_WEATHER_BOOSTED:
       return {
         ...state,
         weatherBoosted: action.payload.weatherBoosted,
@@ -144,17 +145,17 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
     case SET_OPPONENT_COMBAT_STAGES:
       return {
         ...state,
-        opponentCombatStages: action.payload.opponentCombatStages
+        opponentCombatStages: action.payload.opponentCombatStages,
       };
 
     case SET_HEALTH_THRESHOLD:
       return {
         ...state,
         healthThreshold: action.payload.healthThreshold,
-      }
+      };
 
     case SET_INITIAL_STATE:
-      return { ...action.payload };  
+      return { ...action.payload };
 
     case RESET_STATE:
       return { ...defaultState };
@@ -162,9 +163,11 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
     default:
       return state;
   }
-}
+};
 
-export const useRangerReducer = () => useParameterizedReducer(reducer, defaultState, setInitialState);
+export const useRangerReducer = (): [RangerReducerState, Dispatch<RangerReducerAction>] => (
+  useParameterizedReducer(reducer, defaultState, setInitialState)
+);
 
 export function setDisplayMode(displayMode: DisplayMode): RangerReducerAction {
   return {
@@ -247,7 +250,7 @@ export function setCriticalHit(criticalHit: boolean): RangerReducerAction {
   return {
     type: SET_CRITICAL_HIT,
     payload: { criticalHit },
-  }
+  };
 }
 
 export function setTorrent(torrent: boolean): RangerReducerAction {
@@ -310,7 +313,7 @@ export function setHealthThreshold(healthThreshold: number): RangerReducerAction
   return {
     type: SET_HEALTH_THRESHOLD,
     payload: { healthThreshold },
-  }
+  };
 }
 
 export function setInitialState(state: RangerReducerState): RangerReducerAction {

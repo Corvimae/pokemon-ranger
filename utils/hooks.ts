@@ -1,7 +1,6 @@
 import { Reducer, Dispatch, useState, useCallback, useEffect, useRef, useReducer } from 'react';
 import { useRouter } from 'next/router';
 import { hasParentElement, splitOnLastElement } from './utils';
-import { browser } from 'process';
 
 export function useParameterizedReducer<S, A>(
   reducer: Reducer<S, A>,
@@ -15,7 +14,7 @@ export function useParameterizedReducer<S, A>(
   const [state, dispatch] = useReducer(reducer, defaultState);
 
   useEffect(() => {
-    const hasNoQueryParameters = typeof window === 'undefined' || [...new URLSearchParams(window.location.search).keys()].length == 0;
+    const hasNoQueryParameters = typeof window === 'undefined' || [...new URLSearchParams(window.location.search).keys()].length === 0;
 
     if (!hasSetInitialState.current && (Object.entries(router.query).length > 0 || hasNoQueryParameters)) {
       dispatch(setInitialState(
@@ -26,41 +25,44 @@ export function useParameterizedReducer<S, A>(
               return {
                 ...acc,
                 [key]: JSON.parse(decodeURIComponent(value as string)),
-              }
+              };
             } catch {
               return acc;
             }
-          }, defaultState)
+          }, defaultState),
       ));
 
       hasSetInitialState.current = true;
     }
-  }, [router.query, defaultState, dispatch]);
+  }, [router.query, defaultState, dispatch, setInitialState]);
 
   useEffect(() => {
-    if (hasSetInitialState.current && previousQueryState.current !== state)  {
+    if (hasSetInitialState.current && previousQueryState.current !== state) {
       const updatedQueryParams = (Object.entries(state) as [keyof S, unknown][]).reduce((acc, [key, value]) => {
         const normalizedValue = typeof defaultState[key] === 'number' ? Number(value) : value;
 
         if (JSON.stringify(normalizedValue) === JSON.stringify(defaultState[key])) {
           return acc;
-        } else {
-          return { ...acc, [key]: encodeURIComponent(JSON.stringify(normalizedValue)) };
         }
+
+        return {
+          ...acc,
+          [key]: encodeURIComponent(JSON.stringify(normalizedValue)),
+        };
       }, {});
 
       previousQueryState.current = state;
 
       router.push(
         {
-          pathname: router.pathname, 
+          pathname: router.pathname,
           query: updatedQueryParams,
         },
         undefined,
         { shallow: true },
       );
     }
-  }, [router.pathname, router.query, state, defaultState]);
+  }, [router, state, defaultState]);
 
   return [state, dispatch];
 }
@@ -86,8 +88,8 @@ export function useParameterizedState<T>(paramName: string, defaultValue: T): [T
         }
       }
     }
-  }, [router.query])
-  
+  }, [router.query, defaultValue, paramName]);
+
   const updateState = useCallback(value => {
     const normalizedValue = typeof defaultValue === 'number' ? Number(value) : value;
     setState(normalizedValue);
@@ -100,21 +102,21 @@ export function useParameterizedState<T>(paramName: string, defaultValue: T): [T
     };
 
     if (JSON.stringify(normalizedValue) === JSON.stringify(defaultValue)) {
-      updatedQueryParams = Object.entries(updatedQueryParams).filter(([key]) => key !== paramName).reduce((acc, [key, value]) => ({
+      updatedQueryParams = Object.entries(updatedQueryParams).filter(([key]) => key !== paramName).reduce((acc, [key, paramValue]) => ({
         ...acc,
-        [key]: value,
+        [key]: paramValue,
       }), {});
     }
 
     router.push(
       {
-        pathname: router.pathname, 
+        pathname: router.pathname,
         query: updatedQueryParams,
       },
       undefined,
       { shallow: true },
     );
-  }, [router.pathname, router.query, paramName, defaultValue]);
+  }, [router, paramName, defaultValue]);
 
   const resetState = useCallback(() => {
     setState(defaultValue);
@@ -123,43 +125,45 @@ export function useParameterizedState<T>(paramName: string, defaultValue: T): [T
   return [state, updateState, resetState];
 }
 
-export function useGridCopy(ref: React.RefObject<HTMLElement>) {
+export function useGridCopy(): React.RefObject<HTMLDivElement> {
+  const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleCopy = (event: ClipboardEvent) => {
       event.stopPropagation();
       event.preventDefault();
-      
-      if(ref.current && event.target instanceof HTMLElement && hasParentElement(event.target, ref.current)) {
+
+      if (ref.current && event.target instanceof HTMLElement && hasParentElement(event.target, ref.current)) {
         const selection = window.getSelection();
         const range = selection?.getRangeAt(0);
         const elementsFromAncestorSelections = (range?.commonAncestorContainer as Element).getElementsByTagName('*');
 
         const allSelectedElements = Array.from(elementsFromAncestorSelections).reduce<Element[]>((elements, element) => {
           const excluded = element.getAttribute('data-range-excluded');
-          
-          return selection?.containsNode(element, true) && !excluded ? [...elements, element] : elements
+
+          return selection?.containsNode(element, true) && !excluded ? [...elements, element] : elements;
         }, []);
 
-        const [, groups] = allSelectedElements.reduce<[Element | null, Element[][]]>(([parent, groups], element) => {
-          const [remainingGroups, lastGroup] = splitOnLastElement(groups);
+        const [, groups] = allSelectedElements.reduce<[Element | null, Element[][]]>(([parent, groupSet], element) => {
+          const [remainingGroups, lastGroup] = splitOnLastElement(groupSet);
 
           if (parent && hasParentElement(element, parent)) {
             return [parent, [...remainingGroups, [...(lastGroup || []), element]]];
-          } else {
-            return [element, [...groups, []]];
           }
+
+          return [element, [...groupSet, []]];
         }, [null, []]);
 
         const text = groups.map(row => {
           const mergedLineContents = row.reduce<string[]>((acc, element) => {
             const [remainingSegments, lastSegment] = splitOnLastElement(acc);
             const cellContents = element.textContent?.trim() ?? '';
-            
+
             if (element.getAttribute('data-range-merge')) {
               return [...remainingSegments, `${(lastSegment ?? '')} ${cellContents}`];
-            } else {
-              return [...acc, cellContents];
             }
+
+            return [...acc, cellContents];
           }, []);
 
           return mergedLineContents.join('\t\t\t');
@@ -168,7 +172,7 @@ export function useGridCopy(ref: React.RefObject<HTMLElement>) {
         try {
           navigator.clipboard.writeText(text);
         } catch (e) {
-          console.log('Unable to copy to clipboard: ', e);
+          console.error('Unable to copy to clipboard: ', e);
         }
       }
     };
@@ -179,4 +183,6 @@ export function useGridCopy(ref: React.RefObject<HTMLElement>) {
       document.body.removeEventListener('copy', handleCopy);
     };
   }, []);
+
+  return ref;
 }

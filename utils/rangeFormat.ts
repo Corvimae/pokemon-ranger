@@ -1,4 +1,4 @@
-import { StatRange } from "./calculations";
+import { StatRange } from './rangeTypes';
 
 export function formatDamageRange(values: number[]): string {
   const firstValue = values[0];
@@ -18,8 +18,8 @@ export function formatIVRange(value: StatRange): string {
   if (!value) return 'x';
   if (value.from === 0 && value.to === 31) return '0+';
 
-  if  (value.from === 0) return `${value.to}${value.to === 0 ? '' : '-'}`;
-  if  (value.to === 31) return `${value.from}${value.from === 31 ? '' : '+'}`;
+  if (value.from === 0) return `${value.to}${value.to === 0 ? '' : '-'}`;
+  if (value.to === 31) return `${value.from}${value.from === 31 ? '' : '+'}`;
 
   if (value.from === value.to) return `${value.from}`;
 

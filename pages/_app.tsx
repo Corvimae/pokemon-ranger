@@ -1,11 +1,12 @@
+import React from 'react';
 import styled from 'styled-components';
 import Head from 'next/head';
-import Link from 'next/link'
-
-import '../styles/globals.css'
+import Link from 'next/link';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
 
-function Ranger({ Component, pageProps }: AppProps) {
+import '../styles/globals.css';
+
+function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
   return (
     <Layout>
       <Head>
@@ -22,8 +23,8 @@ function Ranger({ Component, pageProps }: AppProps) {
       </Header>
       <Component {...pageProps} />
       <Footer>
-        Created by <a href="https://twitter.com/Corvimae" target="_blank">@Corvimae</a>.&nbsp;
-        <a href="https://github.com/corvimae/pokemon-ranger" target="_blank">View the source.</a>
+        Created by <a href="https://twitter.com/Corvimae" target="_blank" rel="noreferrer">@Corvimae</a>.&nbsp;
+        <a href="https://github.com/corvimae/pokemon-ranger" target="_blank" rel="noreferrer">View the source.</a>
       </Footer>
     </Layout>
   );
