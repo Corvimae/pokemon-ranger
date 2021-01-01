@@ -1,7 +1,43 @@
 import { Move } from './moveClasses.js'
 import { FetchMoveByName } from './dataFetchers.js'
+import { Ability } from './abilityClasses.js'
 
 export class Pokemon {
+
+    /*
+    IVs: StatBlock;
+
+    EVs : StatBlock;
+
+    baseStats : StatBlock;
+
+    nature : StatBlock;
+
+    generation : Number;
+
+    level : Number;
+
+    // either [type] or [type, type]
+    type : Array<string>;
+
+    pokeName : string;
+
+    //**** me abilities will be annoying to implement
+    ability : Ability;
+    item : string;
+
+    actualStats : StatBlock;
+
+    //Implement Move Fetcher
+    moves : Array<Move|null>;
+
+
+    currentHp : Number;
+    persistentStatus : string;
+    temporaryStatus : Array<string>;
+
+    battleStages : BattleStageManager;
+*/
     constructor(pokeJSON) {
         //this.IVs = new StatBlock([0, 31], [0, 31], [0, 31], [0, 31], [0, 31], [0, 31]);
 
@@ -65,7 +101,7 @@ export class Pokemon {
         this.persistentStatus = pokeJSON.persistentStatus;
         this.temporaryStatus = [];
 
-        this.battleStages = new BattleStageManager();
+        this.battleStages = new BattleStageManager(this.generation);
 
         //future stuff?
         //back calc IVs from user input
@@ -132,7 +168,14 @@ export class Pokemon {
         };
     };
 };
+/*
+interface PokeJSON{
 
+    IVs
+
+
+}
+*/
 class StatBlock {
 
     constructor(hp, attack, defense, specialAttack, specialDefense, speed) {
