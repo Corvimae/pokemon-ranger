@@ -5,7 +5,7 @@ import { Button } from './Button';
 interface ResultsDamageRowProps {
   values: number[];
   className?: string;
-};
+}
 
 export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values, className }) => {
   const handleCopy = useCallback(() => {
@@ -13,12 +13,12 @@ export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values, clas
   }, [values]);
 
   return (
-    <Container className={className} data-range-excluded={true}>
+    <Container className={className} data-range-excluded>
       {values.join(', ')}
       <CopyButton onClick={handleCopy}>Copy</CopyButton>
     </Container>
   );
-}
+};
 
 const Container = styled.div`
   grid-column: 1 / -1;

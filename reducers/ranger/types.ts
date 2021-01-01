@@ -18,7 +18,7 @@ export const SET_WEATHER_BOOSTED = 'SET_WEATHER_BOOSTED';
 export const SET_WEATHER_REDUCED = 'SET_WEATHER_REDUCED';
 export const SET_OTHER_MODIFIER = 'SET_OTHER_MODIFIER';
 export const SET_OPPONENT_STAT = 'SET_OPPONENT_STAT';
-export const SET_OPPONENT_LEVEL = 'SET_OPPONENT_LEVEL'
+export const SET_OPPONENT_LEVEL = 'SET_OPPONENT_LEVEL';
 export const SET_OPPONENT_COMBAT_STAGES = 'SET_OPPONENT_COMBAT_STAGES';
 export const SET_HEALTH_THRESHOLD = 'SET_HEALTH_THRESHOLD';
 
@@ -207,7 +207,7 @@ type SetInitialStateAction = {
   payload: RangerReducerState;
 };
 
-export type RangerReducerAction = 
+export type RangerReducerAction =
   SetDisplayModeAction |
   SetDisplayRollsAction |
   SetOffensiveModeAction |

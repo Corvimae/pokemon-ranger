@@ -1,11 +1,12 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { combineIdenticalLines, CompactRange, mergeStatRanges, NatureResult, OneShotResult, StatRange } from '../utils/calculations';
+import { combineIdenticalLines, mergeStatRanges } from '../utils/calculations';
 import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
 import { useGridCopy } from '../utils/hooks';
 import { InputRow, ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 import { CopyGridButton } from './CopyGridButton';
+import { NatureResult, OneShotResult } from '../utils/rangeTypes';
 
 interface OneShotDisplayProps {
   results: NatureResult[];
@@ -15,8 +16,6 @@ interface OneShotDisplayProps {
 }
 
 export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, displayRolls, healthThreshold, setHealthThreshold }) => {
-  const gridRef = useRef<HTMLDivElement>(null);
-
   const compactedResults = useMemo(() => (
     Object.values(combineIdenticalLines(results))
       .reduce<Record<number, OneShotResult>>((acc, result) => {
@@ -26,7 +25,7 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
         return {
           ...acc,
           [successes]: {
-            successes: successes,
+            successes,
             statFrom: Math.min(currentValue?.statFrom || Number.MAX_VALUE, result.statFrom),
             statTo: Math.max(currentValue?.statTo || Number.MIN_VALUE, result.statTo),
             negative: mergeStatRanges(currentValue?.negative, result.negative),
@@ -35,19 +34,19 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
             componentResults: [
               ...(currentValue?.componentResults || []),
               result,
-            ]
+            ],
           },
         };
       }, {})
-  ), [results]);
+  ), [results, healthThreshold]);
 
-  useGridCopy(gridRef);
+  const gridRef = useGridCopy();
 
   return (
     <>
       <HealthThresholdInputRow>
-        <label>Target Health</label>
-        <input type="number" value={healthThreshold} onChange={setHealthThreshold}/>
+        <label htmlFor="targetHealthInput">Target Health</label>
+        <input id="targetHealthInput" type="number" value={healthThreshold} onChange={setHealthThreshold} />
       </HealthThresholdInputRow>
       <OneShotResultsGrid ref={gridRef}>
         <CopyGridButton results={Object.values(compactedResults)} />
@@ -61,20 +60,24 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
           <React.Fragment key={`${statFrom} - ${statTo}`}>
             <ResultsRow>
               <div>
-                {formatIVRange(negative)}&nbsp;/&nbsp;
-                {formatIVRange(neutral)}&nbsp;/&nbsp;
+                {formatIVRange(negative)}
+                &nbsp;/&nbsp;
+                {formatIVRange(neutral)}
+                &nbsp;/&nbsp;
                 {formatIVRange(positive)}
               </div>
               <div>
                 {formatStatRange(statFrom, statTo)}
               </div>
-              <SuccessesCell>{successes}&nbsp;</SuccessesCell>
-              <DenominatorCell data-range-merge={true}>/ 16</DenominatorCell>
+              <SuccessesCell>
+                {successes}&nbsp;
+              </SuccessesCell>
+              <DenominatorCell data-range-merge>/ 16</DenominatorCell>
             </ResultsRow>
-            <DamageRolls data-range-excluded={true}>
+            <DamageRolls data-range-excluded>
               {displayRolls && componentResults.map(({ statFrom: rollFrom, statTo: rollTo, damageValues }) => (
                 <React.Fragment key={`${rollFrom} - ${rollTo}`}>
-                  <DamageRollRange data-range-excluded={true}>{formatStatRange(rollFrom, rollTo)}</DamageRollRange>
+                  <DamageRollRange data-range-excluded>{formatStatRange(rollFrom, rollTo)}</DamageRollRange>
                   <OneShotDamageRow values={damageValues} />
                 </React.Fragment>
               ))}
@@ -84,7 +87,7 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
       </OneShotResultsGrid>
     </>
   );
-}
+};
 
 const OneShotResultsGrid = styled(ResultsGrid)`
   grid-template-columns: 1fr 1fr min-content 1fr;

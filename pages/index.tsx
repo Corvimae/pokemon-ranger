@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
+import { NextPage } from 'next';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox } from '../components/Layout';
@@ -10,7 +11,7 @@ import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
 import { DisplayModeToggle } from '../components/DisplayModeToggle';
 
-export default function Home() {
+const Home: NextPage = () => {
   const [state, dispatch] = useRangerReducer();
 
   const handleResetValues = useCallback(() => {
@@ -62,34 +63,34 @@ export default function Home() {
           <InputSubheader>Pokémon</InputSubheader>
 
           <InputRow>
-            <label>Level</label>
-            <input type="number" value={state.level} onChange={handleSetLevel}/>
+            <label htmlFor="level">Level</label>
+            <input id="level" type="number" value={state.level} onChange={handleSetLevel} />
           </InputRow>
-          
+
           <InputRow>
-            <label>{playerStatPrefix} Base Stat</label>
-            <input type="number" value={state.baseStat} onChange={handleSetBaseStat}/>
+            <label htmlFor="playerBaseStat">{playerStatPrefix} Base Stat</label>
+            <input id="playerBaseStat" type="number" value={state.baseStat} onChange={handleSetBaseStat} />
           </InputRow>
-          
+
           <InputRow>
-            <label>{playerStatPrefix} Stat EVs</label>
-            <input type="number" value={state.evs} onChange={handleSetEVs}/>
+            <label htmlFor="evs">{playerStatPrefix} Stat EVs</label>
+            <input id="evs" type="number" value={state.evs} onChange={handleSetEVs} />
           </InputRow>
-          
+
           <InputRow>
-            <label>{playerStatPrefix} Combat Stages</label>
-            <input type="number" value={state.combatStages} onChange={handleSetCombatStages}/>
+            <label htmlFor="playerCombatStages">{playerStatPrefix} Combat Stages</label>
+            <input id="playerCombatStages" type="number" value={state.combatStages} onChange={handleSetCombatStages} />
           </InputRow>
 
           <InputSubheader>Move</InputSubheader>
           <InputRow>
-            <label>Move Power</label>
-            <input type="number" value={state.movePower} onChange={handleSetMovePower}/>
+            <label htmlFor="movePower">Move Power</label>
+            <input id="movePower" type="number" value={state.movePower} onChange={handleSetMovePower} />
           </InputRow>
 
           <InputRow>
-            <label>Type Effectiveness</label>
-            <select value={state.typeEffectiveness} onChange={handleSetTypeEffectiveness}>
+            <label htmlFor="typeEffectiveness">Type Effectiveness</label>
+            <select id="typeEffectiveness" value={state.typeEffectiveness} onChange={handleSetTypeEffectiveness}>
               <option value={0.25}>&times;0.25</option>
               <option value={0.5}>&times;0.5</option>
               <option value={1}>&times;1</option>
@@ -99,70 +100,70 @@ export default function Home() {
           </InputRow>
 
           <InputRow>
-            <label>STAB?</label>
-            <Checkbox data-checked={state.stab} onClick={handleSetSTAB} />
+            <label htmlFor="stab">STAB?</label>
+            <Checkbox id="stab" data-checked={state.stab} onClick={handleSetSTAB} />
           </InputRow>
 
-          <InputSubheader>Opponent</InputSubheader>     
+          <InputSubheader>Opponent</InputSubheader>
           {!state.offensiveMode && (
             <InputRow>
-              <label>Level</label>
-              <input type="number" value={state.opponentLevel} onChange={handleSetOpponentLevel} />
+              <label htmlFor="opponentLevel">Level</label>
+              <input id="opponentLevel" type="number" value={state.opponentLevel} onChange={handleSetOpponentLevel} />
             </InputRow>
           )}
-          
+
           <InputRow>
-            <label>{opponentStatPrefix} Stat</label>
-            <input type="number" value={state.opponentStat} onChange={handleSetOpponentStat}/>
+            <label htmlFor="opponentStat">{opponentStatPrefix} Stat</label>
+            <input id="opponentStat" type="number" value={state.opponentStat} onChange={handleSetOpponentStat} />
           </InputRow>
 
           <InputRow>
-            <label>{opponentStatPrefix} Combat Stages</label>
-            <input type="number" value={state.opponentCombatStages} onChange={handleSetOpponentCombatStages}/>
+            <label htmlFor="opponentCombatStages">{opponentStatPrefix} Combat Stages</label>
+            <input id="opponentCombatStages" type="number" value={state.opponentCombatStages} onChange={handleSetOpponentCombatStages} />
           </InputRow>
 
           <InputSubheader>Modifiers</InputSubheader>
 
           <InputRow>
-            <label>Critical Hit?</label>
-            <Checkbox data-checked={state.criticalHit} onClick={handleSetCriticalHit} />
+            <label htmlFor="criticalHit">Critical Hit?</label>
+            <Checkbox id="criticalHit" data-checked={state.criticalHit} onClick={handleSetCriticalHit} />
             <HelpText>Critical hits deal 2&times; damage in Gen 3&ndash;5 and 1.5&times; damage in Gen 6+.</HelpText>
           </InputRow>
 
           <InputRow>
-            <label>Torrent/Overgrow/Blaze?</label>
-            <Checkbox data-checked={state.torrent} onClick={handleSetTorrent} />
+            <label htmlFor="torrent">Torrent/Overgrow/Blaze?</label>
+            <Checkbox id="torrent" data-checked={state.torrent} onClick={handleSetTorrent} />
             <HelpText>These abilities double the base power in Gen 3&ndash;4, and boost Attack or Sp. Attack by 50% in Gen 5+.</HelpText>
           </InputRow>
 
           <InputRow>
-            <label>Weather Boosted?</label>
-            <Checkbox data-checked={state.weatherBoosted} onClick={handleSetWeatherBoosted} />
+            <label htmlFor="weatherBoosted">Weather Boosted?</label>
+            <Checkbox id="weatherBoosted" data-checked={state.weatherBoosted} onClick={handleSetWeatherBoosted} />
             <HelpText>Is this a Water-type move used during rain, or a Fire-type move used during harsh sunlight?</HelpText>
           </InputRow>
 
           <InputRow>
-            <label>Weather Reduced?</label>
-            <Checkbox data-checked={state.weatherReduced} onClick={handleSetWeatherReduced} />
+            <label htmlFor="weatherReduced">Weather Reduced?</label>
+            <Checkbox id="weatherReduced" data-checked={state.weatherReduced} onClick={handleSetWeatherReduced} />
             <HelpText>Is this a Water-type move used during harsh sunlight, or a Fire-type move used during rain?</HelpText>
           </InputRow>
 
           <InputRow>
-            <label>Multi Target?</label>
-            <Checkbox data-checked={state.multiTarget} onClick={handleSetMultiTarget} />
+            <label htmlFor="multiTarget">Multi Target?</label>
+            <Checkbox id="multiTarget" data-checked={state.multiTarget} onClick={handleSetMultiTarget} />
             <HelpText>Only applicable to double and triple battles. For Gen 3, only select this if using a move that targets all adjacent foes.</HelpText>
           </InputRow>
 
           <InputRow>
-            <label>Other Modifier</label>
-            <input type="number" value={state.otherModifier} onChange={handleSetOtherModifier}/>
-            <HelpText>Any additional modifiers that aren't handled by Ranger.</HelpText>
+            <label htmlFor="otherModifier">Other Modifier</label>
+            <input id="otherModifier" type="number" value={state.otherModifier} onChange={handleSetOtherModifier} />
+            <HelpText>Any additional modifiers that aren&apos;t handled by Ranger.</HelpText>
           </InputRow>
 
           <InputSubheader>Settings</InputSubheader>
           <InputRow>
-            <label>Generation</label>
-            <select value={state.generation} onChange={handleSetGeneration}>
+            <label htmlFor="generation">Generation</label>
+            <select id="generation" value={state.generation} onChange={handleSetGeneration}>
               <option value={3}>3 (Ruby/Sapphire/Emerald)</option>
               <option value={4}>4 (Diamond/Pearl/Platinum)</option>
               <option value={5}>5 (Black/White and Black 2/White 2)</option>
@@ -194,7 +195,9 @@ export default function Home() {
       </div>
     </Container>
   );
-}
+};
+
+export default Home;
 
 const Container = styled.div`
   display: grid;

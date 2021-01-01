@@ -1,20 +1,23 @@
-import { DocumentContext, RenderPageResult } from 'next/dist/next-server/lib/utils'
-import Document from 'next/document'
-import { ServerStyleSheet } from 'styled-components'
+import React from 'react';
+import { ServerStyleSheet } from 'styled-components';
+import Document from 'next/document';
+import { DocumentContext, DocumentInitialProps, RenderPageResult } from 'next/dist/next-server/lib/utils';
 
 export default class RangerDocument extends Document {
-  static async getInitialProps(ctx: DocumentContext) {
-    const sheet = new ServerStyleSheet()
-    const originalRenderPage = ctx.renderPage
+  static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
+    const sheet = new ServerStyleSheet();
+    const originalRenderPage = ctx.renderPage;
 
     try {
-      ctx.renderPage = (): RenderPageResult | Promise<RenderPageResult> =>
+      ctx.renderPage = (): RenderPageResult | Promise<RenderPageResult> => (
         originalRenderPage({
-          enhanceApp: (App) => (props) =>
-            sheet.collectStyles(<App {...props} />),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          enhanceApp: (App: any) => (props: any) => sheet.collectStyles(<App {...props} />),
         })
+      );
 
-      const initialProps = await Document.getInitialProps(ctx)
+      const initialProps = await Document.getInitialProps(ctx);
+
       return {
         ...initialProps,
         styles: (
@@ -23,9 +26,9 @@ export default class RangerDocument extends Document {
             {sheet.getStyleElement()}
           </>
         ),
-      }
+      };
     } finally {
-      sheet.seal()
+      sheet.seal();
     }
   }
 }

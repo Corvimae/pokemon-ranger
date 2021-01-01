@@ -37,7 +37,7 @@ type SetHPThresholdAction = {
 type SetIncludeCritsAction = {
   type: typeof SET_INCLUDE_CRITS;
   payload: {
-    includeCrits: boolean; 
+    includeCrits: boolean;
   };
 };
 
@@ -83,7 +83,7 @@ type SetInitialStateAction = {
   payload: SumReducerState;
 };
 
-export type SumReducerAction = 
+export type SumReducerAction =
   SetRollAction |
   SetHPThresholdAction |
   SetIncludeCritsAction |

@@ -1,8 +1,9 @@
-import { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
+import { NextPage } from 'next';
+import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 import { Header, InputSection, InputRow, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
-import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 import { resetState, useSumReducer, setAdjustedRoll, setRoll, removeRoll, addRoll, setHPThreshold, setCritMultiplier, setCritChanceDenominator, setIncludeCrits } from '../../reducers/sum/reducer';
 
 type RollResults = { valid: false; message: string; } | { valid: true, values: number[] };
@@ -20,40 +21,39 @@ function parseRolls(values: string): number[] | null {
   return result;
 }
 
-export default function Sum() {
+const Sum: NextPage = () => {
   const [state, dispatch] = useSumReducer();
-  
+
   const handleResetValues = useCallback(() => {
     dispatch(resetState());
   }, [dispatch]);
 
   const handleUpdateRoll = useCallback((event, index) => {
     dispatch(setRoll(event.target.value, index));
-  }, [dispatch, state.rolls]);
+  }, [dispatch]);
 
   const handleUpdateAdjustedRoll = useCallback((event, index) => {
     dispatch(setAdjustedRoll(event.target.value, index));
   }, [dispatch]);
 
-
-  const handleSetIncludeCrits = useCallback(event => {
+  const handleSetIncludeCrits = useCallback(() => {
     dispatch(setIncludeCrits(!state.includeCrits));
   }, [dispatch, state.includeCrits]);
 
   const handleSetHPThreshold = useCallback(event => {
     dispatch(setHPThreshold(Number(event.target.value)));
   }, [dispatch]);
-  
+
   const handleSetCritMultiplier = useCallback(event => {
     dispatch(setCritMultiplier(Number(event.target.value)));
   }, [dispatch]);
 
   const handleSetCritChanceDenominator = useCallback(event => {
-    dispatch(setCritChanceDenominator(Number(event.target.value)))
+    dispatch(setCritChanceDenominator(Number(event.target.value)));
   }, [dispatch]);
 
-  const handleRemoveRoll = useCallback((index) => {
-    dispatch(removeRoll(index))
+  const handleRemoveRoll = useCallback(index => {
+    dispatch(removeRoll(index));
   }, [dispatch]);
 
   const handleAddRoll = useCallback(() => {
@@ -61,7 +61,7 @@ export default function Sum() {
   }, [dispatch]);
 
   const combinationCount = useMemo(() => (
-    Math.pow(state.rolls.map(parseRolls)?.[0]?.length ?? 0, state.rolls.length)
+    state.rolls.map(parseRolls)?.[0]?.length ?? 0 ** state.rolls.length
   ), [state.rolls]);
 
   const results = useMemo<RollResults>(() => {
@@ -80,40 +80,42 @@ export default function Sum() {
         subIndex,
       }))
     ));
-    
-    const results = [...new CartesianProduct(...valuesWithAdjustments)].reduce<number[][]>((critAcc, rolls) => [
-      ...critAcc,  
+
+    const critResults = [...new CartesianProduct(...valuesWithAdjustments)].reduce<number[][]>((critAcc, rolls) => [
+      ...critAcc,
       [...Array(rolls.length + 1).keys()].reduce<number[]>((rollAcc, numCrits) => {
         const combinations = numCrits === rolls.length + 1 ? [rolls] : [...new Combination(rolls, numCrits)];
 
-        const critSuccesses = combinations.reduce((critAcc, critValues) => {
+        const critSuccesses = combinations.reduce((combinationAcc, critValues) => {
           const nonCritValues = rolls.filter(roll => !critValues.some(critRoll => critRoll.index === roll.index && critRoll.subIndex === roll.subIndex));
 
           const nonCritDamage = nonCritValues.reduce((acc, { value }) => acc + value, 0);
           const critDamage = critValues.reduce((acc, { value, adjusted }) => acc + Math.trunc((adjusted || value) * state.critMultiplier), 0);
-          
-          return critAcc + (nonCritDamage + critDamage >= state.hpThreshold ? 1 : 0);
+
+          return combinationAcc + (nonCritDamage + critDamage >= state.hpThreshold ? 1 : 0);
         }, 0);
 
         return [
-          ...rollAcc, 
+          ...rollAcc,
           critSuccesses,
         ];
-      }, [])
+      }, []),
     ], []);
-    
-    const summedResults = results.reduce((acc, rollResults) => (
-      rollResults.reduce((totals, successes, index) => {
-        totals[index] = (totals[index] || 0) + successes;
 
-        return totals;
+    const summedResults = critResults.reduce((acc, rollResults) => (
+      rollResults.reduce((totals, successes, index) => {
+        const updatedTotals = [...totals];
+
+        updatedTotals[index] = (totals[index] || 0) + successes;
+
+        return updatedTotals;
       }, acc)
     ), []);
 
     return {
       valid: true,
       values: summedResults,
-    }
+    };
   }, [state]);
 
   const critOdds = useMemo(() => {
@@ -121,7 +123,7 @@ export default function Sum() {
     const critChance = 1 / state.critChanceDenominator;
 
     return [...Array(state.rolls.length + 1).keys()].map(numCrits => ({
-      odds: Math.pow(critChance, numCrits) * Math.pow(1 - critChance, trialSize - numCrits),
+      odds: critChance ** numCrits * (1 - critChance) ** (trialSize - numCrits),
       binomialCoefficient: factorial(trialSize) / (factorial(numCrits) * factorial(trialSize - numCrits)),
     }));
   }, [state.rolls, state.critChanceDenominator]);
@@ -148,23 +150,27 @@ export default function Sum() {
           </AddRollRow>
 
           <InputRow>
-            <label>Target HP</label>
-            <input value={state.hpThreshold} onChange={handleSetHPThreshold}/>
+            <label htmlFor="targetHP">Target HP</label>
+            <input id="targetHP" value={state.hpThreshold} onChange={handleSetHPThreshold} />
           </InputRow>
           <InputRow>
-            <label>Include Crits?</label>
-            <Checkbox data-checked={state.includeCrits} onClick={handleSetIncludeCrits} />
+            <label htmlFor="includeCrits">Include Crits?</label>
+            <Checkbox id="includeCrits" data-checked={state.includeCrits} onClick={handleSetIncludeCrits} />
           </InputRow>
           {state.includeCrits && (
             <>
               <InputRow>
-                <label>Crit Chance Denominator</label>
-                <input value={state.critChanceDenominator} onChange={handleSetCritChanceDenominator}/>        
+                <label htmlFor="critChanceDenominator">Crit Chance Denominator</label>
+                <input
+                  id="critChanceDenominator"
+                  value={state.critChanceDenominator}
+                  onChange={handleSetCritChanceDenominator}
+                />
                 <HelpText>16 for Gen 2-6, 24 for Gen 7+</HelpText>
               </InputRow>
               <InputRow>
-                <label>Crit Multiplier</label>
-                <input value={state.critMultiplier} onChange={handleSetCritMultiplier}/>        
+                <label htmlFor="critMultiplier">Crit Multiplier</label>
+                <input id="critMultiplier" value={state.critMultiplier} onChange={handleSetCritMultiplier} />
                 <HelpText>2.0 for Gen 2-5, 1.5 for Gen 6+</HelpText>
               </InputRow>
               <InputSubheader>Adjusted Damage Rolls</InputSubheader>
@@ -181,7 +187,7 @@ export default function Sum() {
                     placeholder={state.rolls[index]}
                   />
                 </FullWidthInputRow>
-              ))}     
+              ))}
             </>
           )}
 
@@ -194,7 +200,7 @@ export default function Sum() {
           <>
             <div>
               Of {combinationCount} possible {state.includeCrits && 'critless'} damage rolls,&nbsp;
-              <b>{results.values[0]} ({(results.values[0] / combinationCount * 100).toFixed(2)}%) </b>
+              <b>{results.values[0]} ({((results.values[0] / combinationCount) * 100).toFixed(2)}%) </b>
               deal at least {state.hpThreshold} damage.
             </div>
 
@@ -215,7 +221,9 @@ export default function Sum() {
                     <ResultsRow key={index}>
                       <div>{index}</div>
                       <div>{results.values[index]} of {combinationCount * critOdds[index]?.binomialCoefficient}</div>
-                      <div>{((value / combinationCount) * critOdds[index]?.odds * 100).toFixed(2)}%</div>
+                      <div>
+                        {((value / combinationCount) * critOdds[index]?.odds * 100).toFixed(2)}%
+                      </div>
                     </ResultsRow>
                   ))}
                 </ResultsGrid>
@@ -226,7 +234,9 @@ export default function Sum() {
       </div>
     </Container>
   );
-}
+};
+
+export default Sum;
 
 const Container = styled.div`
     display: grid;
@@ -256,7 +266,7 @@ const FullWidthInputRow = styled(InputRow)`
 
 const AddRollRow = styled(FullWidthInputRow)`
   margin-bottom: 1rem;
-`
+`;
 
 const RemovableInputRow = styled(FullWidthInputRow)`
   display: flex;

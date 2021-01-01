@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { RangeResult, OneShotResult, CompactRange} from '../utils/calculations';
+import { RangeResult, OneShotResult, CompactRange } from '../utils/rangeTypes';
 import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
 import { Button } from './Button';
 
@@ -24,12 +24,14 @@ function formatSegment(result: GridResult): string[] {
       formatStatRange(result.statFrom, result.statTo),
       `${result.successes} / 16`,
     ];
-  } else if (isCompactRange(result)) {
+  }
+
+  if (isCompactRange(result)) {
     return [
       `${formatIVRange(result.negative)} / ${formatIVRange(result.neutral)} / ${formatIVRange(result.positive)}`,
       formatStatRange(result.statFrom, result.statTo),
       result.damageRangeOutput,
-    ]
+    ];
   }
 
   return [
@@ -53,7 +55,7 @@ const UnstyledCopyGridButton: React.FC<CopyGridButtonProps> = ({ results, classN
     <CopyButton className={className} onClick={handleCopy}>
       Copy
     </CopyButton>
-  )
+  );
 };
 
 export const CopyGridButton = styled(UnstyledCopyGridButton)``;

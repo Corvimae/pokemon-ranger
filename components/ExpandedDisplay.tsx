@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { NatureResult, RangeResult } from '../utils/calculations';
+import React from 'react';
+import { NatureResult, RangeResult } from '../utils/rangeTypes';
 import { useGridCopy } from '../utils/hooks';
 import { CopyGridButton } from './CopyGridButton';
 import { ResultsGrid, ResultsGridHeader, ResultsRow, ResultsSubheader } from './Layout';
@@ -12,9 +12,7 @@ interface ExpandedDisplayGridProps {
 }
 
 const ExpandedDisplayGrid: React.FC<ExpandedDisplayGridProps> = ({ name, rangeSegments, displayRolls }) => {
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useGridCopy(gridRef);
+  const gridRef = useGridCopy();
 
   return (
     <>
@@ -25,7 +23,7 @@ const ExpandedDisplayGrid: React.FC<ExpandedDisplayGridProps> = ({ name, rangeSe
           <div>Stat</div>
           <div>Damage</div>
         </ResultsGridHeader>
-        
+
         <CopyGridButton results={Object.values(rangeSegments)} />
 
         {rangeSegments.map(({ from, to, stat, damageValues, damageRangeOutput }) => (
@@ -50,12 +48,13 @@ interface ExpandedDisplayProps {
 
 export const ExpandedDisplay: React.FC<ExpandedDisplayProps> = ({ results, displayRolls }) => (
   <>
-  {results.map(({ name, rangeSegments }) => (
+    {results.map(({ name, rangeSegments }) => (
       <ExpandedDisplayGrid
         key={name}
         name={name}
         rangeSegments={rangeSegments}
-        displayRolls={displayRolls} />
+        displayRolls={displayRolls}
+      />
     ))}
   </>
 );
