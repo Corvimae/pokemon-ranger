@@ -84,6 +84,7 @@ const StatDisplay = styled.div`
 const StatName = styled.div<{ positive?: boolean; negative?: boolean; }>`
   font-weight: 700;
   margin-bottom: 0.125rem;
+  padding: 0 0.25rem;
   color: ${props => {
     if (props.positive) return '#ff7f7f';
     if (props.negative) return '#a1a1ff';

@@ -28,6 +28,7 @@ export const REGISTER_TRACKER = 'REGISTER_TRACKER';
 export const SET_STAT = 'SET_STAT';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
+export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
 
 type RegisterTrackerAction = {
   type: typeof REGISTER_TRACKER;
@@ -62,8 +63,17 @@ type ResetTrackerAction = {
   };
 };
 
+type SetStartingLevelAction = {
+  type: typeof SET_STARTING_LEVEL;
+  payload: {
+    name: string;
+    startingLevel: number;
+  };
+};
+
 export type RouteAction =
   RegisterTrackerAction |
   SetStatAction |
   TriggerEvolutionAction |
-  ResetTrackerAction;
+  ResetTrackerAction |
+  SetStartingLevelAction;

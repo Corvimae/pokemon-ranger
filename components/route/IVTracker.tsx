@@ -5,7 +5,7 @@ import { capitalize, range } from '../../utils/utils';
 import { Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
 import { calculateHP, calculateStat, NATURE_MODIFIERS } from '../../utils/calculations';
-import { resetTracker, RouteContext, setStat, triggerEvolution } from '../../reducers/route/reducer';
+import { resetTracker, RouteContext, setStartingLevel, setStat, triggerEvolution } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
 
 interface StatValuePossibilitySet {
@@ -62,6 +62,12 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
 
   const handleReset = useCallback(() => {
     dispatch(resetTracker(tracker.name));
+    setCurrentLevel(tracker.startingLevel);
+  }, [tracker.name, tracker.startingLevel, dispatch]);
+
+  const handleSetStartingLevel = useCallback((level: number) => {
+    dispatch(setStartingLevel(tracker.name, level));
+    setCurrentLevel(level);
   }, [tracker.name, dispatch]);
 
   const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
@@ -114,6 +120,14 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
     <Container>
       <ActionRow>
         {capitalize(tracker.name)}
+        {Object.keys(tracker.evSegments).length > 1 && Object.keys(tracker.evSegments).map(level => (
+          <StartingLevelButton
+            active={tracker.startingLevel === Number(level)}
+            onClick={() => handleSetStartingLevel(Number(level))}
+          >
+            {level}
+          </StartingLevelButton>
+        ))}
 
         <ActionButtons>
           <LevelSelector>
@@ -226,5 +240,23 @@ const StatSelector = styled.button<{ selected?: boolean }>`
 
   &:disabled {
     opacity: 0.35;
+  }
+`;
+
+const StartingLevelRow = styled.div`
+  display: flex;
+  width: max-content;
+  align-items: center;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+`;
+
+const StartingLevelButton = styled(Button)<{ active?: boolean }>`
+  font-size: 0.875rem;
+  margin-left: 1rem;
+  background-color: ${props => props.active && '#be45be'};
+
+  &:not(:disabled):hover {
+    background-color: ${props => props.active && '#be45be'};
   }
 `;
