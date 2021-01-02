@@ -3,14 +3,17 @@ import { CompactRange, NatureKey, NatureModifier, NatureResult, StatRange } from
 
 export const NATURE_MODIFIERS: NatureModifier[] = [
   {
+    key: 'negative',
     name: 'Negative Nature',
     modifier: 0.9,
   },
   {
+    key: 'neutral',
     name: 'Neutral Nature',
     modifier: 1,
   },
   {
+    key: 'positive',
     name: 'Positive Nature',
     modifier: 1.1,
   },
@@ -22,6 +25,10 @@ function getMultiTargetModifier(generation: number): number {
 
 export function calculateStat(level: number, base: number, iv: number, ev: number, modifier: number): number {
   return Math.floor((Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5) * modifier);
+}
+
+export function calculateHP(level: number, base: number, iv: number, ev: number): number {
+  return Math.floor((Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + level + 10));
 }
 
 export function applyCombatStages(stat: number, combatStages: number): number {

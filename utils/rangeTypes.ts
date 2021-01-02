@@ -1,4 +1,7 @@
+export type NatureType = 'negative' | 'neutral' | 'positive';
+
 export interface NatureModifier {
+  key: NatureType;
   name: string;
   modifier: number;
 }
