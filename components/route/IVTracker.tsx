@@ -1,43 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Tracker } from '../../reducers/route/types';
-import { capitalize, range } from '../../utils/utils';
+import { capitalize } from '../../utils/utils';
 import { Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
-import { calculateHP, calculateStat, NATURE_MODIFIERS } from '../../utils/calculations';
 import { resetTracker, RouteContext, setStartingLevel, setStat, triggerEvolution } from '../../reducers/route/reducer';
-import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
-
-interface StatValuePossibilitySet {
-  possible: number[];
-  valid: number[];
-}
+import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, StatValuePossibilitySet } from '../../utils/trackerCalculations';
 
 interface IVTrackerProps {
   tracker: Tracker;
-}
-
-function calculatePossibleStatValues(
-  stat: Stat,
-  level: number,
-  baseStat: number,
-  minIV: number,
-  maxIV: number,
-  ev: number,
-  possibleModifiers: number[],
-): StatValuePossibilitySet {
-  const possibleValues = range(0, 31).flatMap(iv => (
-    possibleModifiers.map(modifier => (stat === 'hp' ? calculateHP : calculateStat)(level, baseStat, iv, ev, modifier))
-  ));
-
-  const validValues = range(minIV, maxIV).flatMap(iv => (
-    possibleModifiers.map(modifier => (stat === 'hp' ? calculateHP : calculateStat)(level, baseStat, iv, ev, modifier))
-  ));
-
-  return {
-    possible: [...new Set(possibleValues)],
-    valid: [...new Set(validValues)],
-  };
 }
 
 export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
@@ -71,40 +42,17 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
   }, [tracker.name, dispatch]);
 
   const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
-  const [confirmedNegative, confirmedPositive] = useMemo(() => calculatePossibleNature(ivRanges), [ivRanges]);
+  const confirmedNatures = useMemo(() => calculatePossibleNature(ivRanges), [ivRanges]);
 
   const possibleStatValues = useMemo(() => (
     STATS.reduce((acc, stat) => {
-      let relevantModifiers = stat === 'hp' ? [NATURE_MODIFIERS[1]] : NATURE_MODIFIERS;
-
-      if (confirmedNegative !== null && confirmedNegative !== stat) {
-        relevantModifiers = relevantModifiers.filter(({ key }) => key !== 'negative');
-      }
-
-      if (confirmedPositive !== null && confirmedPositive !== stat) {
-        relevantModifiers = relevantModifiers.filter(({ key }) => key !== 'positive');
-      }
-
-      const { possible, valid } = relevantModifiers.reduce<StatValuePossibilitySet>((combinedSet, { key, modifier }) => {
-        const values = ivRanges[stat][key];
-
-        if (values[0] === -1) return combinedSet;
-
-        const calculatedValues = calculatePossibleStatValues(
-          stat,
-          currentLevel,
-          tracker.baseStats[tracker.evolution][stat],
-          values[0],
-          values[1],
-          tracker.evSegments[tracker.startingLevel]?.[currentLevel]?.[stat] ?? 0,
-          [modifier],
-        );
-
-        return {
-          possible: [...combinedSet.possible, ...calculatedValues.possible],
-          valid: [...combinedSet.valid, ...calculatedValues.valid],
-        };
-      }, { possible: [], valid: [] } as StatValuePossibilitySet);
+      const { possible, valid } = calculatePossibleStats(
+        stat,
+        currentLevel,
+        ivRanges,
+        confirmedNatures,
+        tracker,
+      );
 
       return {
         ...acc,
@@ -114,7 +62,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
         },
       };
     }, {} as Record<Stat, StatValuePossibilitySet>)
-  ), [currentLevel, ivRanges, tracker, confirmedNegative, confirmedPositive]);
+  ), [currentLevel, ivRanges, tracker, confirmedNatures]);
   
   return (
     <Container>
@@ -122,6 +70,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
         {capitalize(tracker.name)}
         {Object.keys(tracker.evSegments).length > 1 && Object.keys(tracker.evSegments).map(level => (
           <StartingLevelButton
+            key={level}
             active={tracker.startingLevel === Number(level)}
             onClick={() => handleSetStartingLevel(Number(level))}
           >

@@ -17,14 +17,18 @@ import { RouteContext } from '../../reducers/route/reducer';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
+import { ConditionalBlock } from '../../components/route/ConditionalBlock';
 
 const schema = merge(gh, {
   tagNames: [
     'calculator',
+    'if',
     'damage',
+    'level',
   ],
   attributes: {
     calculator: ['species', 'contents', 'baseStats'],
+    if: ['stat', 'condition', 'level', 'evolution', 'source'],
     damage: [
       'source',
       'contents',
@@ -62,6 +66,7 @@ const processor = unified()
     createElement: React.createElement,
     components: ({
       calculator: IVCalculatorDirective,
+      if: ConditionalBlock,
       damage: DamageTable,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
@@ -91,6 +96,27 @@ const testContent = `
   6 -> 0, 1, 0, 0, 0, 1
 :::
 # Test
+
+:::if{stat="atk" condition="12+" level=6}
+Attack is at least 12!
+:::
+
+:::if{source="Lillipup" stat="atk" condition="10-" level=6}
+Attack is 10 or less!
+:::
+
+:::if{source="Lillipup" stat="atk" condition="15" level=6}
+Attack is exactly 15!
+:::
+
+
+:::if{source="Lillipup" stat="atk" condition="15-18" level=6}
+Attack is from 15-18!
+:::
+
+:::if{source="Lillipup" stat="atk" condition="(31-/x/x)"}
+IV condition
+:::
 
 ::damage[+0 Tackle at Lvl 9 against 12 Def (0 EVs)]{source="Lillipup" level=9 healthThreshold=12 special=false evs=0 movePower=50 stab=true opponentStat=12}
 `;

@@ -131,4 +131,5 @@ export const Card = styled.div`
   background-color: #a1c2ee;
   border: 1px solid #5e84b6;
   color: #1a3250;
+  margin: 1rem 0;
 `;
