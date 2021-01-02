@@ -84,8 +84,8 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
 }
 
 export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>): [Stat | null, Stat | null] {
-  const negative = Object.entries(ivRanges).find(([_, value]) => value.positive[0] === -1 && value.neutral[0] === -1);
-  const positive = Object.entries(ivRanges).find(([_, value]) => value.negative[0] === -1 && value.neutral[0] === -1);
+  const negative = Object.entries(ivRanges).find(([, value]) => value.positive[0] === -1 && value.neutral[0] === -1);
+  const positive = Object.entries(ivRanges).find(([, value]) => value.negative[0] === -1 && value.neutral[0] === -1);
 
   return [
     negative ? negative[0] as Stat : null,

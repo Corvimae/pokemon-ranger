@@ -10,6 +10,7 @@ import directive from 'remark-directive';
 import raw from 'rehype-raw';
 import sanitize from 'rehype-sanitize';
 import gh from 'hast-util-sanitize/lib/github.json';
+import { Schema } from 'hast-util-sanitize';
 import { directiveConverter } from '../../directives/directiveConverter';
 import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
 import { RouteContext } from '../../reducers/route/reducer';
@@ -31,12 +32,12 @@ const processor = unified()
   .use(directiveConverter)
   .use(remarkToRehype, { allowDangerousHtml: true })
   .use(raw)
-  .use(sanitize, schema)
+  .use(sanitize, (schema as unknown) as Schema)
   .use(rehypeToReact, {
     createElement: React.createElement,
-    components: {
+    components: ({
       calculator: IVCalculatorDirective,
-    },
+    } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 
 const testContent = `
