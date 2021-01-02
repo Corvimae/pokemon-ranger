@@ -3,6 +3,8 @@ import { Move } from './moveClasses.js'
 import { FetchPokemonByName } from './dataFetchers.js'
 import { FetchMoveByName } from './dataFetchers.js'
 
+import { ResultsTensor } from './matrixMath.js'
+
 let starly = new Pokemon(FetchPokemonByName('Starly', 5));
 /*starly.pokeName = 'Starly';
 
@@ -47,5 +49,16 @@ function BullyLillipup() {
 
 
 BullyLillipup();
+
+let varNames = ['a','b','c','d'];
+let func = (a,b,c,d,e) => {return a+b+c+d+e};
+let varValList = [];
+varValList.push([0,1,2,3]);
+varValList.push(1);
+varValList.push([0]);
+varValList.push([0,1,2,3]);
+varValList.push([0,1,2,3]);
+
+let results = ResultsTensor(varNames, varValList, func)
 
 const debugDummy = 0;
