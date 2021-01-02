@@ -1,4 +1,4 @@
-function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
+export function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
     
     let constantVals = {};
 
@@ -11,7 +11,7 @@ function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
 
     let i = 0;
     let axis = 0;
-    for (const element in listOfValueSets) {
+    for (const element of listOfValueSets) {
         
         if (Array.isArray(element)) {
             if (element.length > 1) {
@@ -24,16 +24,18 @@ function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
                 initFuncArgs.push(listOfValueSets[i][0]);
             } else {
                 constantVals[axisLabels[i]] = listOfValueSets[i][0];
-                variableFlag.push(0);
+                //variableFlag.push(0);
                 initFuncArgs.push(listOfValueSets[i][0]);
             };
         } else {
             constantVals[axisLabels[i]] = listOfValueSets[i];
-            variableFlag.push(0);
+            //variableFlag.push(0);
             initFuncArgs.push(listOfValueSets[i]);
         };
         i++
     };
+
+    if (variableVals.length === 0) throw new Error('Needs to have at least one variable');
 
     let resultsTensor = ConstuctMultiArray(numVariableVals);
 
@@ -41,14 +43,20 @@ function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
         const writeValue =  mapFunc(...args);
         let writeLocation = writeArray
         let i = 0
-        for (; i < arrayLocation.length-1; index++) {
+        for (; i < arrayLocation.length-1; i++) {
             writeLocation = writeLocation[arrayLocation[i]];
         };
-        writeLocation[arrayLocation[i+1]] = writeValue
+        writeLocation[arrayLocation[i]] = writeValue;
         return
     };
     //let mathPromises = 
-    Promises.allSettled(SpawnPromises(initFuncArgs, variableElements, variableValList, AsyncFunc, resultsTensor));
+    let caughtError = null;
+    Promise.allSettled(SpawnPromises(initFuncArgs, variableElements, variableValList, AsyncFunc, resultsTensor)).catch((error) => caughtError = error);
+
+    if (!caughtError===null){
+        console.log(caughtError);
+        throw caughtError
+    }
 
     return [constantVals, variableVals, variableAxis, resultsTensor]
     
@@ -71,7 +79,7 @@ async function SpawnPromises(initArgs, variableElements, variableVals, AsyncFunc
         for (let i = 0; i < variableVals[variableVals.length-1].length; i++) {
             initArgs[variableElements[0]] = variableVals[variableVals.length-1][i];
             arrayLocation[arrayLocation.length-1] = i;
-            promises.push(AsyncFunc(initArgs.splice(), arrayLocation.splice(), writeLocation));
+            promises.push(AsyncFunc(initArgs.slice(), arrayLocation.slice(), writeArray));
         };
 
         return Promise.allSettled(promises);
@@ -88,14 +96,14 @@ async function SpawnPromises(initArgs, variableElements, variableVals, AsyncFunc
         arrayLocation.push(0)
         for (let i = 0; i < variableVals[variableVals.length-variableElements.length].length; i++) {
 
-            initArgs[variableElements[0]] = variableVals[variableVals.length-1][i];
-            arrayLocation[arrayLocation.length-variableElements.length] = i;
+            initArgs[variableElements[0]] = variableVals[arrayLocation.length-1][i];
+            arrayLocation[arrayLocation.length-1] = i;
             promises.push(SpawnPromises(initArgs.slice(),
                                         variableElements.slice(1), 
                                         variableVals,
                                         AsyncFunc, 
                                         writeArray, 
-                                        arrayLocation = arrayLocation.slice()));
+                                        arrayLocation.slice()));
         };
         return Promise.allSettled(promises);
     };
@@ -103,15 +111,17 @@ async function SpawnPromises(initArgs, variableElements, variableVals, AsyncFunc
 
 }
 
+//recursively constructs a arg[1]xarg[2]x...xarg[n] matrix implemented as nested arrays.
+
 function ConstuctMultiArray(axisLengths){
     
-    if (axisLengths === []) return 0;
+    if (axisLengths.length === 0) return 0;
     
     const currentAxisLength = axisLengths[0];
     const currentAxisElement = ConstuctMultiArray(axisLengths.slice(1));
     let currentAxis = []
-    for (let i = 0; index < length; index++) {
-        currentAxis.push(currentAxisElement);
+    for (let i = 0; i < currentAxisLength; i++) {
+        currentAxis.push((Array.isArray(currentAxisElement)) ? currentAxisElement.slice() : currentAxisElement);
     };
     return currentAxis
 };
