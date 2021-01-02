@@ -2,25 +2,21 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Tracker } from '../../reducers/route/types';
 import { NATURES, Stat, STATS } from '../../utils/constants';
-import { calculateAllPossibleIVRanges, calculatePossibleNature, IVRangeSet } from '../../utils/trackerCalculations';
-
-const STAT_NAMES: Record<Stat, string> = {
-  hp: 'HP',
-  attack: 'ATK',
-  defense: 'DEF',
-  spAttack: 'SP. ATK',
-  spDefense: 'SP. DEF',
-  speed: 'SPD',
-};
+import { formatStatName } from '../../utils/rangeFormat';
+import { calculateAllPossibleIVRanges, calculatePossibleNature, getPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
 
 interface IVDisplayProps {
   tracker: Tracker;
 }
 
-function getSymbolForStat(rangeSet: IVRangeSet, confirmedPositive: Stat | null, confirmedNegative: Stat | null): string {
-  if (confirmedPositive === null && rangeSet.negative[0] === -1 && (confirmedNegative !== null || rangeSet.positive[0] !== -1)) return ' +';
-  if (confirmedNegative === null && rangeSet.negative[0] !== -1 && (confirmedPositive !== null || rangeSet.positive[0] === -1)) return ' -';
-  if (confirmedNegative === null && confirmedPositive === null && rangeSet.negative[0] !== -1 && rangeSet.positive[0] !== -1) return ' ±';
+function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: Stat | null, confirmedNegative: Stat | null): string {
+  if (!rangeSet) return '';
+
+  const [negative, neutral, positive] = getPossibleNatureAdjustmentsForStat(rangeSet, stat, [confirmedNegative, confirmedPositive]);
+
+  if (neutral && positive) return ' +';
+  if (negative && neutral) return ' -';
+  if (negative && neutral && positive) return ' ±';
 
   return '';
 }
@@ -41,7 +37,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
       {STATS.map(stat => (
         <StatDisplay>
           <StatName positive={stat === confirmedPositive} negative={stat === confirmedNegative}>
-            {STAT_NAMES[stat]}{stat !== 'hp' && getSymbolForStat(ivRanges[stat], confirmedPositive, confirmedNegative)}
+            {formatStatName(stat, true)}{stat !== 'hp' && getSymbolForStat(ivRanges[stat], stat, confirmedPositive, confirmedNegative)}
           </StatName>
           <div>
             {ivRanges[stat].combined[0]}{ivRanges[stat].combined[0] !== ivRanges[stat].combined[1] && `–${ivRanges[stat].combined[1]}`}

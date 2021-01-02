@@ -1,3 +1,4 @@
+import { Stat } from './constants';
 import { StatRange } from './rangeTypes';
 
 export function formatDamageRange(values: number[]): string {
@@ -32,4 +33,29 @@ export function formatIVSplit(values: { negative: StatRange; neutral: StatRange;
 
 export function formatStatRange(from: number, to: number): string {
   return from === to ? `${from}` : `${from}–${to}`;
+}
+
+export function formatStatName(stat: Stat, shortForm = false): string {
+  switch (stat) {
+    case 'hp':
+      return 'HP';
+
+    case 'attack':
+      return shortForm ? 'ATK' : 'Attack';
+
+    case 'defense':
+      return shortForm ? 'DEF' : 'Defense';
+
+    case 'spAttack':
+      return shortForm ? 'SP. ATK' : 'Sp. Attack';
+
+    case 'spDefense':
+      return shortForm ? 'SP. DEF' : 'Sp. Defense';
+    
+    case 'speed':
+      return shortForm ? 'SPE' : 'Speed';
+
+    default:
+      return '<Unknown Stat>';
+  }
 }

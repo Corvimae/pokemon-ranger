@@ -1,3 +1,5 @@
+import { Stat } from './constants';
+
 export type NatureType = 'negative' | 'neutral' | 'positive';
 
 export interface NatureModifier {
@@ -24,22 +26,26 @@ export interface NatureResult {
   rangeSegments: RangeResult[];
 }
 
-export interface CompactRange extends RangeResult {
-  statFrom: number;
-  statTo: number;
+export interface CombinedIVResult {
   negative: StatRange;
   neutral: StatRange;
-  positive: StatRange;
+  positive: StatRange
 }
 
-export interface OneShotResult {
+type CombinedRangeResult = RangeResult & CombinedIVResult;
+
+export interface CompactRange extends CombinedRangeResult {
+  statFrom: number;
+  statTo: number;
+}
+
+export interface OneShotResult extends CombinedIVResult {
   successes: number;
   statFrom: number;
   statTo: number;
-  negative: StatRange;
-  neutral: StatRange;
-  positive: StatRange;
   componentResults: CompactRange[];
 }
+
+export type ConfirmedNature = [Stat | null, Stat | null];
 
 export type NatureKey = 'negative' | 'neutral' | 'positive';

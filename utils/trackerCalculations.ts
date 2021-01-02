@@ -1,6 +1,7 @@
 import { Tracker } from '../reducers/route/types';
 import { calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
 import { Stat, STATS } from './constants';
+import { CombinedIVResult, ConfirmedNature, NatureModifier, NatureType, StatRange } from './rangeTypes';
 import { range } from './utils';
 
 export interface IVRangeSet {
@@ -83,7 +84,7 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
   }, {} as Record<Stat, IVRangeSet>);
 }
 
-export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>): [Stat | null, Stat | null] {
+export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>): ConfirmedNature {
   const negative = Object.entries(ivRanges).find(([, value]) => value.positive[0] === -1 && value.neutral[0] === -1);
   const positive = Object.entries(ivRanges).find(([, value]) => value.negative[0] === -1 && value.neutral[0] === -1);
 
@@ -91,4 +92,47 @@ export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>): [St
     negative ? negative[0] as Stat : null,
     positive ? positive[0] as Stat : null,
   ];
+}
+
+export function getPossibleNatureAdjustmentsForStat(
+  rangeSet: IVRangeSet,
+  stat: Stat,
+  [confirmedNegative, confirmedPositive]: ConfirmedNature,
+): [boolean, boolean, boolean] {
+  if (confirmedPositive === stat) return [false, false, true];
+  if (confirmedNegative === stat) return [true, false, false];
+  if (confirmedPositive === null && rangeSet.negative[0] === -1 && (confirmedNegative !== null || rangeSet.positive[0] !== -1)) return [false, true, true];
+  if (confirmedNegative === null && rangeSet.negative[0] !== -1 && (confirmedPositive !== null || rangeSet.positive[0] === -1)) return [true, true, false];
+  if (confirmedNegative === null && confirmedPositive === null && rangeSet.negative[0] !== -1 && rangeSet.positive[0] !== -1) return [true, true, true];
+
+  return [false, true, false];
+}
+
+export function isIVWithinValues(calculatedValue: StatRange, ivRange: [number, number]): boolean {
+  if (!calculatedValue) return false;
+
+  return Math.max(calculatedValue.from, ivRange[0]) <= Math.min(calculatedValue.to, ivRange[1]);
+}
+
+export function isIVWithinRange(
+  damageResult: CombinedIVResult,
+  [confirmedNegative, confirmedPositive]: ConfirmedNature,
+  stat: Stat,
+  ivRanges: IVRangeSet,
+): boolean {
+  if (confirmedNegative === stat) {
+    return isIVWithinValues(damageResult.negative, ivRanges.negative);
+  }
+  
+  if (confirmedPositive === stat) {
+    return isIVWithinValues(damageResult.positive, ivRanges.positive);
+  }
+
+  const [negative, neutral, positive] = getPossibleNatureAdjustmentsForStat(ivRanges, stat, [confirmedNegative, confirmedPositive]);
+
+  return Object.entries({
+    negative,
+    neutral,
+    positive,
+  }).filter(([, value]) => value).some(([key]) => isIVWithinValues(damageResult[key as NatureType], ivRanges[key as NatureType]));
 }
