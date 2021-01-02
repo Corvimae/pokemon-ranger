@@ -124,3 +124,11 @@ export const Checkbox = styled.button<{ 'data-checked': boolean }>`
     color: #fff;
   }
 `;
+
+export const Card = styled.div`
+  width: 100%;
+  padding: 1rem;
+  background-color: #a1c2ee;
+  border: 1px solid #5e84b6;
+  color: #1a3250;
+`;

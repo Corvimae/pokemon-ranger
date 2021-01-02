@@ -21,7 +21,9 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           <Link href="/sum">Damage Sum</Link>
         </li>
       </Header>
-      <Component {...pageProps} />
+      <Content>
+        <Component {...pageProps} />
+      </Content>
       <Footer>
         Created by <a href="https://twitter.com/Corvimae" target="_blank" rel="noreferrer">@Corvimae</a>.&nbsp;
         <a href="https://github.com/corvimae/pokemon-ranger" target="_blank" rel="noreferrer">View the source.</a>
@@ -60,6 +62,11 @@ const Header = styled.ul`
       background-color: rgba(255, 255, 255, 0.25);
     }
   }
+`;
+
+const Content = styled.div`
+  position: relative;
+  overflow-y: auto;
 `;
 
 const Footer = styled.div`

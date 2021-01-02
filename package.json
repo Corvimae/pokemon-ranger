@@ -10,16 +10,30 @@
     "lint": "eslint --ext .ts,.tsx,.d.ts ."
   },
   "dependencies": {
+    "@types/lodash": "^4.14.167",
+    "deepmerge": "^4.2.2",
+    "hast-util-sanitize": "^3.0.2",
+    "hastscript": "^6.0.0",
     "js-combinatorics": "^1.4.5",
+    "lodash": "^4.17.20",
     "next": "10.0.3",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "styled-components": "^5.2.1"
+    "rehype-raw": "^5.0.0",
+    "rehype-react": "^6.1.0",
+    "rehype-sanitize": "^4.0.0",
+    "remark-directive": "^1.0.1",
+    "remark-parse": "^9.0.0",
+    "remark-rehype": "^8.0.0",
+    "styled-components": "^5.2.1",
+    "unified": "^9.2.0",
+    "unist-util-visit": "^2.0.3"
   },
   "devDependencies": {
     "@types/node": "^14.14.16",
     "@types/react": "^17.0.0",
     "@types/styled-components": "^5.1.7",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.11.1",
     "@typescript-eslint/parser": "^4.11.1",
     "eslint": "^7.16.0",
