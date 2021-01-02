@@ -1,6 +1,8 @@
 import { Move } from './moveClasses.js'
 import { FetchMoveByName } from './dataFetchers.js'
 import { Ability } from './abilityClasses.js'
+//import { matrix, setCartesian}
+//import { CartesianProduct } from 'js-combinatorics/umd/combinatorics'
 
 export class Pokemon {
 
@@ -115,17 +117,32 @@ export class Pokemon {
     };
 
     CalcStat(generation, stat) {
+        const level = this.level;
+        const baseStat = this.baseStats[stat];
+        const IV = this.IVs[stat];
+        const EV = this.EVs[stat];
+        const nature = this.nature[stat];
+
+        let statFunc;
 
         switch (generation) {
 
             case 1:
                 if (stat === 'specialDefense') throw new RangeError("Gen I doesn't have specialDefense as a stat.");
             case 2:
-                return Math.floor(((this.baseStats[stat] + this.IVs[stat]) * 2 + Math.floor(Math.ceil(Math.sqrt(this.EVs[stat])) / 4)) * this.level / 100) + 5;
+                statFunc = (base, IV, EV, level, nature) => {
+                            return Math.floor(((base + IV) * 2 + Math.floor(Math.ceil(Math.sqrt(EV)) / 4)) * level / 100) + 5;
+                        };
 
             default:
                 
-                return Math.floor((Math.floor((2 * this.baseStats[stat] + this.IVs[stat] + Math.floor(this.EVs[stat] / 4)) * this.level / 100) + 5) * this.nature[stat]);
+                statFunc = (base, IV, EV, level, nature) =>{
+                            return Math.floor((Math.floor((2 * base + IV + Math.floor(EV / 4)) * level / 100) + 5) * nature);
+                };
+        };
+        //all scalars case
+        if (typeof(baseStat) === 'number' ){ 
+
         };
     };
 
@@ -176,8 +193,10 @@ interface PokeJSON{
 
 }
 */
+
 class StatBlock {
 
+    /*
     constructor(hp, attack, defense, specialAttack, specialDefense, speed) {
         this.hp = hp;
         this.attack = attack;
@@ -185,8 +204,155 @@ class StatBlock {
         this.specialAttack = specialAttack;
         this.specialDefense = specialDefense;
         this.speed = speed;
+    };*/
+
+    constructor(hp, attack, defense, specialAttack, specialDefense, speed, monitorPropertyType) {
+        this._hp = hp;
+        this._attack = attack;
+        this._defense = defense;
+        this._specialAttack = specialAttack;
+        this._specialDefense = specialDefense;
+        this._speed = speed;
+        this.monitor = monitorPropertyType;
+        this.updatedProperty = [0,0,0,0,0,0];
+        this.propertyType = [Array.isArray(this._hp),
+                            Array.isArray(this._attack),
+                            Array.isArray(this._defense),
+                            Array.isArray(this._specialAttack),
+                            Array.isArray(this._specialDefense),
+                            Array.isArray(this._speed)]; //0 for scalar, 1 for array
     };
 
+    get hp(){
+        return this._hp
+    };
+
+    set hp(val){
+        if (val === this._hp) return;
+        
+        if (Array.isArray(val)) {
+            if (val.length === 1) {
+                val = val[0];
+                this.propertyType[0] = 0    
+            } else {
+                this.propertyType[0] = 1
+            }
+        } else {
+            this.propertyType[0] = 0
+        }
+
+        if (this.monitor) this.updatedProperty[0] = 1;
+
+        this._hp = val;
+    };
+
+    get attack(){
+        return this._attack
+    };
+
+    set attack(val){
+        if (val === this._attack) return;
+        
+        if (Array.isArray(val)) {
+            this.propertyType[1] = 1
+        } else {
+            this.propertyType[1] = 0
+        }
+
+        if (this.monitor) this.updatedProperty[1] = 1;
+
+        this._attack = val;
+    };
+
+    get defense(){
+        return this._hp
+    };
+
+    set defense(val){
+        if (val === this._defense) return;
+        
+        if (Array.isArray(val)) {
+            this.propertyType[2] = 1
+        } else {
+            this.propertyType[2] = 0
+        }
+
+        if (this.monitor) this.updatedProperty[2] = 1;
+
+        this._defense = val;
+    };
+
+    get specialAttack(){
+        return this._specialAttack
+    };
+
+    set specialAttack(val){
+        if (val === this._specialAttack) return;
+        
+        if (Array.isArray(val)) {
+            this.propertyType[3] = 1
+        } else {
+            this.propertyType[3] = 0
+        }
+
+        if (this.monitor) this.updatedProperty[3] = 1;
+
+        this._specialAttack = val;
+    };
+
+    get specialDefense(){
+        return this._specialDefense
+    };
+
+    set specialDefense(val){
+        if (val === this._specialDefense) return;
+        
+        if (Array.isArray(val)) {
+            this.propertyType[4] = 1
+        } else {
+            this.propertyType[4] = 0
+        }
+
+        if (this.monitor) this.updatedProperty[4] = 1;
+
+        this._specialDefense = val;
+    };
+
+    get speed(){
+        return this._speed
+    };
+
+    set speed(val){
+        if (val === this._speed) return;
+        
+        if (Array.isArray(val)) {
+            this.propertyType[5] = 1
+        } else {
+            this.propertyType[5] = 0
+        }
+
+        if (this.monitor) this.updatedProperty[5] = 1;
+
+        this._speed = val;
+    };
+
+    get hp(){
+        return this._hp
+    };
+
+    set hp(val){
+        if (val === this._hp) return;
+        
+        if (Array.isArray(val)) {
+            this.propertyType[0] = 1
+        } else {
+            this.propertyType[0] = 0
+        }
+
+        if (this.monitor) this.updatedProperty[0] = 1;
+
+        this._hp = val;
+    };
 };
 
 class BattleStageManager {
