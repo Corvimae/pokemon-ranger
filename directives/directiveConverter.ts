@@ -26,6 +26,6 @@ export function directiveConverter(): Transformer {
     data.hProperties = {
       ...hast.properties,
       contents: childrenToText(node),
-    }
+    };
   }
 }

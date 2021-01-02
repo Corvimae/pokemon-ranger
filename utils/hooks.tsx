@@ -227,7 +227,6 @@ export function prepareContextualReducer<S, A extends Action>(
     );
   };
 
-
   return {
     connect<T>(Component: React.FC<T>): React.FC<T> {
       return (props: T): React.ReactElement => <ReducerProvider><Component {...props} /></ReducerProvider>;
