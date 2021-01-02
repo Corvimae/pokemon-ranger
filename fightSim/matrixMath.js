@@ -1,12 +1,13 @@
 function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
     
-    let constantVals = {}
+    let constantVals = {};
 
-    let variableVals = {}
-    let variableAxis = []
-    let numVariableVals = []
-    let variableFlag = []
-    let initFuncArgs = []
+    let variableVals = {};
+    let variableValList = [];
+    let variableAxis = [];
+    let numVariableVals = [];
+    let variableElements = [];
+    let initFuncArgs = [];
 
     let i = 0;
     let axis = 0;
@@ -15,10 +16,11 @@ function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
         if (Array.isArray(element)) {
             if (element.length > 1) {
                 variableVals[axisLabels[i]] = listOfValueSets[i];
-                variableAxis.push(axis);
+                variableValList.push(element)
+                variableAxis[axisLabels[i]] = axis;
                 axis++;
                 numVariableVals.push(element.length);
-                variableFlag.push(1);
+                variableElements.push(i);
                 initFuncArgs.push(listOfValueSets[i][0]);
             } else {
                 constantVals[axisLabels[i]] = listOfValueSets[i][0];
@@ -45,7 +47,10 @@ function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
         writeLocation[arrayLocation[i+1]] = writeValue
         return
     };
-    let mathPromises = [];
+    //let mathPromises = 
+    Promises.allSettled(SpawnPromises(initFuncArgs, variableElements, variableValList, AsyncFunc, resultsTensor));
+
+    return [constantVals, variableVals, variableAxis, resultsTensor]
     
 };
 
