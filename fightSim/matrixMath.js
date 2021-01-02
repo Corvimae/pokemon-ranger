@@ -4,7 +4,7 @@ export function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
 
     let variableVals = {};
     let variableValList = [];
-    let variableAxis = [];
+    let variableAxis = {};
     let numVariableVals = [];
     let variableElements = [];
     let initFuncArgs = [];
