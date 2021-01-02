@@ -1,0 +1,47 @@
+:::calculator{species=Lillipup baseStats="[[45, 60, 45, 25, 45, 55], [65, 80, 65, 35, 65, 60]]"}
+5:
+   6 -> 0, 0, 0, 1, 0, 0 # Oshawott (1 SPATK)
+   7 -> 0, 0, 0, 1, 0, 0
+   8 -> 0, 0, 0, 1, 0, 0
+   9 -> 0, 0, 0, 1, 0, 1 # Pansage (1 SPD)
+  10 -> 0, 0, 0, 1, 0, 2 # Panpour (1 SPD)
+  11 -> 0, 1, 0, 1, 0, 2 # Patrat (1 ATK)
+  12 -> 0, 3, 0, 1, 0, 2 # Lillipup (1 ATK), Lillipup (1 ATK)
+  13 -> 0, 5, 0, 1, 0, 2 # Patrat (1 ATK), Patrat (1 ATK)
+  14 -> 0, 7, 0, 1, 0, 2 # Lillipup (1 ATK), Riolu (1 ATK)
+  15 -> 0, 7, 2, 1, 0, 2 # Venipede (1 DEF), Koffing (1 DEF)
+  16 -> 0, 7, 3, 1, 0, 2
+  17 -> 1, 7, 6, 1, 0, 2 # Koffing (1 DEF), Whirlipede (2 DEF)
+  18 -> 1, 7, 6, 1, 0, 2
+6:
+  7 -> 1, 2, 3, 4, 5, 6
+:::
+
+:::calculator{species=Mudkip baseStats="[[50, 70, 50, 50, 50, 40]]"}
+5:
+  6 -> 0, 1, 0, 0, 0, 1
+:::
+# Test
+
+:::if{stat="atk" condition="12+" level=6}
+Attack is at least 12!
+:::
+
+:::if{source="Lillipup" stat="atk" condition="10-" level=6}
+Attack is 10 or less!
+:::
+
+:::if{source="Lillipup" stat="atk" condition="15" level=6}
+Attack is exactly 15!
+:::
+
+
+:::if{source="Lillipup" stat="atk" condition="15-18" level=6}
+Attack is from 15-18!
+:::
+
+:::if{source="Lillipup" stat="atk" condition="(31-/x/x)"}
+IV condition
+:::
+
+::damage[+0 Tackle at Lvl 9 against 12 Def (0 EVs)]{source="Lillipup" level=9 healthThreshold=12 special=false evs=0 movePower=50 stab=true opponentStat=12}

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
 import merge from 'deepmerge';
+import { useDropzone } from 'react-dropzone';
 import unified from 'unified';
 import remark from 'remark-parse';
 import remarkToRehype from 'remark-rehype';
@@ -13,7 +14,7 @@ import gh from 'hast-util-sanitize/lib/github.json';
 import { Schema } from 'hast-util-sanitize';
 import { directiveConverter } from '../../directives/directiveConverter';
 import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
-import { RouteContext } from '../../reducers/route/reducer';
+import { loadFile, RouteContext } from '../../reducers/route/reducer';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
@@ -71,64 +72,85 @@ const processor = unified()
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 
-const testContent = `
-:::calculator{species=Lillipup baseStats="[[45, 60, 45, 25, 45, 55], [65, 80, 65, 35, 65, 60]]"}
-5:
-   6 -> 0, 0, 0, 1, 0, 0 # Oshawott (1 SPATK)
-   7 -> 0, 0, 0, 1, 0, 0
-   8 -> 0, 0, 0, 1, 0, 0
-   9 -> 0, 0, 0, 1, 0, 1 # Pansage (1 SPD)
-  10 -> 0, 0, 0, 1, 0, 2 # Panpour (1 SPD)
-  11 -> 0, 1, 0, 1, 0, 2 # Patrat (1 ATK)
-  12 -> 0, 3, 0, 1, 0, 2 # Lillipup (1 ATK), Lillipup (1 ATK)
-  13 -> 0, 5, 0, 1, 0, 2 # Patrat (1 ATK), Patrat (1 ATK)
-  14 -> 0, 7, 0, 1, 0, 2 # Lillipup (1 ATK), Riolu (1 ATK)
-  15 -> 0, 7, 2, 1, 0, 2 # Venipede (1 DEF), Koffing (1 DEF)
-  16 -> 0, 7, 3, 1, 0, 2
-  17 -> 1, 7, 6, 1, 0, 2 # Koffing (1 DEF), Whirlipede (2 DEF)
-  18 -> 1, 7, 6, 1, 0, 2
-6:
-  7 -> 1, 2, 3, 4, 5, 6
-:::
-
-:::calculator{species=Mudkip baseStats="[[50, 70, 50, 50, 50, 40]]"}
-5:
-  6 -> 0, 1, 0, 0, 0, 1
-:::
-# Test
-
-:::if{stat="atk" condition="12+" level=6}
-Attack is at least 12!
-:::
-
-:::if{source="Lillipup" stat="atk" condition="10-" level=6}
-Attack is 10 or less!
-:::
-
-:::if{source="Lillipup" stat="atk" condition="15" level=6}
-Attack is exactly 15!
-:::
-
-
-:::if{source="Lillipup" stat="atk" condition="15-18" level=6}
-Attack is from 15-18!
-:::
-
-:::if{source="Lillipup" stat="atk" condition="(31-/x/x)"}
-IV condition
-:::
-
-::damage[+0 Tackle at Lvl 9 against 12 Def (0 EVs)]{source="Lillipup" level=9 healthThreshold=12 special=false evs=0 movePower=50 stab=true opponentStat=12}
-`;
-
 const RouteView: NextPage = () => {
-  const content = processor.processSync(testContent).result as React.ReactNode;
+  const dispatch = RouteContext.useDispatch();
+  const [fileContent, setFileContent] = useState<string | null>(null);
+  const [fileSelectError, setFileSelectError] = useState<string | null>(null);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 1) {
+      setFileContent(null);
+      setFileSelectError('Only one route file may be selected at a time.');
+
+      return;
+    }
+
+    if (acceptedFiles.length === 0) {
+      setFileContent(null);
+      setFileSelectError('An unknown issue occurred trying to load the file.');
+
+      return;
+    }
+
+    const [acceptedFile] = acceptedFiles;
+
+    dispatch(loadFile());
+    setFileContent(null);
+
+    const reader = new FileReader();
+
+    reader.onabort = () => {
+      setFileContent(null);
+      setFileSelectError('The file read process was aborted.');
+    };
+
+    reader.onerror = () => {
+      setFileContent(null);
+      setFileSelectError('An unknown issue occurred trying to load the file. The file may be corrupted.');
+    };
+
+    reader.onload = () => {
+      setFileContent(reader.result?.toString() ?? null);
+      setFileSelectError(null);
+    };
+
+    reader.readAsBinaryString(acceptedFile);
+  }, [dispatch]);
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop, noClick: true });
+
+  const content = useMemo(() => {
+    if (!fileContent) return null;
+
+    try {
+      return {
+        error: false,
+        content: processor.processSync(fileContent).result as React.ReactNode,
+      };
+    } catch (e) {
+      return {
+        error: true,
+        message: 'The route file is not valid.',
+      };
+    }
+  }, [fileContent]);
   const state = RouteContext.useState();
 
   return (
-    <Container>
+    <Container {...getRootProps()}>
+      <input {...getInputProps()} />
       <Guide>
-        {content}
+        {content && !content?.error ? content.content : (
+          <UploadMessage>
+            Drag a .mdr or .md file onto this page to start.
+
+            {(content?.error || fileSelectError) && (
+              <ErrorMessage>
+                {content?.message || fileSelectError}
+              </ErrorMessage>
+            )}
+          </UploadMessage>
+        )}
       </Guide>
       <Sidebar>
         <TrackerInputContainer>
@@ -156,6 +178,7 @@ const Container = styled.div`
 `;
 
 const Guide = styled.div`
+  position: relative;
   padding: 0.5rem;
   overflow-y: auto;
 `;
@@ -174,4 +197,23 @@ const TrackerInputContainer = styled.div`
   min-height: 0;
   flex-grow: 1;
   align-self: stretch;
+`;
+
+const UploadMessage = styled.div`
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  padding: 0 8rem;
+  text-align: center;
+  font-size: 1.25rem;
+  color: #666;
+  font-weight: 700;
+  transform: translate(-50%, -50%);
+`;
+
+const ErrorMessage = styled.div`
+  margin-top: 0.5rem;
+  color: #900;
+  font-size: 1.125rem;
 `;

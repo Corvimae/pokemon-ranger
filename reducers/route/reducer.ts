@@ -2,7 +2,7 @@ import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
 
 const defaultState: RouteState = {
   trackers: {},
@@ -74,6 +74,9 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
+    case LOAD_FILE:
+      return { ...defaultState };
+
     default:
       return state;
   }
@@ -125,5 +128,11 @@ export function setStartingLevel(name: string, startingLevel: number): RouteActi
       name,
       startingLevel,
     },
+  };
+}
+
+export function loadFile(): RouteAction {
+  return {
+    type: LOAD_FILE,
   };
 }
