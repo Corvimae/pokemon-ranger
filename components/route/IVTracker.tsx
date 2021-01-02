@@ -243,14 +243,6 @@ const StatSelector = styled.button<{ selected?: boolean }>`
   }
 `;
 
-const StartingLevelRow = styled.div`
-  display: flex;
-  width: max-content;
-  align-items: center;
-  font-size: 0.875rem;
-  margin-top: 1rem;
-`;
-
 const StartingLevelButton = styled(Button)<{ active?: boolean }>`
   font-size: 0.875rem;
   margin-left: 1rem;

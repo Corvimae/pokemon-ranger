@@ -1,5 +1,5 @@
 import { formatDamageRange } from './rangeFormat';
-import { CompactRange, NatureKey, NatureModifier, NatureResult, StatRange } from './rangeTypes';
+import { CompactRange, NatureKey, NatureModifier, NatureResult, OneShotResult, StatRange } from './rangeTypes';
 
 export const NATURE_MODIFIERS: NatureModifier[] = [
   {
@@ -206,4 +206,28 @@ export function combineIdenticalLines(results: NatureResult[]): Record<string, C
         };
       }, output)
     ), {});
+}
+
+export function calculateKillRanges(results: NatureResult[], healthThreshold: number): Record<number, OneShotResult> {
+  return Object.values(combineIdenticalLines(results))
+    .reduce<Record<number, OneShotResult>>((acc, result) => {
+      const successes = result.damageValues.filter(value => value >= healthThreshold).length;
+      const currentValue = acc[successes];
+
+      return {
+        ...acc,
+        [successes]: {
+          successes,
+          statFrom: Math.min(currentValue?.statFrom || Number.MAX_VALUE, result.statFrom),
+          statTo: Math.max(currentValue?.statTo || Number.MIN_VALUE, result.statTo),
+          negative: mergeStatRanges(currentValue?.negative, result.negative),
+          neutral: mergeStatRanges(currentValue?.neutral, result.neutral),
+          positive: mergeStatRanges(currentValue?.positive, result.positive),
+          componentResults: [
+            ...(currentValue?.componentResults || []),
+            result,
+          ],
+        },
+      };
+    }, {});
 }

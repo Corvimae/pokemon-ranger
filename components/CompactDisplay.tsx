@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { combineIdenticalLines } from '../utils/calculations';
 import { useGridCopy } from '../utils/hooks';
-import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
+import { formatIVSplit, formatStatRange } from '../utils/rangeFormat';
 import { NatureResult } from '../utils/rangeTypes';
 import { CopyGridButton } from './CopyGridButton';
 import { ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
@@ -30,11 +30,7 @@ export const CompactDisplay: React.FC<CompactDisplayProps> = ({ results, display
         <React.Fragment key={`${statFrom} - ${statTo}`}>
           <ResultsRow>
             <div>
-              {formatIVRange(negative)}
-              &nbsp;/&nbsp;
-              {formatIVRange(neutral)}
-              &nbsp;/&nbsp;
-              {formatIVRange(positive)}
+              {formatIVSplit({ negative, neutral, positive })}
             </div>
             <div>
               {formatStatRange(statFrom, statTo)}

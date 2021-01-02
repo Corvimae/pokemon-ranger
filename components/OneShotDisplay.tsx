@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { combineIdenticalLines, mergeStatRanges } from '../utils/calculations';
+import { calculateKillRanges } from '../utils/calculations';
 import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
 import { useGridCopy } from '../utils/hooks';
 import { InputRow, ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 import { CopyGridButton } from './CopyGridButton';
-import { NatureResult, OneShotResult } from '../utils/rangeTypes';
+import { NatureResult } from '../utils/rangeTypes';
 
 interface OneShotDisplayProps {
   results: NatureResult[];
@@ -16,29 +16,7 @@ interface OneShotDisplayProps {
 }
 
 export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, displayRolls, healthThreshold, setHealthThreshold }) => {
-  const compactedResults = useMemo(() => (
-    Object.values(combineIdenticalLines(results))
-      .reduce<Record<number, OneShotResult>>((acc, result) => {
-        const successes = result.damageValues.filter(value => value >= healthThreshold).length;
-        const currentValue = acc[successes];
-
-        return {
-          ...acc,
-          [successes]: {
-            successes,
-            statFrom: Math.min(currentValue?.statFrom || Number.MAX_VALUE, result.statFrom),
-            statTo: Math.max(currentValue?.statTo || Number.MIN_VALUE, result.statTo),
-            negative: mergeStatRanges(currentValue?.negative, result.negative),
-            neutral: mergeStatRanges(currentValue?.neutral, result.neutral),
-            positive: mergeStatRanges(currentValue?.positive, result.positive),
-            componentResults: [
-              ...(currentValue?.componentResults || []),
-              result,
-            ],
-          },
-        };
-      }, {})
-  ), [results, healthThreshold]);
+  const compactedResults = useMemo(() => calculateKillRanges(results, healthThreshold), [results, healthThreshold]);
 
   const gridRef = useGridCopy();
 
@@ -90,12 +68,16 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
 };
 
 const OneShotResultsGrid = styled(ResultsGrid)`
-  grid-template-columns: 1fr 1fr min-content 1fr;
+  && {
+    grid-template-columns: 1fr 1fr min-content 1fr;
+  }
 `;
 
 const HealthThresholdInputRow = styled(InputRow)`
-  display: grid;
-  grid-template-columns: max-content 1fr;
+  && {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+  }
 `;
 
 const ChanceToKillHeader = styled.div`

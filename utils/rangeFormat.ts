@@ -26,6 +26,10 @@ export function formatIVRange(value: StatRange): string {
   return `${value.from}–${value.to}`;
 }
 
+export function formatIVSplit(values: { negative: StatRange; neutral: StatRange; positive: StatRange }): string {
+  return `${formatIVRange(values.negative)} / ${formatIVRange(values.neutral)} / ${formatIVRange(values.positive)}`;
+}
+
 export function formatStatRange(from: number, to: number): string {
   return from === to ? `${from}` : `${from}–${to}`;
 }

@@ -16,13 +16,38 @@ import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
 import { RouteContext } from '../../reducers/route/reducer';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
+import { DamageTable } from '../../components/route/DamageTable';
 
 const schema = merge(gh, {
   tagNames: [
     'calculator',
+    'damage',
   ],
   attributes: {
     calculator: ['species', 'contents', 'baseStats'],
+    damage: [
+      'source',
+      'contents',
+      'level',
+      'evolution',
+      'evs',
+      'combatStages',
+      'movePower',
+      'effectiveness',
+      'stab',
+      'opponentStat',
+      'opponentCombatStages',
+      'opponentLevel',
+      'torrent',
+      'weatherBoosted',
+      'weatherReduced',
+      'multiTarget',
+      'otherModifier',
+      'generation',
+      'offensive',
+      'special',
+      'healthThreshold',
+    ],
   },
 });
 
@@ -37,6 +62,7 @@ const processor = unified()
     createElement: React.createElement,
     components: ({
       calculator: IVCalculatorDirective,
+      damage: DamageTable,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 
@@ -65,6 +91,8 @@ const testContent = `
   6 -> 0, 1, 0, 0, 0, 1
 :::
 # Test
+
+::damage[+0 Tackle at Lvl 9 against 12 Def (0 EVs)]{source="Lillipup" level=9 healthThreshold=12 special=false evs=0 movePower=50 stab=true opponentStat=12}
 `;
 
 const RouteView: NextPage = () => {
