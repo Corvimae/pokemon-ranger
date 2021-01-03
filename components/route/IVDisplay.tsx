@@ -35,7 +35,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
     <Container>
       <TrackerName>{tracker.name}</TrackerName>
       {STATS.map(stat => (
-        <StatDisplay>
+        <StatDisplay key={stat}>
           <StatName positive={stat === confirmedPositive} negative={stat === confirmedNegative}>
             {formatStatName(stat, true)}{stat !== 'hp' && getSymbolForStat(ivRanges[stat], stat, confirmedPositive, confirmedNegative)}
           </StatName>

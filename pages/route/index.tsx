@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
 import merge from 'deepmerge';
 import { useDropzone } from 'react-dropzone';
 import unified from 'unified';
@@ -19,6 +20,8 @@ import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
 import { ConditionalBlock } from '../../components/route/ConditionalBlock';
+import { InputRow } from '../../components/Layout';
+import { Button } from '../../components/Button';
 
 const schema = merge(gh, {
   tagNames: [
@@ -72,10 +75,64 @@ const processor = unified()
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 
-const RouteView: NextPage = () => {
+interface RouteViewParams {
+  repo?: string;
+}
+
+const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
+  const router = useRouter();
   const dispatch = RouteContext.useDispatch();
+  const hasAttemptedQueryParamLoad = useRef(false);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [fileSelectError, setFileSelectError] = useState<string | null>(null);
+
+  const [repoImportPath, setRepoImportPath] = useState<string>(repo || '');
+
+  const handleSetRepoImportPath = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setRepoImportPath(event.target.value);
+  }, []);
+
+  const handleCloseRoute = useCallback(() => {
+    dispatch(loadFile());
+
+    setFileContent(null);
+    setFileSelectError(null);
+    
+    router.push(
+      {
+        pathname: router.pathname,
+        query: {},
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [dispatch, router]);
+
+  const handleImportFromRepo = useCallback(() => {
+    dispatch(loadFile());
+
+    fetch(`https://raw.githubusercontent.com/${repoImportPath}/main/route.mdr`)
+      .then(async response => {
+        if (response.status === 200) {
+          setFileContent(await response.text());
+          setFileSelectError(null);
+     
+          router.push(
+            {
+              pathname: router.pathname,
+              query: {
+                repo: encodeURIComponent(repoImportPath),
+              },
+            },
+            undefined,
+            { shallow: true },
+          );
+        } else {
+          setFileContent(null);
+          setFileSelectError(`Unable to load route file: ${response.statusText}`);
+        }
+      });
+  }, [repoImportPath, dispatch, router]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 1) {
@@ -141,13 +198,33 @@ const RouteView: NextPage = () => {
       };
     }
   }, [fileContent]);
+
   const state = RouteContext.useState();
+
+  useEffect(() => {
+    if (!hasAttemptedQueryParamLoad.current) {
+      if (repo) {
+        handleImportFromRepo();
+      }
+
+      hasAttemptedQueryParamLoad.current = true;
+    }
+  }, [repo, handleImportFromRepo]);
 
   return (
     <Container {...getRootProps()}>
       <input {...getInputProps()} />
       <Guide>
-        {content && !content?.error ? content.content : (
+        {content && !content?.error ? (
+          <>
+            <RouteActions>
+              <Button onClick={handleCloseRoute}>Close</Button>
+            </RouteActions>
+            <RouteContent>
+              {content.content}
+            </RouteContent>
+          </>
+        ) : (
           <UploadMessage>
             Drag a .mdr or .md file onto this page to start.
 
@@ -156,6 +233,16 @@ const RouteView: NextPage = () => {
                 {content?.message || fileSelectError}
               </ErrorMessage>
             )}
+
+            <OrDivider>or</OrDivider>
+            
+            <RepoSourceContainer>
+              Load from a repo
+              <RepoInputContainer>
+                <input type="text" value={repoImportPath} onChange={handleSetRepoImportPath} />
+                <Button onClick={handleImportFromRepo}>Load</Button>
+              </RepoInputContainer>
+            </RepoSourceContainer>
           </UploadMessage>
         )}
       </Guide>
@@ -174,6 +261,12 @@ const RouteView: NextPage = () => {
     </Container>
   );
 };
+
+export const getServerSideProps: GetServerSideProps = async context => ({
+  props: {
+    repo: context.query.repo ? decodeURIComponent(context.query.repo as string) : null,
+  },
+});
 
 export default RouteContext.connect(RouteView);
 
@@ -223,4 +316,60 @@ const ErrorMessage = styled.div`
   margin-top: 0.5rem;
   color: #900;
   font-size: 1.125rem;
+`;
+
+const OrDivider = styled.div`
+  position: relative;
+  margin: 0.5rem 0;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0.825rem;
+    left: 25%;
+    width: 20%;
+    border-top: 1px solid #999;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0.825rem;
+    width: 20%;
+    left: 55%;
+    border-top: 1px solid #999;
+  }
+`;
+
+const RepoSourceContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const RepoInputContainer = styled(InputRow)`
+  && {
+    display: flex;
+    margin-top: 1rem;
+    justify-content: center;
+  }
+
+  & ${Button} {
+    margin-left: 1rem;
+  }
+
+  & > input {
+    margin-bottom: 0;
+  }
+`;
+
+const RouteContent = styled.div`
+  & > div > *:first-child {
+    margin-top: 0;
+  }
+`;
+
+const RouteActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
 `;

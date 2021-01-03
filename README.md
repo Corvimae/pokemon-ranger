@@ -152,3 +152,11 @@ IV ranges are evaluated in the same manner as stat ranges, except that they are 
 `#` - Matches any value (e.g. `x/x/#` matches any positive nature IV)
 
 `x` or `X` - Matches no values (e.g. `x/x/#` matches no negative or neutral nature IVs)
+
+## Publishing Routefiles
+
+Routefiles can be retrieved from a repo, ensuring runners always have the latest version of the route when they load it.
+
+Routefiles must be published on GitHub in a branch named `main`, and the file must be named `route.mdr`. Once pushed, runners can load the routefile by entering `<username>/<repository>` (e.g. `corvimae/test-ranger-route`).
+
+For an example, see [corvimae/test-ranger-route](https://github.com/Corvimae/test-ranger-route).
