@@ -22,13 +22,13 @@ import { ConditionalBlock } from '../../components/route/ConditionalBlock';
 
 const schema = merge(gh, {
   tagNames: [
-    'calculator',
+    'tracker',
     'if',
     'damage',
     'level',
   ],
   attributes: {
-    calculator: ['species', 'contents', 'baseStats'],
+    tracker: ['species', 'contents', 'baseStats'],
     if: ['stat', 'condition', 'level', 'evolution', 'source'],
     damage: [
       'source',
@@ -66,7 +66,7 @@ const processor = unified()
   .use(rehypeToReact, {
     createElement: React.createElement,
     components: ({
-      calculator: IVCalculatorDirective,
+      tracker: IVCalculatorDirective,
       if: ConditionalBlock,
       damage: DamageTable,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -93,6 +93,13 @@ const RouteView: NextPage = () => {
     }
 
     const [acceptedFile] = acceptedFiles;
+
+    if (!acceptedFile.name.endsWith('.md') && !acceptedFile.name.endsWith('.mdr')) {
+      setFileContent(null);
+      setFileSelectError('Route files must end in .md or .mdr');
+
+      return;
+    }
 
     dispatch(loadFile());
     setFileContent(null);

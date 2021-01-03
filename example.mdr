@@ -1,4 +1,4 @@
-:::calculator{species=Lillipup baseStats="[[45, 60, 45, 25, 45, 55], [65, 80, 65, 35, 65, 60]]"}
+:::tracker{species=Lillipup baseStats="[[45, 60, 45, 25, 45, 55], [65, 80, 65, 35, 65, 60]]"}
 5:
    6 -> 0, 0, 0, 1, 0, 0 # Oshawott (1 SPATK)
    7 -> 0, 0, 0, 1, 0, 0
@@ -17,7 +17,7 @@
   7 -> 1, 2, 3, 4, 5, 6
 :::
 
-:::calculator{species=Mudkip baseStats="[[50, 70, 50, 50, 50, 40]]"}
+:::tracker{species=Mudkip baseStats="[[50, 70, 50, 50, 50, 40]]"}
 5:
   6 -> 0, 1, 0, 0, 0, 1
 :::
