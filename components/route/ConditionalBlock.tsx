@@ -5,7 +5,7 @@ import levenshtein from 'js-levenshtein';
 import { Stat } from '../../utils/constants';
 import { ErrorCard } from './ErrorCard';
 import { RouteContext } from '../../reducers/route/reducer';
-import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, getPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
+import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
 import { Tracker } from '../../reducers/route/types';
 import { ConfirmedNature } from '../../utils/rangeTypes';
 import { Card } from '../Layout';
