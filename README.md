@@ -129,6 +129,8 @@ The content of the conditional card can be any valid Markdown, including Ranger 
 
 `evolution` (number) - The evolution of the runner's Pokémon at the time the conditional card is relevant, zero-indexed. If not specified, the current evolutionary stage of the associated IV tracker is used.
 
+`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, and `neutral`. If no theme is specified, or the specified theme is invalid, `default` (blue) is used.
+
 **Conditions**
 
 Conditions must be in stat range format or IV range format:

@@ -23,7 +23,7 @@
 :::
 # Test
 
-:::if{source="Lillipup" stat="startingLevel" condition="5"}
+:::if{source="Lillipup" stat="startingLevel" condition="5" theme="error"}
 Starting level is 5!
 :::
 

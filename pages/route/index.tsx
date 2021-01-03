@@ -32,7 +32,7 @@ const schema = merge(gh, {
   ],
   attributes: {
     tracker: ['species', 'contents', 'baseStats'],
-    if: ['stat', 'condition', 'level', 'evolution', 'source'],
+    if: ['stat', 'condition', 'level', 'evolution', 'source', 'theme'],
     damage: [
       'source',
       'contents',

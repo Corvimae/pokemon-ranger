@@ -8,7 +8,7 @@ import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
 import { Tracker } from '../../reducers/route/types';
 import { ConfirmedNature } from '../../utils/rangeTypes';
-import { Card } from '../Layout';
+import { Card, CardVariant } from '../Layout';
 import { formatStatName } from '../../utils/rangeFormat';
 import { range } from '../../utils/utils';
 
@@ -197,9 +197,18 @@ interface ConditionalBlockProps {
   condition?: string;
   level?: string;
   evolution?: string;
+  theme?: string;
 }
 
-export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({ source, stat, condition, level, evolution, children }) => {
+export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
+  source,
+  stat,
+  condition,
+  level,
+  evolution,
+  theme = 'default',
+  children,
+}) => {
   const state = RouteContext.useState();
 
   const ivRanges = useMemo(() => (
@@ -226,7 +235,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({ source, stat
   if (result.error) return <ErrorCard>{result.message}</ErrorCard>;
 
   return result.result ? (
-    <ConditionalCard>
+    <ConditionalCard variant={theme as CardVariant}>
       <Condition>
         Condition met:
         <b> {formatConditionalStatName(matchingStat)} is {condition}{level && ` at Lv. ${level}`}</b>
