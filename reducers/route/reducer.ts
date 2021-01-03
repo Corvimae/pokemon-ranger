@@ -18,7 +18,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
           [action.payload.name]: state.trackers[action.payload.name] || {
             name: action.payload.name,
             evolution: 0,
-            startingLevel: 5,
+            startingLevel: Number(Object.keys(action.payload.evSegments)[0] || 5),
             baseStats: action.payload.baseStats,
             recordedStats: {},
             evSegments: action.payload.evSegments,
