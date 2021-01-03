@@ -194,7 +194,10 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({ source, stat
 
   return result.result ? (
     <ConditionalCard>
-      <Condition>Condition met: <b>{formatStatName(matchingStat)} is {condition}</b></Condition>
+      <Condition>
+        Condition met:
+        <b> {formatStatName(matchingStat)} is {condition}{level && ` at Lv. ${level}`}</b>
+      </Condition>
       {children}
     </ConditionalCard>
   ) : null;
