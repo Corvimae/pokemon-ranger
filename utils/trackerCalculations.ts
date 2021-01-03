@@ -153,12 +153,18 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
 }
 
 export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>): ConfirmedNature {
-  const negative = Object.entries(ivRanges).find(([, value]) => value.positive[0] === -1 && value.neutral[0] === -1);
-  const positive = Object.entries(ivRanges).find(([, value]) => value.negative[0] === -1 && value.neutral[0] === -1);
+  const confirmedNegative = Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.positive[0] === -1 && value.neutral[0] === -1);
+  const confirmedPositive = Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.negative[0] === -1 && value.neutral[0] === -1);
+
+  const possibleNegatives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.negative[0] !== -1);
+  const possiblePositives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.positive[0] !== -1);
+
+  const negativeByExclusion = confirmedPositive && possibleNegatives.length === 1 ? (possibleNegatives[0][0] as Stat) : null;
+  const positiveByExclusion = confirmedNegative && possiblePositives.length === 1 ? (possiblePositives[0][0] as Stat) : null;
 
   return [
-    negative ? negative[0] as Stat : null,
-    positive ? positive[0] as Stat : null,
+    confirmedNegative ? confirmedNegative[0] as Stat : negativeByExclusion,
+    confirmedPositive ? confirmedPositive[0] as Stat : positiveByExclusion,
   ];
 }
 
