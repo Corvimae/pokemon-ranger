@@ -41,8 +41,8 @@ export function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
 
     const AsyncFunc = async (args, arrayLocation, writeArray) => {
         const writeValue =  mapFunc(...args);
-        let writeLocation = writeArray
-        let i = 0
+        let writeLocation = writeArray;
+        let i = 0;
         for (; i < arrayLocation.length-1; i++) {
             writeLocation = writeLocation[arrayLocation[i]];
         };
@@ -55,10 +55,10 @@ export function ResultsTensor(axisLabels, listOfValueSets, mapFunc) {
 
     if (!caughtError===null){
         console.log(caughtError);
-        throw caughtError
+        throw caughtError;
     }
 
-    return [constantVals, variableVals, variableAxis, resultsTensor]
+    return [constantVals, variableVals, variableAxis, resultsTensor];
     
 };
 
@@ -69,7 +69,7 @@ async function SpawnPromises(initArgs, variableElements, variableVals, AsyncFunc
     //asyncFunc async Function to sweep through problem space
     //writeArray reference of multiDimensional array to populate
 
-    let promises = []
+    let promises = [];
 
     if (variableElements.length === 1) {
 
@@ -93,7 +93,7 @@ async function SpawnPromises(initArgs, variableElements, variableVals, AsyncFunc
         };
 
         arrayLocation = initArgs[variableElements[variableElements.length - 1]];*/
-        arrayLocation.push(0)
+        arrayLocation.push(0);
         for (let i = 0; i < variableVals[variableVals.length-variableElements.length].length; i++) {
 
             initArgs[variableElements[0]] = variableVals[arrayLocation.length-1][i];
@@ -119,9 +119,9 @@ function ConstuctMultiArray(axisLengths){
     
     const currentAxisLength = axisLengths[0];
     const currentAxisElement = ConstuctMultiArray(axisLengths.slice(1));
-    let currentAxis = []
+    let currentAxis = [];
     for (let i = 0; i < currentAxisLength; i++) {
         currentAxis.push((Array.isArray(currentAxisElement)) ? currentAxisElement.slice() : currentAxisElement);
     };
-    return currentAxis
+    return currentAxis;
 };
