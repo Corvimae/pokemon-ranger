@@ -121,7 +121,7 @@ The content of the conditional card can be any valid Markdown, including Ranger 
 
 `source` (string, required) - The unique identifier for the IV tracker associated with this conditional card. The value must match the `species` value of an IV tracker.
 
-`stat` (string, required) - The stat that the condition is compared against. Must be one of: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`.
+`stat` (string, required) - The stat that the condition is compared against. Must be one of: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`, `startingLevel`.
 
 `condition` (string, required) - Either a stat range or an IV range. See the following section details on formatting conditions.
 

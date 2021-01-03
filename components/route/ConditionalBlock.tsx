@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import minBy from 'lodash/minBy';
 import levenshtein from 'js-levenshtein';
-import { Stat } from '../../utils/constants';
+import { Stat, STATS } from '../../utils/constants';
 import { ErrorCard } from './ErrorCard';
 import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
@@ -19,7 +19,10 @@ const RANGE_SYMBOLS = ['x', 'X', '#'] as const;
 
 type RangeSymbol = typeof RANGE_SYMBOLS[number];
 
-const VALID_STATS: Record<Stat, string[]> = {
+type ConditionalStat = Stat | 'startingLevel';
+
+const VALID_STATS: Record<ConditionalStat, string[]> = {
+  startingLevel: ['startinglevel', 'caughtlevel'],
   hp: ['hp', 'health'],
   attack: ['atk', 'attack'],
   defense: ['def', 'defense'],
@@ -28,12 +31,24 @@ const VALID_STATS: Record<Stat, string[]> = {
   speed: ['spe', 'speed'],
 };
 
-function getMatchingStat(stat: string): Stat | undefined {
+function isIVStat(stat: ConditionalStat): stat is Stat {
+  return STATS.indexOf(stat as Stat) !== -1;
+}
+
+function getMatchingStat(stat: string): ConditionalStat | undefined {
   const lowerCaseStat = stat.toLowerCase();
 
   const match = Object.entries(VALID_STATS).find(([, value]) => value.indexOf(lowerCaseStat) !== -1);
 
-  return match ? match[0] as Stat : undefined;
+  return match ? match[0] as ConditionalStat : undefined;
+}
+
+function formatConditionalStatName(stat: ConditionalStat): string {
+  if (isIVStat(stat)) return formatStatName(stat);
+
+  if (stat === 'startingLevel') return 'Starting level';
+
+  return '<unknown stat>';
 }
 
 interface RangeCondition {
@@ -98,7 +113,7 @@ function evaluateRangeCondition({ from, to, modifier }: RangeCondition, value: n
 
 function parseCondition(
   condition: string,
-  stat: Stat,
+  stat: ConditionalStat,
   rawLevel: string | unknown,
   ivRanges: Record<Stat, IVRangeSet>,
   confirmedNatures: ConfirmedNature,
@@ -111,6 +126,13 @@ function parseCondition(
   const compactMatch = parseCompactIVs(condition);
 
   if (compactMatch) {
+    if (!isIVStat(stat)) {
+      return {
+        error: true,
+        message: `Compact IV range is not valid for comparisons against ${stat}`,
+      };
+    }
+
     const [negativeCondition, neutralCondition, positiveCondition] = compactMatch;
 
     const matchingConditions = filterByPossibleNatureAdjustmentsForStat(ivRanges[stat], stat, confirmedNatures, [
@@ -126,30 +148,41 @@ function parseCondition(
       )),
     };
   }
+ 
+  if (isIVStat(stat)) {
+    if (!rawLevel) {
+      return {
+        error: true,
+        message: 'Level attribute must be specified when using a stat condition.',
+      };
+    }
 
-  if (!rawLevel) {
-    return {
-      error: true,
-      message: 'Level attribute must be specified when using a stat condition.',
-    };
-  }
-
-  if (Number.isNaN(level) || level < 1 || level > 100) {
-    return {
-      error: true,
-      message: `${rawLevel} is not a valid level.`,
-    };
+    if (Number.isNaN(level) || level < 1 || level > 100) {
+      return {
+        error: true,
+        message: `${rawLevel} is not a valid level.`,
+      };
+    }
   }
 
   const statMatch = parseRangeCondition(condition);
 
   if (statMatch) {
-    const { valid } = calculatePossibleStats(stat, level, ivRanges, confirmedNatures, tracker, evolution);
-    
-    return {
-      error: false,
-      result: valid.some(value => evaluateRangeCondition(statMatch, value)),
-    };
+    if (isIVStat(stat)) {
+      const { valid } = calculatePossibleStats(stat, level, ivRanges, confirmedNatures, tracker, evolution);
+      
+      return {
+        error: false,
+        result: valid.some(value => evaluateRangeCondition(statMatch, value)),
+      };
+    }
+
+    if (stat === 'startingLevel') {
+      return {
+        error: false,
+        result: evaluateRangeCondition(statMatch, tracker.startingLevel),
+      };
+    }
   }
 
   return {
@@ -196,7 +229,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({ source, stat
     <ConditionalCard>
       <Condition>
         Condition met:
-        <b> {formatStatName(matchingStat)} is {condition}{level && ` at Lv. ${level}`}</b>
+        <b> {formatConditionalStatName(matchingStat)} is {condition}{level && ` at Lv. ${level}`}</b>
       </Condition>
       {children}
     </ConditionalCard>
