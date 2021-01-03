@@ -111,6 +111,35 @@ async function SpawnPromises(initArgs, variableElements, variableVals, AsyncFunc
 
 }
 
+export class Matrix {
+
+    constructor(dimensionLengths){
+
+        let arrayLength = dimensionLengths.reduce((acc,cur) => {return acc*cur},
+                                                1.0);
+
+        this.length = dimensionLengths;
+
+        this.values = new Array(arrayLength).fill(0)
+
+        let handler = {
+
+            get : function(target, prop, reciever){
+                if(Array.isArray(prop)){
+                    if (prop.length != target.length){throw new Error('dimension')};
+
+                };
+            },
+
+        };
+
+        let proxy = new Proxy()
+
+    };
+
+};
+
+
 //recursively constructs a arg[1]xarg[2]x...xarg[n] matrix implemented as nested arrays.
 
 function ConstuctMultiArray(axisLengths){
