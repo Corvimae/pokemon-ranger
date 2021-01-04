@@ -22,6 +22,8 @@ import { DamageTable } from '../../components/route/DamageTable';
 import { ConditionalBlock } from '../../components/route/ConditionalBlock';
 import { InputRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
+import { RouteCard } from '../../components/route/RouteCard';
+import { InlineInfo } from '../../components/route/InlineInfo';
 
 const schema = merge(gh, {
   tagNames: [
@@ -29,10 +31,14 @@ const schema = merge(gh, {
     'if',
     'damage',
     'level',
+    'card',
+    'info',
   ],
   attributes: {
     tracker: ['species', 'contents', 'baseStats'],
     if: ['stat', 'condition', 'level', 'evolution', 'source', 'theme'],
+    card: ['theme'],
+    info: ['color'],
     damage: [
       'source',
       'contents',
@@ -72,6 +78,8 @@ const processor = unified()
       tracker: IVCalculatorDirective,
       if: ConditionalBlock,
       damage: DamageTable,
+      card: RouteCard,
+      info: InlineInfo,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 
@@ -192,6 +200,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
         content: processor.processSync(fileContent).result as React.ReactNode,
       };
     } catch (e) {
+      console.error(e);
       return {
         error: true,
         message: 'The route file is not valid.',
@@ -363,8 +372,35 @@ const RepoInputContainer = styled(InputRow)`
 `;
 
 const RouteContent = styled.div`
-  & > div > *:first-child {
-    margin-top: 0;
+  & > div {
+    overflow-x: hidden;
+    line-height: 1.52;
+
+    & > *:first-child {
+      margin-top: 0;
+    }
+
+    & > * {
+      max-width: 100%;
+    }
+
+    & pre > code {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+      background-color: #333;
+      color: #eee;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+    }
+
+    & h4 + ul {
+      margin-top: -1rem;
+    }
+
+    & h3 + blockquote {
+      margin-top: -1rem;
+    }
   }
 `;
 

@@ -8,7 +8,7 @@ import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
 import { Tracker } from '../../reducers/route/types';
 import { ConfirmedNature } from '../../utils/rangeTypes';
-import { Card, CardVariant } from '../Layout';
+import { BorderlessCard, Card, CardVariant } from '../Layout';
 import { formatStatName } from '../../utils/rangeFormat';
 import { range } from '../../utils/utils';
 
@@ -234,14 +234,17 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
 
   if (result.error) return <ErrorCard>{result.message}</ErrorCard>;
 
+  const variant = theme as CardVariant;
+  const CardComponent = variant === 'borderless' ? BorderlessConditionalCard : ConditionalCard;
+
   return result.result ? (
-    <ConditionalCard variant={theme as CardVariant}>
+    <CardComponent variant={variant}>
       <Condition>
         Condition met:
         <b> {formatConditionalStatName(matchingStat)} is {condition}{level && ` at Lv. ${level}`}</b>
       </Condition>
       {children}
-    </ConditionalCard>
+    </CardComponent>
   ) : null;
 };
 
@@ -256,5 +259,33 @@ const ConditionalCard = styled(Card)`
 
   & > ${Condition} + p {
     margin-top: 0.5rem;
+  }
+`;
+
+const BorderlessConditionalCard = styled(BorderlessCard)`
+  position: relative;
+
+  h4 + & ${Condition} {
+    top: -0.5rem;
+  }
+
+  & ${Condition} {
+    position: absolute;
+    width: max-content;
+    top: 0;
+    right: 0;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: rgba(255, 255, 255, 0.5);
+
+    & + ul {
+      margin-top: -1rem;
+    }
+  }
+
+  & + & {
+    margin-top: 0.5rem;
+    border-top: 1px solid #ccc;
+    padding-top: 1.5rem;
   }
 `;

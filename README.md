@@ -129,7 +129,7 @@ The content of the conditional card can be any valid Markdown, including Ranger 
 
 `evolution` (number) - The evolution of the runner's Pokémon at the time the conditional card is relevant, zero-indexed. If not specified, the current evolutionary stage of the associated IV tracker is used.
 
-`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, and `neutral`. If no theme is specified, or the specified theme is invalid, `default` (blue) is used.
+`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, and `neutral`. If no theme is specified, or the specified theme is invalid, `default` (blue) is used. The `borderless` theme appears "inline", with no special styling around the card.
 
 **Conditions**
 
@@ -154,6 +154,34 @@ IV ranges are evaluated in the same manner as stat ranges, except that they are 
 `#` - Matches any value (e.g. `x/x/#` matches any positive nature IV)
 
 `x` or `X` - Matches no values (e.g. `x/x/#` matches no negative or neutral nature IVs)
+
+### Cards
+
+Cards can also be used without a condition to separate content and draw prominence to certain sections of the route.
+
+#### Syntax
+```
+:::card{theme="neutral"}
+Welcome to my rouse1
+:::
+```
+
+**Attributes**
+
+`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, and `neutral`. If no theme is specified or the specified theme is invalid, `default` (blue) is used. The `borderless` theme appears "inline", with no special styling around the card.
+
+### Inline Info
+
+Inline info provides additional context to a line, such as a speed range, a kill threshold, or an alternate strategy.
+
+#### Syntax
+```
+:info[Message here!]{color=red}
+```
+
+**Attributes**
+
+`color` (string) - The color of the text. Valid colors are `red`, `blue`, `green`, `gray`, and `pink`. If no color is specified or the specified color is invalid, `gray` is used.
 
 ## Publishing Routefiles
 

@@ -27,6 +27,11 @@ const CARD_STYLES = {
     border: '#999',
     text: '#333',
   },
+  borderless: {
+    background: 'transparent',
+    border: 'transparent',
+    text: 'inherit',
+  },
 } as const;
 
 export const Header = styled.h2`
@@ -162,4 +167,13 @@ export const Card = styled.div<{ variant?: CardVariant }>`
   border: 1px solid ${({ variant = 'default' }) => CARD_STYLES[variant]?.border};
   color: ${({ variant = 'default' }) => CARD_STYLES[variant]?.text};
   margin: 1rem 0;
+
+  & > h1,
+  & > h2, 
+  & > h3,
+  & > h4 {
+    margin-top: 0;
+  }
 `;
+
+export const BorderlessCard = styled.div<{ variant?: CardVariant }>``;
