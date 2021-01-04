@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.d.ts ."
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.d.ts .",
+    "build-conditional-parser": "pegjs -o directives/conditional-grammar.js conditional-grammar.pegjs" 
   },
   "dependencies": {
     "@types/js-levenshtein": "^1.1.0",
@@ -14,10 +15,12 @@
     "deepmerge": "^4.2.2",
     "hast-util-sanitize": "^3.0.2",
     "hastscript": "^6.0.0",
+    "html-entities": "^2.0.2",
     "js-combinatorics": "^1.4.5",
     "js-levenshtein": "^1.1.6",
     "lodash": "^4.17.20",
     "next": "10.0.3",
+    "pegjs": "^0.10.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-dropzone": "^11.2.4",

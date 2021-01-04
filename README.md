@@ -121,19 +121,23 @@ The content of the conditional card can be any valid Markdown, including Ranger 
 
 `source` (string, required) - The unique identifier for the IV tracker associated with this conditional card. The value must match the `species` value of an IV tracker.
 
-`stat` (string, required) - The stat that the condition is compared against. Must be one of: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`, `startingLevel`.
-
-`condition` (string, required) - Either a stat range or an IV range. See the following section details on formatting conditions.
+`condition` (string, required) - The condition that determines when the card is shown. See the following section details on formatting conditions.
 
 `level` (number) - The level of the Pokémon at the time the conditional card is relevant. Only necessary for stat ranges, not IV ranges.
 
 `evolution` (number) - The evolution of the runner's Pokémon at the time the conditional card is relevant, zero-indexed. If not specified, the current evolutionary stage of the associated IV tracker is used.
 
-`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `default` (blue) is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
+`theme` (string) - The color theme to apply to the card. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `borderless` (blue) is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
 
 **Conditions**
 
-Conditions must be in stat range format or IV range format:
+Conditions must be written in the format `[stat]=[range]`. More than one condition can be specified by separating
+them by `&&` ("and"; both condition must be true) or `||` ("or"; one or both conditions must be true). Groups of
+conditions can be surrounded by parentheses to help ensure proper evaluation (e.g. `(atk=12+ && def=10-) || atk=22+`).
+
+Valid stats are: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`, `startingLevel`.
+
+Ranges must be in stat range format or IV range format:
 
 | Stat Range | IV Range       |
 | ---------- | -------------  | 
@@ -145,9 +149,7 @@ Conditions must be in stat range format or IV range format:
 Stat ranges are compared against the calculated statistic at the specified level; e.g. "What is the Pokémon's Attack at level 12?". Stat ranges can be
 a single value (12), a minimum value (12+), a maximum value (12-), or a range (12-14). If the range of possible stats that the Pokémon can have given its calculated IVs overlap the stat range, the conditional card is displayed.
 
-IV ranges are compared against the Pokémon's IVs,
-and are level agnostic. IV ranges have the format `negative / neutral / positive`, where `negative` is the
-range of possible IVs with a nature that reduces the stat, `neutral` is the range of possible IVs with a nature that does not affect the stat, and `positive` is the range of possible IVs with a nature that boosts the stat. IV ranges can optionally be surrounded by parentheses.
+IV ranges are compared against the Pokémon's IVs, and are level agnostic. IV ranges have the format `negative / neutral / positive`, where `negative` is the range of possible IVs with a nature that reduces the stat, `neutral` is the range of possible IVs with a nature that does not affect the stat, and `positive` is the range of possible IVs with a nature that boosts the stat. IV ranges can optionally be surrounded by parentheses.
 
 IV ranges are evaluated in the same manner as stat ranges, except that they are compared against the range of possible IVs calculated by the IV tracker rather than against the range of possible stats. Additionally, IV ranges accept some special tokens:
 
@@ -168,7 +170,7 @@ Welcome to my rouse1
 
 **Attributes**
 
-`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified or the specified theme is invalid, `default` (blue) is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
+`theme` (string) - The color theme to apply to the card. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified or the specified theme is invalid, `default` (blue) is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
 
 ### Inline Info
 

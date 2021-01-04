@@ -36,7 +36,7 @@ const schema = merge(gh, {
   ],
   attributes: {
     tracker: ['species', 'contents', 'baseStats'],
-    if: ['stat', 'condition', 'level', 'evolution', 'source', 'theme'],
+    if: ['condition', 'level', 'evolution', 'source', 'theme'],
     card: ['theme'],
     info: ['color'],
     damage: [
@@ -399,6 +399,10 @@ const RouteContent = styled.div`
     }
 
     & h3 + blockquote {
+      margin-top: -1rem;
+    }
+
+    & ul + ul {
       margin-top: -1rem;
     }
   }

@@ -9,7 +9,7 @@ interface CardVariantDefinition {
 }
 
 const CARD_VARIANTS: Record<string, CardVariantDefinition> = {
-  default: {
+  info: {
     background: '#a1c2ee',
     border: '#5e84b6',
     text: '#1a3250',
@@ -175,7 +175,7 @@ export const Checkbox = styled.button<{ 'data-checked': boolean }>`
 export type CardVariant = keyof typeof CARD_VARIANTS;
 
 export function variantIsBorderless(variant: string): boolean {
-  const variantDefinition = CARD_VARIANTS[variant as CardVariant] ?? CARD_VARIANTS.default;
+  const variantDefinition = CARD_VARIANTS[variant as CardVariant] ?? CARD_VARIANTS.info;
 
   return variantDefinition.borderless === true;
 }
@@ -183,12 +183,12 @@ export function variantIsBorderless(variant: string): boolean {
 export const Card = styled.div<{ variant?: CardVariant }>`
   width: 100%;
   padding: 0 1rem;
-  background-color: ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.background};
-  border: 1px solid ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.border};
-  color: ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.text};
+  background-color: ${({ variant = 'info' }) => CARD_VARIANTS[variant]?.background};
+  border: 1px solid ${({ variant = 'info' }) => CARD_VARIANTS[variant]?.border};
+  color: ${({ variant = 'info' }) => CARD_VARIANTS[variant]?.text};
   margin: 1rem 0;
 `;
 
 export const BorderlessCard = styled.div<{ variant?: CardVariant }>`
-  color: ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.text};
+  color: ${({ variant = 'borderless' }) => CARD_VARIANTS[variant]?.text};
 `;
