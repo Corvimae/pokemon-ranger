@@ -129,7 +129,7 @@ The content of the conditional card can be any valid Markdown, including Ranger 
 
 `evolution` (number) - The evolution of the runner's Pokémon at the time the conditional card is relevant, zero-indexed. If not specified, the current evolutionary stage of the associated IV tracker is used.
 
-`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, and `neutral`. If no theme is specified, or the specified theme is invalid, `default` (blue) is used. The `borderless` theme appears "inline", with no special styling around the card.
+`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `default` (blue) is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
 
 **Conditions**
 
@@ -168,7 +168,7 @@ Welcome to my rouse1
 
 **Attributes**
 
-`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, and `neutral`. If no theme is specified or the specified theme is invalid, `default` (blue) is used. The `borderless` theme appears "inline", with no special styling around the card.
+`theme` (string) - The color theme to apply to the card. Valid themes are `default`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified or the specified theme is invalid, `default` (blue) is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
 
 ### Inline Info
 

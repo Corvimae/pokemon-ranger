@@ -8,7 +8,7 @@ import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
 import { Tracker } from '../../reducers/route/types';
 import { ConfirmedNature } from '../../utils/rangeTypes';
-import { BorderlessCard, Card, CardVariant } from '../Layout';
+import { BorderlessCard, Card, CardVariant, variantIsBorderless } from '../Layout';
 import { formatStatName } from '../../utils/rangeFormat';
 import { range } from '../../utils/utils';
 
@@ -235,7 +235,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   if (result.error) return <ErrorCard>{result.message}</ErrorCard>;
 
   const variant = theme as CardVariant;
-  const CardComponent = variant === 'borderless' ? BorderlessConditionalCard : ConditionalCard;
+  const CardComponent = variantIsBorderless(theme) ? BorderlessConditionalCard : ConditionalCard;
 
   return result.result ? (
     <CardComponent variant={variant}>

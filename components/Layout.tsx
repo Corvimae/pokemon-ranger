@@ -1,7 +1,14 @@
 import styled from 'styled-components';
 import { CopyGridButton } from './CopyGridButton';
 
-const CARD_STYLES = {
+interface CardVariantDefinition {
+  background: string;
+  border: string;
+  text: string;
+  borderless?: boolean;
+}
+
+const CARD_VARIANTS: Record<string, CardVariantDefinition> = {
   default: {
     background: '#a1c2ee',
     border: '#5e84b6',
@@ -31,6 +38,13 @@ const CARD_STYLES = {
     background: 'transparent',
     border: 'transparent',
     text: 'inherit',
+    borderless: true,
+  },
+  faint: {
+    background: 'transparent',
+    border: 'transparent',
+    text: '#999',
+    borderless: true,
   },
 } as const;
 
@@ -158,22 +172,23 @@ export const Checkbox = styled.button<{ 'data-checked': boolean }>`
   }
 `;
 
-export type CardVariant = keyof typeof CARD_STYLES;
+export type CardVariant = keyof typeof CARD_VARIANTS;
+
+export function variantIsBorderless(variant: string): boolean {
+  const variantDefinition = CARD_VARIANTS[variant as CardVariant] ?? CARD_VARIANTS.default;
+
+  return variantDefinition.borderless === true;
+}
 
 export const Card = styled.div<{ variant?: CardVariant }>`
   width: 100%;
-  padding: 1rem;
-  background-color: ${({ variant = 'default' }) => CARD_STYLES[variant]?.background};
-  border: 1px solid ${({ variant = 'default' }) => CARD_STYLES[variant]?.border};
-  color: ${({ variant = 'default' }) => CARD_STYLES[variant]?.text};
+  padding: 0 1rem;
+  background-color: ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.background};
+  border: 1px solid ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.border};
+  color: ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.text};
   margin: 1rem 0;
-
-  & > h1,
-  & > h2, 
-  & > h3,
-  & > h4 {
-    margin-top: 0;
-  }
 `;
 
-export const BorderlessCard = styled.div<{ variant?: CardVariant }>``;
+export const BorderlessCard = styled.div<{ variant?: CardVariant }>`
+  color: ${({ variant = 'default' }) => CARD_VARIANTS[variant]?.text};
+`;
