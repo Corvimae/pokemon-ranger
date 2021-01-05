@@ -383,7 +383,6 @@ const RepoInputContainer = styled(InputRow)`
 
 const RouteContent = styled.div`
   & > div {
-    overflow-x: hidden;
     line-height: 1.52;
 
     & > *:first-child {

@@ -24,9 +24,15 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
   }
 
   & > ${ContainerLabel} {
+    position: sticky;
+    top: -0.5rem;
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #badfff;;
     margin-left: -2rem;
     font-size: 1.25rem;
     font-weight: 700;
+    z-index: 1;
 
     & + * {
       margin-top: 0.5rem;
