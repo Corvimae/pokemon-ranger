@@ -47,4 +47,8 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
     line-height: 1.65;
     list-style-type: none;
   }
+
+  & > ${BorderlessCard}:last-child {
+    margin-bottom: 1rem;
+  }
 `;
