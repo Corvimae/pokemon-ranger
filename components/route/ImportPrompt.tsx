@@ -156,10 +156,14 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
     }
   }, [repo, handleImportFromGithub, onInitialLoad, hasAttemptedQueryParamLoad]);
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, noClick: true });
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    noClick: true,
+    multiple: false,
+  });
 
   return isLoading ? <LoadingIcon /> : (
-    <UploadMessage {...getRootProps()}>
+    <UploadMessage {...getRootProps()} tabIndex={-1}>
       <input {...getInputProps()} />
 
       Drag a .mdr or .md file onto this page to start.
@@ -183,6 +187,13 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
           <Button onClick={handlePublishedImport}>Load</Button>
         </RepoInputContainer>
       </RepoSourceContainer>
+      <PublishRequestLink
+        href="https://github.com/Corvimae/ranger-routes/tree/main"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Publish your route!
+      </PublishRequestLink>
       <OrDivider>or</OrDivider>
       
       <RepoSourceContainer>
@@ -263,4 +274,10 @@ const RepoInputContainer = styled(InputRow)`
     font-weight: 400;
     font-size: 1rem;
   }
+`;
+
+const PublishRequestLink = styled.a`
+  font-size: 0.825rem;
+  margin-top: 0.5rem;
+  color: #5c95e0;
 `;
