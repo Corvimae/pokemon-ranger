@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
 import merge from 'deepmerge';
+import { useDropzone } from 'react-dropzone';
 import unified from 'unified';
 import remark from 'remark-parse';
 import remarkToRehype from 'remark-rehype';
@@ -13,18 +15,37 @@ import gh from 'hast-util-sanitize/lib/github.json';
 import { Schema } from 'hast-util-sanitize';
 import { directiveConverter } from '../../directives/directiveConverter';
 import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
-import { RouteContext } from '../../reducers/route/reducer';
+import { loadFile, RouteContext } from '../../reducers/route/reducer';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
+import { ConditionalBlock } from '../../components/route/ConditionalBlock';
+import { ContainerLabel, InputRow } from '../../components/Layout';
+import { Button } from '../../components/Button';
+import { RouteCard } from '../../components/route/RouteCard';
+import { InlineInfo } from '../../components/route/InlineInfo';
+import { TrainerBlock } from '../../components/route/TrainerBlock';
+import { PokemonBlock } from '../../components/route/PokemonBlock';
 
 const schema = merge(gh, {
   tagNames: [
-    'calculator',
+    'tracker',
+    'if',
     'damage',
+    'level',
+    'card',
+    'info',
+    'trainer',
+    'pokemon',
+    'containerlabel',
   ],
   attributes: {
-    calculator: ['species', 'contents', 'baseStats'],
+    tracker: ['species', 'contents', 'baseStats'],
+    if: ['condition', 'level', 'evolution', 'source', 'theme'],
+    card: ['theme'],
+    info: ['color'],
+    trainer: ['info', 'infoColor'],
+    pokemon: ['info', 'infoColor'],
     damage: [
       'source',
       'contents',
@@ -61,48 +82,188 @@ const processor = unified()
   .use(rehypeToReact, {
     createElement: React.createElement,
     components: ({
-      calculator: IVCalculatorDirective,
+      tracker: IVCalculatorDirective,
+      if: ConditionalBlock,
       damage: DamageTable,
+      card: RouteCard,
+      info: InlineInfo,
+      trainer: TrainerBlock,
+      pokemon: PokemonBlock,
+      containerlabel: ContainerLabel,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 
-const testContent = `
-:::calculator{species=Lillipup baseStats="[[45, 60, 45, 25, 45, 55], [65, 80, 65, 35, 65, 60]]"}
-5:
-   6 -> 0, 0, 0, 1, 0, 0 # Oshawott (1 SPATK)
-   7 -> 0, 0, 0, 1, 0, 0
-   8 -> 0, 0, 0, 1, 0, 0
-   9 -> 0, 0, 0, 1, 0, 1 # Pansage (1 SPD)
-  10 -> 0, 0, 0, 1, 0, 2 # Panpour (1 SPD)
-  11 -> 0, 1, 0, 1, 0, 2 # Patrat (1 ATK)
-  12 -> 0, 3, 0, 1, 0, 2 # Lillipup (1 ATK), Lillipup (1 ATK)
-  13 -> 0, 5, 0, 1, 0, 2 # Patrat (1 ATK), Patrat (1 ATK)
-  14 -> 0, 7, 0, 1, 0, 2 # Lillipup (1 ATK), Riolu (1 ATK)
-  15 -> 0, 7, 2, 1, 0, 2 # Venipede (1 DEF), Koffing (1 DEF)
-  16 -> 0, 7, 3, 1, 0, 2
-  17 -> 1, 7, 6, 1, 0, 2 # Koffing (1 DEF), Whirlipede (2 DEF)
-  18 -> 1, 7, 6, 1, 0, 2
-6:
-  7 -> 1, 2, 3, 4, 5, 6
-:::
+interface RouteViewParams {
+  repo?: string;
+}
 
-:::calculator{species=Mudkip baseStats="[[50, 70, 50, 50, 50, 40]]"}
-5:
-  6 -> 0, 1, 0, 0, 0, 1
-:::
-# Test
+const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
+  const router = useRouter();
+  const dispatch = RouteContext.useDispatch();
+  const hasAttemptedQueryParamLoad = useRef(false);
+  const [fileContent, setFileContent] = useState<string | null>(null);
+  const [fileSelectError, setFileSelectError] = useState<string | null>(null);
 
-::damage[+0 Tackle at Lvl 9 against 12 Def (0 EVs)]{source="Lillipup" level=9 healthThreshold=12 special=false evs=0 movePower=50 stab=true opponentStat=12}
-`;
+  const [repoImportPath, setRepoImportPath] = useState<string>(repo || '');
 
-const RouteView: NextPage = () => {
-  const content = processor.processSync(testContent).result as React.ReactNode;
+  const handleSetRepoImportPath = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setRepoImportPath(event.target.value);
+  }, []);
+
+  const handleCloseRoute = useCallback(() => {
+    dispatch(loadFile());
+
+    setFileContent(null);
+    setFileSelectError(null);
+    
+    router.push(
+      {
+        pathname: router.pathname,
+        query: {},
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [dispatch, router]);
+
+  const handleImportFromRepo = useCallback(() => {
+    dispatch(loadFile());
+
+    fetch(`https://raw.githubusercontent.com/${repoImportPath}/main/route.mdr`)
+      .then(async response => {
+        if (response.status === 200) {
+          setFileContent(await response.text());
+          setFileSelectError(null);
+     
+          router.push(
+            {
+              pathname: router.pathname,
+              query: {
+                repo: encodeURIComponent(repoImportPath),
+              },
+            },
+            undefined,
+            { shallow: true },
+          );
+        } else {
+          setFileContent(null);
+          setFileSelectError(`Unable to load route file: ${response.statusText}`);
+        }
+      });
+  }, [repoImportPath, dispatch, router]);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 1) {
+      setFileContent(null);
+      setFileSelectError('Only one route file may be selected at a time.');
+
+      return;
+    }
+
+    if (acceptedFiles.length === 0) {
+      setFileContent(null);
+      setFileSelectError('An unknown issue occurred trying to load the file.');
+
+      return;
+    }
+
+    const [acceptedFile] = acceptedFiles;
+
+    if (!acceptedFile.name.endsWith('.md') && !acceptedFile.name.endsWith('.mdr')) {
+      setFileContent(null);
+      setFileSelectError('Route files must end in .md or .mdr');
+
+      return;
+    }
+
+    dispatch(loadFile());
+    setFileContent(null);
+
+    const reader = new FileReader();
+
+    reader.onabort = () => {
+      setFileContent(null);
+      setFileSelectError('The file read process was aborted.');
+    };
+
+    reader.onerror = () => {
+      setFileContent(null);
+      setFileSelectError('An unknown issue occurred trying to load the file. The file may be corrupted.');
+    };
+
+    reader.onload = () => {
+      setFileContent(reader.result?.toString() ?? null);
+      setFileSelectError(null);
+    };
+
+    reader.readAsBinaryString(acceptedFile);
+  }, [dispatch]);
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop, noClick: true });
+
+  const content = useMemo(() => {
+    if (!fileContent) return null;
+
+    try {
+      return {
+        error: false,
+        content: processor.processSync(fileContent).result as React.ReactNode,
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        error: true,
+        message: 'The route file is not valid.',
+      };
+    }
+  }, [fileContent]);
+
   const state = RouteContext.useState();
 
+  useEffect(() => {
+    if (!hasAttemptedQueryParamLoad.current) {
+      if (repo) {
+        handleImportFromRepo();
+      }
+
+      hasAttemptedQueryParamLoad.current = true;
+    }
+  }, [repo, handleImportFromRepo]);
+
   return (
-    <Container>
+    <Container {...getRootProps()}>
+      <input {...getInputProps()} />
       <Guide>
-        {content}
+        {content && !content?.error ? (
+          <>
+            <RouteActions>
+              <Button onClick={handleCloseRoute}>Close</Button>
+            </RouteActions>
+            <RouteContent>
+              {content.content}
+            </RouteContent>
+          </>
+        ) : (
+          <UploadMessage>
+            Drag a .mdr or .md file onto this page to start.
+
+            {(content?.error || fileSelectError) && (
+              <ErrorMessage>
+                {content?.message || fileSelectError}
+              </ErrorMessage>
+            )}
+
+            <OrDivider>or</OrDivider>
+            
+            <RepoSourceContainer>
+              Load from a repo
+              <RepoInputContainer>
+                <input type="text" value={repoImportPath} onChange={handleSetRepoImportPath} />
+                <Button onClick={handleImportFromRepo}>Load</Button>
+              </RepoInputContainer>
+            </RepoSourceContainer>
+          </UploadMessage>
+        )}
       </Guide>
       <Sidebar>
         <TrackerInputContainer>
@@ -120,6 +281,12 @@ const RouteView: NextPage = () => {
   );
 };
 
+export const getServerSideProps: GetServerSideProps = async context => ({
+  props: {
+    repo: context.query.repo ? decodeURIComponent(context.query.repo as string) : null,
+  },
+});
+
 export default RouteContext.connect(RouteView);
 
 const Container = styled.div`
@@ -130,6 +297,7 @@ const Container = styled.div`
 `;
 
 const Guide = styled.div`
+  position: relative;
   padding: 0.5rem;
   overflow-y: auto;
 `;
@@ -148,4 +316,109 @@ const TrackerInputContainer = styled.div`
   min-height: 0;
   flex-grow: 1;
   align-self: stretch;
+`;
+
+const UploadMessage = styled.div`
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  padding: 0 8rem;
+  text-align: center;
+  font-size: 1.25rem;
+  color: #666;
+  font-weight: 700;
+  transform: translate(-50%, -50%);
+`;
+
+const ErrorMessage = styled.div`
+  margin-top: 0.5rem;
+  color: #900;
+  font-size: 1.125rem;
+`;
+
+const OrDivider = styled.div`
+  position: relative;
+  margin: 0.5rem 0;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0.825rem;
+    left: 25%;
+    width: 20%;
+    border-top: 1px solid #999;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0.825rem;
+    width: 20%;
+    left: 55%;
+    border-top: 1px solid #999;
+  }
+`;
+
+const RepoSourceContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const RepoInputContainer = styled(InputRow)`
+  && {
+    display: flex;
+    margin-top: 1rem;
+    justify-content: center;
+  }
+
+  & ${Button} {
+    margin-left: 1rem;
+  }
+
+  & > input {
+    margin-bottom: 0;
+  }
+`;
+
+const RouteContent = styled.div`
+  & > div {
+    line-height: 1.52;
+
+    & > *:first-child {
+      margin-top: 0;
+    }
+
+    & > * {
+      max-width: 100%;
+    }
+
+    & pre > code {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+      background-color: #333;
+      color: #eee;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+    }
+
+    & h4 + ul {
+      margin-top: -1rem;
+    }
+
+    & h3 + blockquote {
+      margin-top: -1rem;
+    }
+
+    & ul + ul {
+      margin-top: -1rem;
+    }
+  }
+`;
+
+const RouteActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
 `;

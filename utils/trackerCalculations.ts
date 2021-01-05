@@ -1,14 +1,82 @@
 import { Tracker } from '../reducers/route/types';
 import { calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
 import { Stat, STATS } from './constants';
-import { CombinedIVResult, ConfirmedNature, NatureModifier, NatureType, StatRange } from './rangeTypes';
-import { range } from './utils';
+import { CombinedIVResult, ConfirmedNature, NatureType, StatRange } from './rangeTypes';
+import { range, rangesOverlap } from './utils';
 
 export interface IVRangeSet {
   negative: [number, number],
   neutral: [number, number],
   positive: [number, number],
   combined: [number, number],
+}
+
+export interface StatValuePossibilitySet {
+  possible: number[];
+  valid: number[];
+}
+
+export function calculatePossibleStatValues(
+  stat: Stat,
+  level: number,
+  baseStat: number,
+  minIV: number,
+  maxIV: number,
+  ev: number,
+  possibleModifiers: number[],
+): StatValuePossibilitySet {
+  const possibleValues = range(0, 31).flatMap(iv => (
+    possibleModifiers.map(modifier => (stat === 'hp' ? calculateHP : calculateStat)(level, baseStat, iv, ev, modifier))
+  ));
+
+  const validValues = range(minIV, maxIV).flatMap(iv => (
+    possibleModifiers.map(modifier => (stat === 'hp' ? calculateHP : calculateStat)(level, baseStat, iv, ev, modifier))
+  ));
+
+  return {
+    possible: [...new Set(possibleValues)],
+    valid: [...new Set(validValues)],
+  };
+}
+
+export function calculatePossibleStats(
+  stat: Stat,
+  level: number,
+  ivRanges: Record<Stat, IVRangeSet>,
+  [confirmedNegative, confirmedPositive]: ConfirmedNature,
+  tracker: Tracker,
+  evolution: number | undefined = undefined,
+): StatValuePossibilitySet {
+  let relevantModifiers = stat === 'hp' ? [NATURE_MODIFIERS[1]] : NATURE_MODIFIERS;
+
+  if (confirmedNegative !== null && confirmedNegative !== stat) {
+    relevantModifiers = relevantModifiers.filter(({ key }) => key !== 'negative');
+  }
+
+  if (confirmedPositive !== null && confirmedPositive !== stat) {
+    relevantModifiers = relevantModifiers.filter(({ key }) => key !== 'positive');
+  }
+
+  return relevantModifiers.reduce<StatValuePossibilitySet>((combinedSet, { key, modifier }) => {
+    const values = ivRanges[stat][key];
+
+    if (values[0] === -1) return combinedSet;
+
+    const calculatedValues = calculatePossibleStatValues(
+      stat,
+      level,
+      tracker.baseStats[evolution ?? tracker.evolution][stat],
+      values[0],
+      values[1],
+      tracker.evSegments[tracker.startingLevel]?.[level]?.[stat] ?? 0,
+      [modifier],
+    );
+
+    return {
+      possible: [...combinedSet.possible, ...calculatedValues.possible],
+      valid: [...combinedSet.valid, ...calculatedValues.valid],
+    };
+  }, { possible: [], valid: [] } as StatValuePossibilitySet);
 }
 
 export function calculatePossibleIVRange(stat: Stat, tracker: Tracker): IVRangeSet {
@@ -85,13 +153,34 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
 }
 
 export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>): ConfirmedNature {
-  const negative = Object.entries(ivRanges).find(([, value]) => value.positive[0] === -1 && value.neutral[0] === -1);
-  const positive = Object.entries(ivRanges).find(([, value]) => value.negative[0] === -1 && value.neutral[0] === -1);
+  const confirmedNegative = Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.positive[0] === -1 && value.neutral[0] === -1);
+  const confirmedPositive = Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.negative[0] === -1 && value.neutral[0] === -1);
+
+  const possibleNegatives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.negative[0] !== -1);
+  const possiblePositives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.positive[0] !== -1);
+
+  const negativeByExclusion = confirmedPositive && possibleNegatives.length === 1 ? (possibleNegatives[0][0] as Stat) : null;
+  const positiveByExclusion = confirmedNegative && possiblePositives.length === 1 ? (possiblePositives[0][0] as Stat) : null;
 
   return [
-    negative ? negative[0] as Stat : null,
-    positive ? positive[0] as Stat : null,
+    confirmedNegative ? confirmedNegative[0] as Stat : negativeByExclusion,
+    confirmedPositive ? confirmedPositive[0] as Stat : positiveByExclusion,
   ];
+}
+
+export function filterByPossibleNatureAdjustmentsForStat<T>(
+  rangeSet: IVRangeSet,
+  stat: Stat,
+  confirmedNature: ConfirmedNature,
+  values: [T, T, T],
+): T[] {
+  const [negative, neutral, positive] = getPossibleNatureAdjustmentsForStat(rangeSet, stat, confirmedNature);
+  
+  return [
+    negative ? values[0] : undefined,
+    neutral ? values[1] : undefined,
+    positive ? values[2] : undefined,
+  ].filter(value => value !== undefined) as T[];
 }
 
 export function getPossibleNatureAdjustmentsForStat(
@@ -111,7 +200,7 @@ export function getPossibleNatureAdjustmentsForStat(
 export function isIVWithinValues(calculatedValue: StatRange, ivRange: [number, number]): boolean {
   if (!calculatedValue) return false;
 
-  return Math.max(calculatedValue.from, ivRange[0]) <= Math.min(calculatedValue.to, ivRange[1]);
+  return rangesOverlap([calculatedValue.from, calculatedValue.to], ivRange);
 }
 
 export function isIVWithinRange(

@@ -29,6 +29,7 @@ export const SET_STAT = 'SET_STAT';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
+export const LOAD_FILE = 'LOAD_FILE';
 
 type RegisterTrackerAction = {
   type: typeof REGISTER_TRACKER;
@@ -71,9 +72,14 @@ type SetStartingLevelAction = {
   };
 };
 
+type LoadFileAction = {
+  type: typeof LOAD_FILE;
+}
+
 export type RouteAction =
   RegisterTrackerAction |
   SetStatAction |
   TriggerEvolutionAction |
   ResetTrackerAction |
-  SetStartingLevelAction;
+  SetStartingLevelAction |
+  LoadFileAction;

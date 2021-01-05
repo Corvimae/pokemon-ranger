@@ -1,6 +1,53 @@
 import styled from 'styled-components';
 import { CopyGridButton } from './CopyGridButton';
 
+interface CardVariantDefinition {
+  background: string;
+  border: string;
+  text: string;
+  borderless?: boolean;
+}
+
+const CARD_VARIANTS: Record<string, CardVariantDefinition> = {
+  info: {
+    background: '#a1c2ee',
+    border: '#5e84b6',
+    text: '#1a3250',
+  },
+  error: {
+    background: '#ffc6c6',
+    border: '#923a3a',
+    text: '#3f0909',
+  },
+  warning: {
+    background: '#fff5bc',
+    border: '#c4b980',
+    text: '#4e4a30',
+  },
+  success: {
+    background: '#b3f7cd',
+    border: '#409b63',
+    text: '#0f4423',
+  },
+  neutral: {
+    background: '#e6e6e6',
+    border: '#999',
+    text: '#333',
+  },
+  borderless: {
+    background: 'transparent',
+    border: 'transparent',
+    text: 'inherit',
+    borderless: true,
+  },
+  faint: {
+    background: 'transparent',
+    border: 'transparent',
+    text: '#999',
+    borderless: true,
+  },
+} as const;
+
 export const Header = styled.h2`
   display: flex;
   justify-content: space-between;
@@ -125,10 +172,25 @@ export const Checkbox = styled.button<{ 'data-checked': boolean }>`
   }
 `;
 
-export const Card = styled.div`
+export type CardVariant = keyof typeof CARD_VARIANTS;
+
+export function variantIsBorderless(variant: string): boolean {
+  const variantDefinition = CARD_VARIANTS[variant as CardVariant] ?? CARD_VARIANTS.info;
+
+  return variantDefinition.borderless === true;
+}
+
+export const Card = styled.div<{ variant?: CardVariant }>`
   width: 100%;
-  padding: 1rem;
-  background-color: #a1c2ee;
-  border: 1px solid #5e84b6;
-  color: #1a3250;
+  padding: 0 1rem;
+  background-color: ${({ variant = 'info' }) => CARD_VARIANTS[variant]?.background};
+  border: 1px solid ${({ variant = 'info' }) => CARD_VARIANTS[variant]?.border};
+  color: ${({ variant = 'info' }) => CARD_VARIANTS[variant]?.text};
+  margin: 1rem 0;
 `;
+
+export const BorderlessCard = styled.div<{ variant?: CardVariant }>`
+  color: ${({ variant = 'borderless' }) => CARD_VARIANTS[variant]?.text};
+`;
+
+export const ContainerLabel = styled.div``;

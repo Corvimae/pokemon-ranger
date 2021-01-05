@@ -12,6 +12,7 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
       <Head>
         <title>Pokémon Ranger</title>
         <link rel="shortcut icon" href="/favicon.png" />
+        <meta charSet="UTF-8" />
       </Head>
       <Header>
         <li>
