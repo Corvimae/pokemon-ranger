@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const COLORS = {
+export const COLORS = {
+  black: '#000',
   red: '#a02c2c',
   blue: '#2626a8',
   green: '#2a8f2a',
@@ -15,7 +16,7 @@ interface InlineInfoProps {
   color?: InfoColor;
 }
 
-export const InlineInfo: React.FC<InlineInfoProps> = ({ color = 'gray', children }) => (
+export const InlineInfo: React.FC<InlineInfoProps> = ({ color = 'black', children }) => (
   <Container color={color}>{children}</Container>
 );
 

@@ -20,10 +20,12 @@ import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
 import { ConditionalBlock } from '../../components/route/ConditionalBlock';
-import { InputRow } from '../../components/Layout';
+import { ContainerLabel, InputRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { RouteCard } from '../../components/route/RouteCard';
 import { InlineInfo } from '../../components/route/InlineInfo';
+import { TrainerBlock } from '../../components/route/TrainerBlock';
+import { PokemonBlock } from '../../components/route/PokemonBlock';
 
 const schema = merge(gh, {
   tagNames: [
@@ -33,12 +35,17 @@ const schema = merge(gh, {
     'level',
     'card',
     'info',
+    'trainer',
+    'pokemon',
+    'containerlabel',
   ],
   attributes: {
     tracker: ['species', 'contents', 'baseStats'],
     if: ['condition', 'level', 'evolution', 'source', 'theme'],
     card: ['theme'],
     info: ['color'],
+    trainer: ['info', 'infoColor'],
+    pokemon: ['info', 'infoColor'],
     damage: [
       'source',
       'contents',
@@ -80,6 +87,9 @@ const processor = unified()
       damage: DamageTable,
       card: RouteCard,
       info: InlineInfo,
+      trainer: TrainerBlock,
+      pokemon: PokemonBlock,
+      containerlabel: ContainerLabel,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 

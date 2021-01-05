@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ErrorCard } from './ErrorCard';
 import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
-import { BorderlessCard, Card, CardVariant, variantIsBorderless } from '../Layout';
+import { BorderlessCard, Card, CardVariant, ContainerLabel, variantIsBorderless } from '../Layout';
 import { parse, Terms } from '../../directives/conditional-grammar';
 import { evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
 
@@ -124,6 +124,14 @@ const BorderlessConditionalCard = styled(BorderlessCard)`
     top: -0.5rem;
   }
 
+  ${ContainerLabel} + & {
+    padding-top: 1rem;
+
+    & ${Condition} {
+      margin-top: -0.5rem;
+    }
+  }
+
   & ${Condition} {
     position: absolute;
     width: max-content;
@@ -151,6 +159,7 @@ const BorderlessConditionalCard = styled(BorderlessCard)`
     margin-bottom: 0;
   }
 
+  h4 + & + ul,
   ul + & + ul,
   ul + & + & + ul,
   ul + & + & + & + ul {

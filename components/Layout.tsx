@@ -192,3 +192,5 @@ export const Card = styled.div<{ variant?: CardVariant }>`
 export const BorderlessCard = styled.div<{ variant?: CardVariant }>`
   color: ${({ variant = 'borderless' }) => CARD_VARIANTS[variant]?.text};
 `;
+
+export const ContainerLabel = styled.div``;

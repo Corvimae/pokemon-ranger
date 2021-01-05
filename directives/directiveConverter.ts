@@ -22,6 +22,17 @@ export function directiveConverter(): Transformer {
     const data = node.data || (node.data = {});
     const hast = h(node.name as string, node.attributes as string | Node | (string | Node)[]);
 
+    if (node.type === 'containerDirective') {
+      node.children = ((node.children as Node[]) || []).map(child => {
+        if (child.data?.directiveLabel) {
+          child.type = 'paragraph';
+          child.data.hName = 'containerLabel';
+        }
+        
+        return child;
+      });
+    }
+
     data.hName = hast.tagName;
     data.hProperties = {
       ...hast.properties,

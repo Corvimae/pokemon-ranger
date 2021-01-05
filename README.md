@@ -183,7 +183,7 @@ Inline info provides additional context to a line, such as a speed range, a kill
 
 **Attributes**
 
-`color` (string) - The color of the text. Valid colors are `red`, `blue`, `green`, `gray`, and `pink`. If no color is specified or the specified color is invalid, `gray` is used.
+`color` (string) - The color of the text. Valid colors are `black`, `red`, `blue`, `green`, `gray`, and `pink`. If no color is specified or the specified color is invalid, `black` is used.
 
 ## Publishing Routefiles
 
