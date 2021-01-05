@@ -17,6 +17,12 @@ export const TrainerBlock: React.FC<TrainerBlockProps> = ({ info, infoColor, chi
 const Container = styled.div<{ info?: string; infoColor?: string; }>`
   padding-left: 2rem;
 
+  & > ul {
+    padding-left: 0;
+    line-height: 1.65;
+    list-style-type: none;
+  }
+
   & > ${ContainerLabel} {
     margin-left: -2rem;
     font-size: 1.25rem;
@@ -33,6 +39,5 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
       font-weight: 400;
       font-size: 1rem;
     }
-  }
   }
 `;
