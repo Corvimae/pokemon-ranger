@@ -30,7 +30,7 @@ export function ResultsTensor<A extends any[], R>(
   const initFuncArgs : A = [] as unknown as A;
     
   let axis = 0;
-  for (let i = 0; i < axisLabels[axisLabels.length - 1].length; i += 1) {
+  for (let i = 0; i < axisLabels.length; i += 1) {
     const element = listOfValueSets[i];
     if (Array.isArray(element)) {
       if (element.length > 1) {
@@ -41,12 +41,12 @@ export function ResultsTensor<A extends any[], R>(
         numVariableVals.push(element.length);
         variableElements.push(i);
         initFuncArgs.push(element[0]);
-      } if (element.length === 0) {
+      } if (element.length === 1) {
         const [value] = element;
         constantVals[axisLabels[i]] = value;
         // variableFlag.push(0);
         initFuncArgs.push(element[0]);
-      } else {
+      } if (element.length === 0) {
         throw new Error(`Empty Array in element ${i}`);
       }
     } else {
@@ -54,7 +54,6 @@ export function ResultsTensor<A extends any[], R>(
       // variableFlag.push(0);
       initFuncArgs.push(element);
     }
-    i += 1;
   }
 
   if (variableValList.length === 0) throw new Error('Needs to have at least one value that varies');
@@ -189,7 +188,7 @@ export class Matrix<R> {
         get(target : Matrix<R>, prop : string, reciever : object) {
           if (prop in target) return target[prop as keyof typeof target]; // as typeof target[prop as keyof typeof target];
 
-          const index = prop.split(',').map(Number.parseFloat);
+          const index = prop.split(',').map(curString => Number.parseFloat(curString));
 
           if (Array.isArray(index)) {
             // Check to make sure the accessing array has same number of dimensions as the matrix
@@ -244,7 +243,7 @@ export class Matrix<R> {
             return false;
           }
 
-          const index = prop.split(',').map(Number.parseFloat);
+          const index = prop.split(',').map(curString => Number.parseFloat(curString));
 
           if (Array.isArray(index)) {
             // Check to make sure the accessing array has same number of dimensions as the matrix
@@ -255,14 +254,16 @@ export class Matrix<R> {
 
             // Check to make sure none of the accessing array is out of bounds
             for (let i = 0; i < index.length; i += 1) {
-              if (index[0] <= target.length[0]) {
+              if (index[i] >= target.length[i]) {
                 throw new Error(`Dimension ${i} out of Matrix bounds`);
               }
             }
             // dot product of index and dimensionOffset yields the index for the 1D array
             const arrayIndex = target.dimensionOffset.reduce((acc, cur, i) => acc + index[i] * cur, 0);
-                    target.values[arrayIndex] as R;
-                    return true;
+            // This is just how setters work in Proxies
+            // eslint-disable-next-line no-param-reassign
+            target.values[arrayIndex] = value as R;
+            return true;
           }
           throw new Error(`Key error: ${prop}`);
         },
