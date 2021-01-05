@@ -61,7 +61,7 @@ const Sum: NextPage = () => {
   }, [dispatch]);
 
   const combinationCount = useMemo(() => (
-    state.rolls.map(parseRolls)?.[0]?.length ?? 0 ** state.rolls.length
+    (state.rolls.map(parseRolls)?.[0]?.length ?? 0) ** state.rolls.length
   ), [state.rolls]);
 
   const results = useMemo<RollResults>(() => {
