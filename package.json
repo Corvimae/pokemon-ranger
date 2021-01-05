@@ -10,6 +10,9 @@
     "build-conditional-parser": "pegjs -o directives/conditional-grammar.js conditional-grammar.pegjs"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "^0.1.14",
     "@types/js-levenshtein": "^1.1.0",
     "@types/lodash": "^4.14.167",
     "deepmerge": "^4.2.2",

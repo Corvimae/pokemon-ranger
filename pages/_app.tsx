@@ -3,8 +3,11 @@ import styled from 'styled-components';
 import Head from 'next/head';
 import Link from 'next/link';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
+import { config, dom } from '@fortawesome/fontawesome-svg-core';
 
 import '../styles/globals.css';
+
+config.autoAddCss = false;
 
 function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
   return (
@@ -13,6 +16,7 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
         <title>Pokémon Ranger</title>
         <link rel="shortcut icon" href="/favicon.png" />
         <meta charSet="UTF-8" />
+        <style>{dom.css()}</style>
       </Head>
       <Header>
         <li>

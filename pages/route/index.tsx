@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -12,6 +12,8 @@ import raw from 'rehype-raw';
 import sanitize from 'rehype-sanitize';
 import gh from 'hast-util-sanitize/lib/github.json';
 import { Schema } from 'hast-util-sanitize';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { directiveConverter } from '../../directives/directiveConverter';
 import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
 import { loadFile, RouteContext } from '../../reducers/route/reducer';
@@ -101,7 +103,9 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
   const router = useRouter();
   const dispatch = RouteContext.useDispatch();
   const hasAttemptedQueryParamLoad = useRef(false);
+  const guideContentElement = useRef<HTMLDivElement>(null);
 
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [fileContent, setFileContent] = useState<string | null>(null);
 
   const handleOnInitialImport = useCallback(() => {
@@ -123,6 +127,10 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
     );
   }, [dispatch, router]);
 
+  const handleOnScrollToTop = useCallback(() => {
+    if (guideContentElement.current) guideContentElement.current.scrollTop = 0;
+  }, []);
+
   const content = useMemo(() => {
     if (!fileContent) return null;
 
@@ -142,18 +150,33 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
 
   const state = RouteContext.useState();
 
+  useEffect(() => {
+    const element = guideContentElement.current;
+    const onGuideScroll = () => {
+      if (element) {
+        setShowScrollToTop(element.scrollTop > 0);
+      }
+    };
+
+    element?.addEventListener('scroll', onGuideScroll);
+
+    return () => {
+      element?.removeEventListener('scroll', onGuideScroll);
+    };
+  });
+
   return (
     <Container>
-      <Guide>
+      <MainContent>
         {content && !content?.error ? (
-          <>
+          <Guide ref={guideContentElement}>
             <RouteActions>
               <Button onClick={handleCloseRoute}>Close</Button>
             </RouteActions>
             <RouteContent>
               {content.content}
             </RouteContent>
-          </>
+          </Guide>
         ) : (
           <ImportPrompt
             repo={repo}
@@ -163,7 +186,13 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
             onInitialLoad={handleOnInitialImport}
           />
         )}
-      </Guide>
+        <ReturnToTopButton
+          disabled={!showScrollToTop || !content || content.error}
+          onClick={handleOnScrollToTop}
+        >
+          <FontAwesomeIcon icon={faChevronUp} />
+        </ReturnToTopButton>
+      </MainContent>
       <Sidebar>
         <TrackerInputContainer>
           {Object.values(state.trackers).map(tracker => (
@@ -195,8 +224,15 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
+const MainContent = styled.div`
+  position: relative;
+  height: 100%;
+  overflow-y: hidden;
+`;
+
 const Guide = styled.div`
   position: relative;
+  height: 100%;
   padding: 0.5rem;
   overflow-y: auto;
 `;
@@ -257,4 +293,28 @@ const RouteActions = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-bottom: 0.5rem;
+`;
+
+const ReturnToTopButton = styled.button`
+  position: absolute;
+  display: flex;
+  bottom: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  line-height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background-color: #30b878;
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: opacity 150ms ease-in;
+
+  &:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
 `;

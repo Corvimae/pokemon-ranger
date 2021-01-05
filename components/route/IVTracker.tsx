@@ -1,5 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Tracker } from '../../reducers/route/types';
 import { capitalize } from '../../utils/utils';
 import { Stat, STATS } from '../../utils/constants';
@@ -81,11 +83,11 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
         <ActionButtons>
           <LevelSelector>
             <Button onClick={handleDecreaseLevel} disabled={currentLevel === tracker.startingLevel}>
-              -
+              <FontAwesomeIcon icon={faMinus} size="sm" />
             </Button>
             <CurrentLevel>Lv. {currentLevel}</CurrentLevel>
             <Button onClick={handleIncreaseLevel} disabled={currentLevel === 100}>
-              +
+              <FontAwesomeIcon icon={faPlus} size="sm" />
             </Button>
           </LevelSelector>
           <Button onClick={handleEvolution} disabled={tracker.evolution === tracker.baseStats.length - 1}>

@@ -163,49 +163,56 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
   });
 
   return isLoading ? <LoadingIcon /> : (
-    <UploadMessage {...getRootProps()} tabIndex={-1}>
+    <Container {...getRootProps()} tabIndex={-1}>
       <input {...getInputProps()} />
+      <UploadMessage>
 
-      Drag a .mdr or .md file onto this page to start.
+        Drag a .mdr or .md file onto this page to start.
 
-      {(error || fileSelectError) && (
-        <ErrorMessage>
-          {error || fileSelectError}
-        </ErrorMessage>
-      )}
+        {(error || fileSelectError) && (
+          <ErrorMessage>
+            {error || fileSelectError}
+          </ErrorMessage>
+        )}
 
-      <OrDivider>or</OrDivider>
-      <RepoSourceContainer>
-        Load a published route
-        <RepoInputContainer>
-          <RouteSelector
-            onChange={handleSetPublishedImportPath}
-            loadOptions={loadPublishedRoutes}
-            cacheOptions
-            defaultOptions
-          />
-          <Button onClick={handlePublishedImport}>Load</Button>
-        </RepoInputContainer>
-      </RepoSourceContainer>
-      <PublishRequestLink
-        href="https://github.com/Corvimae/ranger-routes/tree/main"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Publish your route!
-      </PublishRequestLink>
-      <OrDivider>or</OrDivider>
-      
-      <RepoSourceContainer>
-        Load from a repo
-        <RepoInputContainer>
-          <input type="text" value={repoImportPath} onChange={handleSetRepoImportPath} />
-          <Button onClick={handleImportFromRepo}>Load</Button>
-        </RepoInputContainer>
-      </RepoSourceContainer>
-    </UploadMessage>
+        <OrDivider>or</OrDivider>
+        <RepoSourceContainer>
+          Load a published route
+          <RepoInputContainer>
+            <RouteSelector
+              onChange={handleSetPublishedImportPath}
+              loadOptions={loadPublishedRoutes}
+              cacheOptions
+              defaultOptions
+            />
+            <Button onClick={handlePublishedImport}>Load</Button>
+          </RepoInputContainer>
+        </RepoSourceContainer>
+        <PublishRequestLink
+          href="https://github.com/Corvimae/ranger-routes/tree/main"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Publish your route!
+        </PublishRequestLink>
+        <OrDivider>or</OrDivider>
+        
+        <RepoSourceContainer>
+          Load from a repo
+          <RepoInputContainer>
+            <input type="text" value={repoImportPath} onChange={handleSetRepoImportPath} />
+            <Button onClick={handleImportFromRepo}>Load</Button>
+          </RepoInputContainer>
+        </RepoSourceContainer>
+      </UploadMessage>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+`;
 
 const UploadMessage = styled.div`
   position: absolute;
