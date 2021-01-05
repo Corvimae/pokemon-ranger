@@ -1,5 +1,3 @@
-import { Stat } from '../utils/constants';
-
 export namespace Terms {
   export type Type =
     'statExpression' |

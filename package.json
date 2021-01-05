@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.d.ts .",
-    "build-conditional-parser": "pegjs -o directives/conditional-grammar.js conditional-grammar.pegjs" 
+    "build-conditional-parser": "pegjs -o directives/conditional-grammar.js conditional-grammar.pegjs"
   },
   "dependencies": {
     "@types/js-levenshtein": "^1.1.0",
@@ -24,6 +24,7 @@
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-dropzone": "^11.2.4",
+    "react-select": "^3.1.1",
     "rehype-raw": "^5.0.0",
     "rehype-react": "^6.1.0",
     "rehype-sanitize": "^4.0.0",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@types/node": "^14.14.16",
     "@types/react": "^17.0.0",
+    "@types/react-select": "^3.1.2",
     "@types/styled-components": "^5.1.7",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.11.1",
