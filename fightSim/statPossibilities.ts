@@ -38,8 +38,10 @@ export function HPPossibilities(
   return ResultsTensor(labels, [baseStats, IVs, EVs, levels], StatFunc);
 }
 
-// This for catching the debugger.
+// This for catching the debugger/debug stuff.
 /* eslint-disable */
-// const test = HPPossibilities(50, [0, 31], 0, [5,6,7,8,9,10]);
+// const test = HPPossibilities(50, [0, 31], [...Array(256).keys()], [5,6,7,8,9,10]);
 // const debug = StatPossibilities(50, [...Array(32).keys()], [...Array(255).keys()], [...Array(101).keys()].slice(1), [0.9, 1.0, 1.1]);
+// test[3]['1,2,2']
+// test[3][[1,2,3] as unknown as keyof Matrix<number>]
 // const debugDummy = 0;

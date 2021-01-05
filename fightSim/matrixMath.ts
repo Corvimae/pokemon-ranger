@@ -200,7 +200,7 @@ export class Matrix<R> {
             // Check to make sure none of the accessing array is out of bounds
             for (let i = 0; i < index.length; i += 1) {
               if (typeof index[i] !== 'number') throw new Error(`Key error: ${index}contains values other than numbers`);
-              if (index[i] <= target.length[i]) {
+              if (index[i] >= target.length[i]) {
                 throw new Error(`Dimension ${i} out of Matrix bounds`);
               }
             }
