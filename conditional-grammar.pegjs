@@ -54,7 +54,7 @@ BinaryOrExpression
     }
    
 BinaryAndExpression
-  = head: NotExpression
+  = head: Factor
     tail:(_ '&&' _ BinaryAndExpression)* {
       return tail.reduce((result, element) => ({
         type: "logicalExpression",
@@ -64,32 +64,38 @@ BinaryAndExpression
       }), head);
     }
 
-NotExpression = 
-  '!' expression: Factor {
-    return {
-      type: 'notExpression',
-      expression,
-    };
-  }
-  / Factor
-  
 IntegerLiteral 'integer'
   = _ [0-9]+ {
     return parseInt(text(), 10);
   }
   
-Range =
-  IVRange 
+
+Range
+  = IVRange 
   / RangeSegment
-  / '(' _ range: Range _ ')' { return range; }
   
-IVRange 'ivRange'
+IVRange = DeliminatedIVRange / InverseIVRange
+
+InverseIVRange
+  = '~' _ range: DeliminatedIVRange {
+    return {
+	  ...range,
+      inverse: true
+	};
+  }
+  
+DeliminatedIVRange
+	= PositiveIVRange
+	/ '(' _ range: PositiveIVRange _ ')' { return range; }
+
+PositiveIVRange 'ivRange'
   = _ negative: IVRangeSegment _ '/' _ neutral: IVRangeSegment _ '/' _ positive: IVRangeSegment _ {
     return {
       type: 'ivRange',
       negative,
       neutral,
       positive,
+      inverse: false,
     };
   }
   
@@ -120,6 +126,5 @@ BoundedRange
     };
   }
   
-
 _ "whitespace"
   = [ \t\n\r]*

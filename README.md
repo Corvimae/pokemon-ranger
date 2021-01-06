@@ -204,7 +204,9 @@ Ranges must be in stat range format or IV range format:
 Stat ranges are compared against the calculated statistic at the specified level; e.g. "What is the Pokémon's Attack at level 12?". Stat ranges can be
 a single value (12), a minimum value (12+), a maximum value (12-), or a range (12-14). If the range of possible stats that the Pokémon can have given its calculated IVs overlap the stat range, the conditional card is displayed.
 
-IV ranges are compared against the Pokémon's IVs, and are level agnostic. IV ranges have the format `negative / neutral / positive`, where `negative` is the range of possible IVs with a nature that reduces the stat, `neutral` is the range of possible IVs with a nature that does not affect the stat, and `positive` is the range of possible IVs with a nature that boosts the stat. IV ranges can optionally be surrounded by parentheses.
+IV ranges are compared against the Pokémon's IVs, and are level agnostic. IV ranges have the format `negative / neutral / positive`, where `negative` is the range of possible IVs with a nature that reduces the stat, `neutral` is the range of possible IVs with a nature that does not affect the stat, and `positive` is the range of possible IVs with a nature that boosts the stat. IV ranges can optionally be surrounded by parentheses. If an IV range is prefixed by a tilde (`~`), the
+inverse of the range is used instead. Inverses may only be used if each section of the IV range is an unbounded value, 0,
+or 31. (i.e. one of `x`, `X`, `#`, `0`, `31`, `[number]+`, or `[number]-`).
 
 IV ranges are evaluated in the same manner as stat ranges, except that they are compared against the range of possible IVs calculated by the IV tracker rather than against the range of possible stats. Additionally, IV ranges accept some special tokens:
 

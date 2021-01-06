@@ -2,7 +2,6 @@ export namespace Terms {
   export type Type =
     'statExpression' |
     'logicalExpression' |
-    'notExpression' |
     'ivRange' |
     'unboundedRange' |
     'boundedRange';
@@ -24,12 +23,7 @@ export namespace Terms {
     right: Expression;
   }
 
-  export interface NotExpression extends ComplexTerm {
-    type: 'notExpression';
-    expression: Expression;
-  }
-
-  export type Expression = StatExpression | LogicalExpression | NotExpression;
+  export type Expression = StatExpression | LogicalExpression;
 
   export type IVRangeSegment = RangeSegment | '#' | 'x' | 'X';
   
@@ -52,6 +46,7 @@ export namespace Terms {
     negative: IVRangeSegment;
     neutral: IVRangeSegment;
     positive: IVRangeSegment;
+    inverse: boolean;
   }
   
   export type Range = IVRange | RangeSegment;

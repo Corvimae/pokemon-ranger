@@ -28,6 +28,60 @@ function isIVStat(stat: ConditionalStat): stat is Stat {
   return STATS.indexOf(stat as Stat) !== -1;
 }
 
+function calculateInverseRangeSegment(segment: Terms.IVRangeSegment): Terms.IVRangeSegment {
+  if (segment === '#') return 'x';
+  if (segment === 'x' || segment === 'X') return '#';
+  if (typeof segment === 'number') {
+    if (segment === 0) {
+      return {
+        type: 'unboundedRange',
+        value: 1,
+        operator: '+',
+      };
+    }
+
+    if (segment === 31) {
+      return {
+        type: 'unboundedRange',
+        value: 30,
+        operator: '-',
+      };
+    }
+
+    throw new Error('Cannot invert a single IV value unless it is 0 or 31.');
+  }
+  
+  switch (segment.type) {
+    case 'boundedRange':
+      throw new Error('Cannot invert a bounded range.');
+
+    case 'unboundedRange':
+      if (segment.operator === '+' && segment.value === 0) return 'x';
+      if (segment.operator === '-' && segment.value === 31) return 'x';
+      
+      return {
+        type: 'unboundedRange',
+        value: segment.operator === '+' ? segment.value - 1 : segment.value + 1,
+        operator: segment.operator === '+' ? '-' : '+',
+      };
+
+    default:
+      throw new Error('Unexpected range type.');
+  }
+}
+
+function calculatePossiblyInvertedIVRangeSegments(rangeTerm: Terms.IVRange): [Terms.IVRangeSegment, Terms.IVRangeSegment, Terms.IVRangeSegment] {
+  if (rangeTerm.inverse) {
+    return [
+      calculateInverseRangeSegment(rangeTerm.negative),
+      calculateInverseRangeSegment(rangeTerm.neutral),
+      calculateInverseRangeSegment(rangeTerm.positive),
+    ];
+  }
+
+  return [rangeTerm.negative, rangeTerm.neutral, rangeTerm.positive];
+}
+
 function getMatchingStat(stat: string): ConditionalStat {
   const lowerCaseStat = stat.toLowerCase();
 
@@ -84,10 +138,12 @@ function evaluateIVExpression(
     throw new Error(`Compact IV range is not valid for comparisons against ${stat}`);
   }
 
+  const [negative, neutral, positive] = calculatePossiblyInvertedIVRangeSegments(expression);
+
   const matchingConditions = filterByPossibleNatureAdjustmentsForStat(ivRanges[matchingStat], matchingStat, confirmedNatures, [
-    [expression.negative, ivRanges[matchingStat].negative],
-    [expression.neutral, ivRanges[matchingStat].neutral],
-    [expression.positive, ivRanges[matchingStat].positive],
+    [negative, ivRanges[matchingStat].negative],
+    [neutral, ivRanges[matchingStat].neutral],
+    [positive, ivRanges[matchingStat].positive],
   ]) as [Terms.IVRangeSegment, [number, number]][];
 
   return matchingConditions.some(([subCondition, [min, max]]) => {
@@ -163,9 +219,6 @@ export function evaluateCondition(
       return left || right;
     }
 
-    case 'notExpression':
-      return !evaluateCondition(term.expression, level, ivRanges, confirmedNatures, tracker, evolution);
-
     default:
       return false;
   }
@@ -193,11 +246,9 @@ export function formatCondition(expression: Terms.Expression): string {
       const statName = formatConditionalStatName(getMatchingStat(expression.stat));
       
       if (isIVRange(expression.expression)) {
-        const formattedSegments = [
-          expression.expression.negative,
-          expression.expression.neutral,
-          expression.expression.positive,
-        ].map(formatRangeSegment).join(' / ');
+        const formattedSegments = calculatePossiblyInvertedIVRangeSegments(expression.expression)
+          .map(formatRangeSegment)
+          .join(' / ');
 
         return `${statName} is (${formattedSegments})`;
       }
@@ -210,9 +261,6 @@ export function formatCondition(expression: Terms.Expression): string {
 
       return `(${formatCondition(expression.left)} ${conjunction} ${formatCondition(expression.right)})`;
     }
-
-    case 'notExpression':
-      return `NOT ${formatCondition(expression.expression)}`;
 
     default:
       return '<invalid condition>';
