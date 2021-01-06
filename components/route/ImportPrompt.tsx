@@ -6,11 +6,11 @@ import { OptionsType, OptionTypeBase } from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { Button } from '../Button';
 import { InputRow } from '../Layout';
-import { loadFile, RouteContext } from '../../reducers/route/reducer';
+import { loadFile, RouteContext, setRepoPath } from '../../reducers/route/reducer';
 import { LoadingIcon } from '../LoadingIcon';
 
 interface ImportPromptProps {
-  repo?: string;
+  repoQueryParam?: string;
   error?: string;
   hasAttemptedQueryParamLoad: boolean;
   setFileContent: React.Dispatch<React.SetStateAction<string | null>>;
@@ -18,8 +18,8 @@ interface ImportPromptProps {
 }
 
 export const ImportPrompt: React.FC<ImportPromptProps> = ({
-  repo,
   error,
+  repoQueryParam,
   hasAttemptedQueryParamLoad,
   setFileContent,
   onInitialLoad,
@@ -69,6 +69,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
         if (response.status === 200) {
           setFileContent(await response.text());
           setFileSelectError(null);
+          dispatch(setRepoPath(path));
      
           router.push(
             {
@@ -148,13 +149,13 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
 
   useEffect(() => {
     if (!hasAttemptedQueryParamLoad) {
-      if (repo) {
-        handleImportFromGithub(repo, true);
+      if (repoQueryParam) {
+        handleImportFromGithub(repoQueryParam, true);
       }
 
       onInitialLoad();
     }
-  }, [repo, handleImportFromGithub, onInitialLoad, hasAttemptedQueryParamLoad]);
+  }, [repoQueryParam, handleImportFromGithub, onInitialLoad, hasAttemptedQueryParamLoad]);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,

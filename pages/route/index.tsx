@@ -28,6 +28,7 @@ import { InlineInfo } from '../../components/route/InlineInfo';
 import { TrainerBlock } from '../../components/route/TrainerBlock';
 import { PokemonBlock } from '../../components/route/PokemonBlock';
 import { ImportPrompt } from '../../components/route/ImportPrompt';
+import { RouteImage } from '../../components/route/RouteImage';
 
 const schema = merge(gh, {
   tagNames: [
@@ -84,6 +85,7 @@ const processor = unified()
   .use(rehypeToReact, {
     createElement: React.createElement,
     components: ({
+      img: RouteImage,
       tracker: IVCalculatorDirective,
       if: ConditionalBlock,
       damage: DamageTable,
@@ -179,7 +181,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
           </Guide>
         ) : (
           <ImportPrompt
-            repo={repo}
+            repoQueryParam={repo}
             error={content?.error ? content.message : undefined}
             setFileContent={setFileContent}
             hasAttemptedQueryParamLoad={hasAttemptedQueryParamLoad.current}

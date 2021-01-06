@@ -25,6 +25,9 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
         <li>
           <Link href="/sum">Damage Sum</Link>
         </li>
+        <li>
+          <Link href="/route">Routes</Link>
+        </li>
       </Header>
       <Content>
         <Component {...pageProps} />

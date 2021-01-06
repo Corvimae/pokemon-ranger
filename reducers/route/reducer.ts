@@ -2,14 +2,21 @@ import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
 
 const defaultState: RouteState = {
+  repoPath: undefined,
   trackers: {},
 };
 
 const reducer = (state: RouteState, action: RouteAction): RouteState => {
   switch (action.type) {
+    case SET_REPO_PATH:
+      return {
+        ...state,
+        repoPath: action.payload.repoPath?.replace('/route.mdr', '').replace('/route.md', ''),
+      };
+
     case REGISTER_TRACKER:
       return {
         ...state,
@@ -83,6 +90,13 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
 };
 
 export const RouteContext = prepareContextualReducer(reducer, defaultState);
+
+export function setRepoPath(repoPath: string | undefined): RouteAction {
+  return {
+    type: SET_REPO_PATH,
+    payload: { repoPath },
+  };
+}
 
 export function registerTracker(name: string, baseStats: StatLine[], evSegments: Record<number, EVsByLevel>): RouteAction {
   return {
