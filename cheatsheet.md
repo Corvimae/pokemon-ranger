@@ -1,6 +1,7 @@
 # Routefile Cheat Sheet
 
 **Full docs**: https://github.com/Corvimae/pokemon-ranger/blob/main/README.md
+
 **Publishing docs**: https://github.com/Corvimae/ranger-routes/blob/main/README.md
 
 ## IV Tracker
