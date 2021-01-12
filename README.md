@@ -8,6 +8,8 @@ Routefiles use [generic directives](https://talk.commonmark.org/t/generic-direct
 
 Routefiles must end in `.md` or `.mdr` (markdown route) for Ranger to process them.
 
+**Cheat sheet**: https://github.com/Corvimae/pokemon-ranger/blob/main/cheatsheet.md
+
 ### IV Trackers
 
 IV trackers determine the possible IVs and nature of a Pokémon based on the information available to the runner. As a Pokémon levels up, the runner can input its stats into the IV tracker, which will then calculate the possible IV ranges that result in the stats entered at each level.
