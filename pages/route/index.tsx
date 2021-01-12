@@ -21,7 +21,7 @@ import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
 import { ConditionalBlock } from '../../components/route/ConditionalBlock';
-import { ContainerLabel } from '../../components/Layout';
+import { ContainerLabel, Link } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { RouteCard } from '../../components/route/RouteCard';
 import { InlineInfo } from '../../components/route/InlineInfo';
@@ -180,13 +180,22 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
             </RouteContent>
           </Guide>
         ) : (
-          <ImportPrompt
-            repoQueryParam={repo}
-            error={content?.error ? content.message : undefined}
-            setFileContent={setFileContent}
-            hasAttemptedQueryParamLoad={hasAttemptedQueryParamLoad.current}
-            onInitialLoad={handleOnInitialImport}
-          />
+          <>
+            <ImportPrompt
+              repoQueryParam={repo}
+              error={content?.error ? content.message : undefined}
+              setFileContent={setFileContent}
+              hasAttemptedQueryParamLoad={hasAttemptedQueryParamLoad.current}
+              onInitialLoad={handleOnInitialImport}
+            />
+            <DocsLink
+              href="https://github.com/Corvimae/pokemon-ranger/blob/main/README.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Learn to write your own route!
+            </DocsLink>
+          </>
         )}
         <ReturnToTopButton
           disabled={!showScrollToTop || !content || content.error}
@@ -220,8 +229,9 @@ export const getServerSideProps: GetServerSideProps = async context => ({
 export default RouteContext.connect(RouteView);
 
 const Container = styled.div`
-  height: 100%;
+  position: relative;
   display: grid;
+  height: 100%;
   grid-template-columns: 1fr minmax(28rem, max-content);
   overflow: hidden;
 `;
@@ -319,4 +329,12 @@ const ReturnToTopButton = styled.button`
     opacity: 0;
     pointer-events: none;
   }
+`;
+
+const DocsLink = styled(Link)`
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  font-weight: 700;
+  transform: translate(-50%, 0);
 `;

@@ -58,6 +58,12 @@ export const Header = styled.h2`
   margin: 0.5rem 0;
 `;
 
+export const Link = styled.a`
+  font-size: 0.825rem;
+  margin-top: 0.5rem;
+  color: #5c95e0;
+`;
+
 export const ResultsSubheader = styled.h3`
   font-size: 1rem;
   color: #666;

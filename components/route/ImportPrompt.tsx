@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { OptionsType, OptionTypeBase } from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { Button } from '../Button';
-import { InputRow } from '../Layout';
+import { InputRow, Link } from '../Layout';
 import { loadFile, RouteContext, setRepoPath } from '../../reducers/route/reducer';
 import { LoadingIcon } from '../LoadingIcon';
 
@@ -189,13 +189,13 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
             <Button onClick={handlePublishedImport}>Load</Button>
           </RepoInputContainer>
         </RepoSourceContainer>
-        <PublishRequestLink
+        <Link
           href="https://github.com/Corvimae/ranger-routes/tree/main"
           target="_blank"
           rel="noreferrer"
         >
           Publish your route!
-        </PublishRequestLink>
+        </Link>
         <OrDivider>or</OrDivider>
         
         <RepoSourceContainer>
@@ -282,10 +282,4 @@ const RepoInputContainer = styled(InputRow)`
     font-weight: 400;
     font-size: 1rem;
   }
-`;
-
-const PublishRequestLink = styled.a`
-  font-size: 0.825rem;
-  margin-top: 0.5rem;
-  color: #5c95e0;
 `;
