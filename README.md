@@ -33,6 +33,8 @@ A route file can contain any number of IV trackers, but in order to take advanta
 
 `baseStats` - A JSON-formatted array of base stats for each of the Pokémon's evolutions. If the Pokémon has no evolutions, you should still provide an array-of-arrays (e.g. `[[50, 50, 50, 50, 50, 50]]`).
 
+`hiddenPower` (default: false) - If true, hidden power type will be calculated and displayed.
+
 **Content**
 
 The block content is used to determine the EVs of the Pokémon at each level. EVs at not calculated cumulatively - you must provide the total EVs that the Pokémon has when the level up occurs, not just the EVs gained since the last level up.

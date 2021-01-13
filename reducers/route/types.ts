@@ -14,6 +14,7 @@ export type EVsByLevel = Record<number, StatLine>;
 export interface Tracker {
   name: string;
   evolution: number;
+  calculateHiddenPower: boolean;
   startingLevel: number;
   baseStats: StatLine[];
   recordedStats: Record<number, Record<number, StatLine>>;
@@ -44,6 +45,7 @@ type RegisterTrackerAction = {
   type: typeof REGISTER_TRACKER;
   payload: {
     name: string;
+    calculateHiddenPower: boolean;
     baseStats: StatLine[];
     evSegments: Record<number, EVsByLevel>;
   },

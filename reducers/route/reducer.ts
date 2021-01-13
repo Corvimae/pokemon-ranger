@@ -25,6 +25,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
           [action.payload.name]: state.trackers[action.payload.name] || {
             name: action.payload.name,
             evolution: 0,
+            calculateHiddenPower: action.payload.calculateHiddenPower,
             startingLevel: Number(Object.keys(action.payload.evSegments)[0] || 5),
             baseStats: action.payload.baseStats,
             recordedStats: {},
@@ -98,12 +99,13 @@ export function setRepoPath(repoPath: string | undefined): RouteAction {
   };
 }
 
-export function registerTracker(name: string, baseStats: StatLine[], evSegments: Record<number, EVsByLevel>): RouteAction {
+export function registerTracker(name: string, baseStats: StatLine[], calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>): RouteAction {
   return {
     type: REGISTER_TRACKER,
     payload: {
       name,
       baseStats,
+      calculateHiddenPower,
       evSegments,
     },
   };

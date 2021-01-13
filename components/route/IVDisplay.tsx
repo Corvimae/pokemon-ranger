@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Tracker } from '../../reducers/route/types';
 import { NATURES, Stat, STATS } from '../../utils/constants';
 import { formatStatName } from '../../utils/rangeFormat';
-import { calculateAllPossibleIVRanges, calculatePossibleNature, getPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
+import { calculateAllPossibleIVRanges, calculateHiddenPowerType, calculatePossibleNature, getPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
 
 interface IVDisplayProps {
   tracker: Tracker;
@@ -31,8 +31,12 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
     return Object.values(NATURES).find(nature => nature.minus === confirmedNegative && nature.plus === confirmedPositive);
   }, [confirmedNegative, confirmedPositive]);
 
+  const hiddenPowerType = useMemo(() => (
+    calculateHiddenPowerType(ivRanges, [confirmedNegative, confirmedPositive])
+  ), [ivRanges, confirmedNegative, confirmedPositive]);
+
   return (
-    <Container>
+    <Container calculateHiddenPower={tracker.calculateHiddenPower}>
       <TrackerName>{tracker.name}</TrackerName>
       {STATS.map(stat => (
         <StatDisplay key={stat}>
@@ -50,13 +54,21 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
           {confirmedNature?.name ?? '?'}
         </div>
       </StatDisplay>
+      {tracker.calculateHiddenPower && (
+        <StatDisplay>
+          <StatName>Hidden Power</StatName>
+          <div>
+            {hiddenPowerType ?? 'N/A'}
+          </div>
+        </StatDisplay>
+      )}
     </Container>
   );
 };
 
-const Container = styled.div`
+const Container = styled.div<{ calculateHiddenPower?: boolean }>`
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, 1fr) ${props => props.calculateHiddenPower && 'max-content'};
 
   & + & {
     margin-top: 0.25rem;

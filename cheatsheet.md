@@ -7,7 +7,19 @@
 ## IV Tracker
 
 ```
-:::tracker{species="Bulbasaur" baseStats="[[45, 49, 49, 65, 65, 45], [60, 62, 63, 80, 80, 60], [80, 100, 123, 122, 120, 80]]}
+:::tracker{species="Bulbasaur" baseStats="[[45, 49, 49, 65, 65, 45], [60, 62, 63, 80, 80, 60], [80, 100, 123, 122, 120, 80]]"}
+5: 
+  6 -> 0, 0, 0, 1, 0, 0
+  7 -> 0, 0, 0, 1, 1, 0 # Burmy (1 SPDEF)
+6:
+  7 -> 0, 0, 0, 0, 0, 1
+:::
+```
+
+### With Hidden Power
+
+```
+:::tracker{species="Bulbasaur" baseStats="[[45, 49, 49, 65, 65, 45], [60, 62, 63, 80, 80, 60], [80, 100, 123, 122, 120, 80]]" hiddenPower=true}
 5: 
   6 -> 0, 0, 0, 1, 0, 0
   7 -> 0, 0, 0, 1, 1, 0 # Burmy (1 SPDEF)

@@ -14,13 +14,19 @@ interface IVCalculatorDirectiveProps {
   species?: string;
   baseStats?: string;
   contents?: string;
+  hiddenPower?: string;
 }
 
 function arrayToStatRow([hp, attack, defense, spAttack, spDefense, speed]: number[]): StatLine {
   return { hp, attack, defense, spAttack, spDefense, speed };
 }
 
-export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({ species, baseStats: rawBaseStats, contents }) => {
+export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
+  species,
+  baseStats: rawBaseStats,
+  hiddenPower,
+  contents,
+}) => {
   const dispatch = RouteContext.useDispatch();
 
   const hasRegistered = useRef(false);
@@ -77,10 +83,15 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({ sp
 
   useEffect(() => {
     if (!hasRegistered.current) {
-      dispatch(registerTracker(species ?? '<no name specified>', baseStats, evSegments));
+      dispatch(registerTracker(
+        species ?? '<no name specified>',
+        baseStats,
+        hiddenPower === 'true',
+        evSegments,
+      ));
       hasRegistered.current = true;
     }
-  }, [dispatch, species, baseStats, evSegments]);
+  }, [dispatch, species, baseStats, hiddenPower, evSegments]);
   
   return null;
 };
