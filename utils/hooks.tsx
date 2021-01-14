@@ -39,7 +39,7 @@ export function useParameterizedReducer<S, A>(
   useEffect(() => {
     if (hasSetInitialState.current && previousQueryState.current !== state) {
       const updatedQueryParams = (Object.entries(state) as [keyof S, unknown][]).reduce((acc, [key, value]) => {
-        const normalizedValue = typeof defaultState[key] === 'number' ? Number(value) : value;
+        const normalizedValue = key !== 'generation' && typeof defaultState[key] === 'number' ? Number(value) : value;
 
         if (JSON.stringify(normalizedValue) === JSON.stringify(defaultState[key])) {
           return acc;

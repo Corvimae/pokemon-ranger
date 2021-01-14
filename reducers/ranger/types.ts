@@ -1,3 +1,5 @@
+import { Generation } from '../../utils/rangeTypes';
+
 export const DISPLAY_MODES = ['expanded', 'compact', 'ohko'] as const;
 
 export const SET_DISPLAY_MODE = 'SET_DISPLAY_MODE';
@@ -21,6 +23,7 @@ export const SET_OPPONENT_STAT = 'SET_OPPONENT_STAT';
 export const SET_OPPONENT_LEVEL = 'SET_OPPONENT_LEVEL';
 export const SET_OPPONENT_COMBAT_STAGES = 'SET_OPPONENT_COMBAT_STAGES';
 export const SET_HEALTH_THRESHOLD = 'SET_HEALTH_THRESHOLD';
+export const SET_FRIENDSHIP = 'SET_FRIENDSHIP';
 
 export const SET_INITIAL_STATE = 'SET_INITIAL_STATE';
 export const RESET_STATE = 'RESET_STATE';
@@ -38,7 +41,7 @@ export interface RangerReducerState {
   movePower: number;
   typeEffectiveness: number;
   stab: boolean;
-  generation: number;
+  generation: Generation;
   criticalHit: boolean;
   torrent: boolean;
   multiTarget: boolean;
@@ -49,6 +52,7 @@ export interface RangerReducerState {
   opponentLevel: number;
   opponentCombatStages: number;
   healthThreshold: number;
+  friendship: number;
 }
 
 type SetDisplayModeAction = {
@@ -124,7 +128,7 @@ type SetSTABAction = {
 type SetGenerationAction = {
   type: typeof SET_GENERATION;
   payload: {
-    generation: number;
+    generation: Generation;
   };
 };
 
@@ -198,6 +202,13 @@ type SetHealthThresholdAction = {
   };
 };
 
+type SetFriendshipAction = {
+  type: typeof SET_FRIENDSHIP,
+  payload: {
+    friendship: number
+  };
+}
+
 type ResetStateAction = {
   type: typeof RESET_STATE;
 }
@@ -229,5 +240,6 @@ export type RangerReducerAction =
   SetOpponentLevelAction |
   SetOpponentCombatStagesAction |
   SetHealthThresholdAction |
+  SetFriendshipAction |
   ResetStateAction |
   SetInitialStateAction;

@@ -35,6 +35,8 @@ A route file can contain any number of IV trackers, but in order to take advanta
 
 `hiddenPower` (default: false) - If true, hidden power type will be calculated and displayed.
 
+`generation` (default: 4) - Which generation's formulas to use. Gen 1-2 are not supported, and specifying `lgpe` will change results.
+
 **Content**
 
 The block content is used to determine the EVs of the Pokémon at each level. EVs at not calculated cumulatively - you must provide the total EVs that the Pokémon has when the level up occurs, not just the EVs gained since the last level up.
@@ -106,7 +108,7 @@ The content within the square brackets is displayed as a header above the table,
 
 `otherModifier` (number, default: `1`) - An additional modifier to apply to the roll.
 
-`generation` (number, default: `4`) - The generation of the game in which the attack takes place.
+`friendship` (number, default: `0`) - The friendship of the Pokémon, from 0-255. Only relevant if the tracker's generation is `lgpe`.
 
 ### Trainer Blocks
 

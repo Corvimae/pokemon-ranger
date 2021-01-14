@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
 import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
+import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
   repoPath: undefined,
@@ -26,6 +27,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             name: action.payload.name,
             evolution: 0,
             calculateHiddenPower: action.payload.calculateHiddenPower,
+            generation: action.payload.generation,
             startingLevel: Number(Object.keys(action.payload.evSegments)[0] || 5),
             baseStats: action.payload.baseStats,
             recordedStats: {},
@@ -99,12 +101,13 @@ export function setRepoPath(repoPath: string | undefined): RouteAction {
   };
 }
 
-export function registerTracker(name: string, baseStats: StatLine[], calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>): RouteAction {
+export function registerTracker(name: string, baseStats: StatLine[], generation: Generation, calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>): RouteAction {
   return {
     type: REGISTER_TRACKER,
     payload: {
       name,
       baseStats,
+      generation,
       calculateHiddenPower,
       evSegments,
     },

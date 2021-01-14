@@ -2,7 +2,7 @@ import { CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 import { Tracker } from '../reducers/route/types';
 import { calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
 import { Stat, STATS } from './constants';
-import { CombinedIVResult, ConfirmedNature, NatureType, StatRange } from './rangeTypes';
+import { CombinedIVResult, ConfirmedNature, Generation, NatureType, StatRange } from './rangeTypes';
 import { range, rangesOverlap } from './utils';
 
 export const HIDDEN_POWER_TYPES = [
@@ -38,6 +38,12 @@ export interface StatValuePossibilitySet {
   valid: number[];
 }
 
+function calculateStatOrHP(stat: Stat, level: number, baseStat: number, iv: number, ev: number, modifier: number, generation: Generation): number {
+  if (stat === 'hp') return calculateHP(level, baseStat, iv, ev, generation);
+
+  return calculateStat(level, baseStat, iv, ev, modifier);
+}
+
 export function calculatePossibleStatValues(
   stat: Stat,
   level: number,
@@ -46,13 +52,14 @@ export function calculatePossibleStatValues(
   maxIV: number,
   ev: number,
   possibleModifiers: number[],
+  generation: Generation,
 ): StatValuePossibilitySet {
   const possibleValues = range(0, 31).flatMap(iv => (
-    possibleModifiers.map(modifier => (stat === 'hp' ? calculateHP : calculateStat)(level, baseStat, iv, ev, modifier))
+    possibleModifiers.map(modifier => calculateStatOrHP(stat, level, baseStat, iv, ev, modifier, generation))
   ));
 
   const validValues = range(minIV, maxIV).flatMap(iv => (
-    possibleModifiers.map(modifier => (stat === 'hp' ? calculateHP : calculateStat)(level, baseStat, iv, ev, modifier))
+    possibleModifiers.map(modifier => calculateStatOrHP(stat, level, baseStat, iv, ev, modifier, generation))
   ));
 
   return {
@@ -92,6 +99,7 @@ export function calculatePossibleStats(
       values[1],
       tracker.evSegments[tracker.startingLevel]?.[level]?.[stat] ?? 0,
       [modifier],
+      tracker.generation,
     );
 
     return {
@@ -115,14 +123,14 @@ export function calculatePossibleIVRange(stat: Stat, tracker: Tracker): IVRangeS
         if (!Number.isFinite(min) || !Number.isFinite(max) || min === -1) return [-1, -1];
         if (!statLine?.[stat]) return [min, max];
 
-        const matchingStats = range(min, max).filter(possibleIV => (
-          (stat === 'hp' ? calculateHP : calculateStat)(
-            level,
-            baseStat,
-            possibleIV,
-            tracker.evSegments[tracker.startingLevel]?.[level]?.[stat] ?? 0,
-            modifier,
-          ) === statLine[stat]
+        const matchingStats = range(min, max).filter(possibleIV => calculateStatOrHP(
+          stat,
+          level,
+          baseStat,
+          possibleIV,
+          tracker.evSegments[tracker.startingLevel]?.[level]?.[stat] ?? 0,
+          modifier,
+          tracker.generation,
         ));
 
         if (matchingStats.length === 0) return [-1, -1];

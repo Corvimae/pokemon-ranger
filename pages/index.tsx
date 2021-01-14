@@ -5,7 +5,7 @@ import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox } from '../components/Layout';
 import { Button } from '../components/Button';
-import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { calculateRanges } from '../utils/calculations';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
@@ -29,7 +29,9 @@ const Home: NextPage = () => {
   const handleSetMovePower = useCallback(event => dispatch(setMovePower(Number(event.target.value))), [dispatch]);
   const handleSetTypeEffectiveness = useCallback(event => dispatch(setTypeEffectiveness(Number(event.target.value))), [dispatch]);
   const handleSetSTAB = useCallback(() => dispatch(setSTAB(!state.stab)), [state.stab, dispatch]);
-  const handleSetGeneration = useCallback(event => dispatch(setGeneration(Number(event.target.value))), [dispatch]);
+  const handleSetGeneration = useCallback(event => {
+    dispatch(setGeneration(event.target.value === 'lgpe' ? event.target.value : Number(event.target.value)));
+  }, [dispatch]);
   const handleSetCriticalHit = useCallback(() => dispatch(setCriticalHit(!state.criticalHit)), [state.criticalHit, dispatch]);
   const handleSetTorrent = useCallback(() => dispatch(setTorrent(!state.torrent)), [state.torrent, dispatch]);
   const handleSetMultiTarget = useCallback(() => dispatch(setMultiTarget(!state.multiTarget)), [state.multiTarget, dispatch]);
@@ -40,6 +42,7 @@ const Home: NextPage = () => {
   const handleSetOpponentLevel = useCallback(event => dispatch(setOpponentLevel(Number(event.target.value))), [dispatch]);
   const handleSetOpponentCombatStages = useCallback(event => dispatch(setOpponentCombatStages(Number(event.target.value))), [dispatch]);
   const handleSetHealthThreshold = useCallback(event => dispatch(setHealthThreshold(Number(event.target.value))), [dispatch]);
+  const handleSetFriendship = useCallback(event => dispatch(setFriendship(Number(event.target.value))), [dispatch]);
 
   const results = useMemo(() => calculateRanges(state), [state]);
 
@@ -73,7 +76,7 @@ const Home: NextPage = () => {
           </InputRow>
 
           <InputRow>
-            <label htmlFor="evs">{playerStatPrefix} Stat EVs</label>
+            <label htmlFor="evs">{playerStatPrefix} Stat {state.generation === 'lgpe' ? 'AVs' : 'EVs'}</label>
             <input id="evs" type="number" value={state.evs} onChange={handleSetEVs} />
           </InputRow>
 
@@ -81,6 +84,13 @@ const Home: NextPage = () => {
             <label htmlFor="playerCombatStages">{playerStatPrefix} Combat Stages</label>
             <input id="playerCombatStages" type="number" value={state.combatStages} onChange={handleSetCombatStages} />
           </InputRow>
+
+          {state.generation === 'lgpe' && (
+            <InputRow>
+              <label htmlFor="friendship">Friendship</label>
+              <input id="friendship" type="number" value={state.friendship} onChange={handleSetFriendship} />
+            </InputRow>
+          )}
 
           <InputSubheader>Move</InputSubheader>
           <InputRow>
@@ -168,6 +178,7 @@ const Home: NextPage = () => {
               <option value={4}>4 (Diamond/Pearl/Platinum)</option>
               <option value={5}>5 (Black/White and Black 2/White 2)</option>
               <option value={6}>6+ (X/Y and beyond)</option>
+              <option value="lgpe">Let&apos;s Go</option>
             </select>
             <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula. Critical hits deal less damage in Gen 6+.</HelpText>
           </InputRow>

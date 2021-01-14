@@ -43,7 +43,7 @@ const schema = merge(gh, {
     'containerlabel',
   ],
   attributes: {
-    tracker: ['species', 'contents', 'baseStats', 'hiddenPower'],
+    tracker: ['species', 'contents', 'baseStats', 'hiddenPower', 'generation'],
     if: ['condition', 'level', 'evolution', 'source', 'theme'],
     card: ['theme'],
     info: ['color'],
@@ -67,7 +67,7 @@ const schema = merge(gh, {
       'weatherReduced',
       'multiTarget',
       'otherModifier',
-      'generation',
+      'friendship',
       'offensive',
       'special',
       'healthThreshold',

@@ -1,4 +1,5 @@
 import { Stat } from '../../utils/constants';
+import { Generation } from '../../utils/rangeTypes';
 
 export interface StatLine {
   hp: number;
@@ -14,6 +15,7 @@ export type EVsByLevel = Record<number, StatLine>;
 export interface Tracker {
   name: string;
   evolution: number;
+  generation: Generation;
   calculateHiddenPower: boolean;
   startingLevel: number;
   baseStats: StatLine[];
@@ -45,6 +47,7 @@ type RegisterTrackerAction = {
   type: typeof REGISTER_TRACKER;
   payload: {
     name: string;
+    generation: Generation;
     calculateHiddenPower: boolean;
     baseStats: StatLine[];
     evSegments: Record<number, EVsByLevel>;

@@ -2,6 +2,8 @@ import { Stat } from './constants';
 
 export type NatureType = 'negative' | 'neutral' | 'positive';
 
+export type Generation = number | 'lgpe';
+
 export interface NatureModifier {
   key: NatureType;
   name: string;

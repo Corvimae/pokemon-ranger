@@ -1,5 +1,5 @@
 import { formatDamageRange } from './rangeFormat';
-import { CompactRange, NatureKey, NatureModifier, NatureResult, OneShotResult, StatRange } from './rangeTypes';
+import { CompactRange, Generation, NatureKey, NatureModifier, NatureResult, OneShotResult, StatRange } from './rangeTypes';
 
 export const NATURE_MODIFIERS: NatureModifier[] = [
   {
@@ -19,7 +19,7 @@ export const NATURE_MODIFIERS: NatureModifier[] = [
   },
 ];
 
-function getMultiTargetModifier(generation: number): number {
+function getMultiTargetModifier(generation: Generation): number {
   return generation === 3 ? 0.5 : 0.75;
 }
 
@@ -27,7 +27,17 @@ export function calculateStat(level: number, base: number, iv: number, ev: numbe
   return Math.floor((Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5) * modifier);
 }
 
-export function calculateHP(level: number, base: number, iv: number, ev: number): number {
+export function calculateLGPEStat(level: number, base: number, iv: number, av: number, modifier: number, friendship: number): number {
+  const friendshipModifier = 1 + Math.floor(10 * (friendship / 255)) / 100;
+
+  return Math.floor((Math.floor(((2 * base + iv) * level) / 100) + 5) * modifier * friendshipModifier) + av;
+}
+
+export function calculateHP(level: number, base: number, iv: number, ev: number, generation: Generation): number {
+  if (generation === 'lgpe') {
+    return Math.floor(((2 * base + iv) * level) / 100) + level + 10 + ev;
+  }
+
   return Math.floor((Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + level + 10));
 }
 
@@ -53,11 +63,12 @@ export interface CalculateRangesParameters {
   multiTarget: boolean;
   weatherBoosted: boolean;
   weatherReduced: boolean;
-  generation: number;
+  generation: Generation;
   otherModifier: number;
   opponentLevel: number;
   opponentStat: number;
   opponentCombatStages: number;
+  friendship: number;
 }
 
 export function calculateRanges({
@@ -79,9 +90,15 @@ export function calculateRanges({
   opponentLevel,
   opponentStat,
   opponentCombatStages,
+  friendship,
 }: CalculateRangesParameters): NatureResult[] {
   return NATURE_MODIFIERS.map(natureModifierData => {
-    const possibleStats = [...Array(32).keys()].map(possibleIV => calculateStat(level, baseStat, possibleIV, evs, natureModifierData.modifier));
+    const possibleStats = [...Array(32).keys()].map(possibleIV => {
+      if (generation === 'lgpe') {
+        return calculateLGPEStat(level, baseStat, possibleIV, evs, natureModifierData.modifier, friendship);
+      }
+      return calculateStat(level, baseStat, possibleIV, evs, natureModifierData.modifier);
+    });
 
     // Combine stats into ranges of like values.
     const rangeSegments = possibleStats.reduce<StatRange[]>((acc, statValue, iv) => {

@@ -46,9 +46,9 @@ interface DamageTableProps {
   weatherReduced?: string;
   multiTarget?: string;
   otherModifier?: string;
-  generation?: string;
   offensive?: string;
   special?: string;
+  friendship?: string;
 }
 
 export const DamageTable: React.FC<DamageTableProps> = ({
@@ -70,9 +70,9 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   weatherReduced = 'false',
   multiTarget = 'false',
   otherModifier = 1,
-  generation = 4,
   offensive = 'true',
   special = 'false',
+  friendship = 0,
 }) => {
   const state = RouteContext.useState();
   const baseStats = source ? state.trackers[source]?.baseStats[Number(evolution)] : null;
@@ -103,10 +103,11 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       weatherReduced: weatherReduced === 'true',
       multiTarget: multiTarget === 'true',
       otherModifier: Number(otherModifier),
-      generation: Number(generation),
+      generation: (source && state.trackers[source].generation) || 4,
       criticalHit: false,
       opponentLevel: Number(opponentLevel),
       offensiveMode: offensive === 'true',
+      friendship: Number(friendship),
     });
 
     const threshold = Number(healthThreshold);
@@ -119,7 +120,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     }
 
     return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, ivRanges[relevantStat]);
-  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, evs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, generation, opponentLevel, healthThreshold]);
+  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, evs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, source, state.trackers]);
 
   if (!state.trackers[source || '']) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
   if (!level) return <ErrorCard>The level attribute must be specified.</ErrorCard>;
