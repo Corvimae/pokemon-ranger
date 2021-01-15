@@ -131,7 +131,7 @@ export function calculatePossibleIVRange(stat: Stat, tracker: Tracker): IVRangeS
           tracker.evSegments[tracker.startingLevel]?.[level]?.[stat] ?? 0,
           modifier,
           tracker.generation,
-        ));
+        ) === statLine[stat]);
 
         if (matchingStats.length === 0) return [-1, -1];
 
