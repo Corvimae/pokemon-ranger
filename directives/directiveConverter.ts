@@ -8,7 +8,7 @@ import visit from 'unist-util-visit';
 function childrenToText(node: Node): string {
   if (node.value) return node.value as string ?? '';
 
-  return (node?.children as Node[]).map(childrenToText).join('\n') ?? '';
+  return (node?.children as Node[])?.map(childrenToText).join('\n') ?? '';
 }
 
 export function directiveConverter(): Transformer {
