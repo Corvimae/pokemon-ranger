@@ -44,7 +44,7 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
   }, [rawBaseStats]);
 
   const evSegments = useMemo(() => {
-    const lines = (contents ?? '').split('\n').map(line => line.trim());
+    const lines = (contents ?? '').split('\n').map(line => line.trim()).filter(line => line.length > 0);
     
     const segments = lines.reduce<EVSegment[]>((acc, line) => {
       const match = EV_SECTION_REGEX.exec(line);
