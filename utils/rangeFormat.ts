@@ -47,10 +47,10 @@ export function formatStatName(stat: Stat, shortForm = false): string {
       return shortForm ? 'DEF' : 'Defense';
 
     case 'spAttack':
-      return shortForm ? 'SP. ATK' : 'Sp. Attack';
+      return shortForm ? 'SP ATK' : 'Sp. Attack';
 
     case 'spDefense':
-      return shortForm ? 'SP. DEF' : 'Sp. Defense';
+      return shortForm ? 'SP DEF' : 'Sp. Defense';
     
     case 'speed':
       return shortForm ? 'SPE' : 'Speed';

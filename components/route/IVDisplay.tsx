@@ -68,7 +68,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
 
 const Container = styled.div<{ calculateHiddenPower?: boolean }>`
   display: grid;
-  grid-template-columns: repeat(7, 1fr) ${props => props.calculateHiddenPower && 'max-content'};
+  grid-template-columns: repeat(7, 5.25rem) ${props => props.calculateHiddenPower && 'max-content'};
 
   & + & {
     margin-top: 0.25rem;
