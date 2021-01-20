@@ -103,7 +103,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       weatherReduced: weatherReduced === 'true',
       multiTarget: multiTarget === 'true',
       otherModifier: Number(otherModifier),
-      generation: (source && state.trackers[source].generation) || 4,
+      generation: (source && state.trackers[source]?.generation) || 4,
       criticalHit: false,
       opponentLevel: Number(opponentLevel),
       offensiveMode: offensive === 'true',

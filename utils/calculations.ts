@@ -23,6 +23,10 @@ function getMultiTargetModifier(generation: Generation): number {
   return generation === 3 ? 0.5 : 0.75;
 }
 
+export function calculateGen1Stat(level: number, base: number, iv: number, ev: number): number {
+  return Math.floor((Math.floor(((2 * (base + iv) + Math.floor(Math.ceil(Math.sqrt(ev)) / 4)) * level) / 100) + 5));
+}
+
 export function calculateStat(level: number, base: number, iv: number, ev: number, modifier: number): number {
   return Math.floor((Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5) * modifier);
 }
@@ -34,6 +38,10 @@ export function calculateLGPEStat(level: number, base: number, iv: number, av: n
 }
 
 export function calculateHP(level: number, base: number, iv: number, ev: number, generation: Generation): number {
+  if (generation <= 2) {
+    return Math.floor((Math.floor(((2 * (base + iv) + Math.floor(Math.ceil(Math.sqrt(ev)) / 4)) * level) / 100) + level + 10));
+  }
+
   if (generation === 'lgpe') {
     return Math.floor(((2 * base + iv) * level) / 100) + level + 10 + ev;
   }

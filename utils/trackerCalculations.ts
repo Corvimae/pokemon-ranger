@@ -1,6 +1,6 @@
 import { CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 import { Tracker } from '../reducers/route/types';
-import { calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
+import { calculateGen1Stat, calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
 import { Stat, STATS } from './constants';
 import { CombinedIVResult, ConfirmedNature, Generation, NatureType, StatRange } from './rangeTypes';
 import { range, rangesOverlap } from './utils';
@@ -40,6 +40,7 @@ export interface StatValuePossibilitySet {
 
 function calculateStatOrHP(stat: Stat, level: number, baseStat: number, iv: number, ev: number, modifier: number, generation: Generation): number {
   if (stat === 'hp') return calculateHP(level, baseStat, iv, ev, generation);
+  if (generation <= 2) return calculateGen1Stat(level, baseStat, iv, ev);
 
   return calculateStat(level, baseStat, iv, ev, modifier);
 }
@@ -160,12 +161,12 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
     [stat]: calculatePossibleIVRange(stat, tracker),
   }), {} as Record<Stat, IVRangeSet>);
 
-  const [confirmedNegative, confirmedPositive] = calculatePossibleNature(preliminaryResults);
+  const [confirmedNegative, confirmedPositive] = tracker.generation <= 2 ? ['attack', 'attack'] : calculatePossibleNature(preliminaryResults);
   
   return Object.entries(preliminaryResults).reduce((acc, [stat, ivRanges]) => {
     const relevantRanges = [
       confirmedPositive !== null && (confirmedPositive !== stat || confirmedNegative === stat) ? undefined : ivRanges.positive,
-      confirmedPositive === stat || confirmedNegative === stat ? undefined : ivRanges.neutral,
+      (confirmedPositive === stat || confirmedNegative === stat) && !(confirmedPositive === stat && confirmedNegative === stat) ? undefined : ivRanges.neutral,
       confirmedNegative !== null && (confirmedNegative !== stat || confirmedPositive === stat) ? undefined : ivRanges.negative,
     ].filter(value => value !== undefined) as [number, number][];
 

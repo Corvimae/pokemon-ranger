@@ -8,6 +8,7 @@ import { Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
 import { resetTracker, RouteContext, setStartingLevel, setStat, triggerEvolution } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, StatValuePossibilitySet } from '../../utils/trackerCalculations';
+import { ConfirmedNature, Generation } from '../../utils/rangeTypes';
 
 interface IVTrackerProps {
   tracker: Tracker;
@@ -44,7 +45,11 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
   }, [tracker.name, dispatch]);
 
   const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
-  const confirmedNatures = useMemo(() => calculatePossibleNature(ivRanges), [ivRanges]);
+  const confirmedNatures = useMemo(() => {
+    if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
+
+    return calculatePossibleNature(ivRanges);
+  }, [tracker.generation, ivRanges]);
 
   const possibleStatValues = useMemo(() => (
     STATS.reduce((acc, stat) => {
@@ -96,16 +101,20 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
           <Button onClick={handleReset}>Reset</Button>
         </ActionButtons>
       </ActionRow>
-      <IVGrid>
+      <IVGrid generation={tracker.generation}>
         <IVGridHeader>
           <div>HP</div>
           <div>ATK</div>
           <div>DEF</div>
-          <div>SP. ATK</div>
-          <div>SP. DEF</div>
-          <div>SPD</div>
+          {tracker.generation > 2 ? (
+            <>
+              <div>SP. ATK</div>
+              <div>SP. DEF</div>
+            </>
+          ) : <div>SPEC</div>}
+          <div>SPE</div>
         </IVGridHeader>
-        {STATS.map(stat => (
+        {STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense').map(stat => (
           <StatSelectorGrid key={stat}>
             {possibleStatValues[stat].possible.map(value => (
               <StatSelector
@@ -151,9 +160,9 @@ const CurrentLevel = styled.div`
   margin: 0 0.5rem;
 `;
 
-const IVGrid = styled.div`
+const IVGrid = styled.div<{ generation: Generation }>`
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(${({ generation }) => generation > 2 ? 6 : 5}, 1fr);
   margin-top: 0.5rem;
 `;
 

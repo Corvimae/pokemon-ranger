@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Tracker } from '../../reducers/route/types';
 import { NATURES, Stat, STATS } from '../../utils/constants';
 import { formatStatName } from '../../utils/rangeFormat';
+import { ConfirmedNature, Generation } from '../../utils/rangeTypes';
 import { calculateAllPossibleIVRanges, calculateHiddenPowerType, calculatePossibleNature, getPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
 
 interface IVDisplayProps {
@@ -23,7 +24,11 @@ function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: S
 
 export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
   const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
-  const [confirmedNegative, confirmedPositive] = useMemo(() => calculatePossibleNature(ivRanges), [ivRanges]);
+  const [confirmedNegative, confirmedPositive] = useMemo(() => {
+    if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
+
+    return calculatePossibleNature(ivRanges);
+  }, [ivRanges, tracker.generation]);
   
   const confirmedNature = useMemo(() => {
     if (!confirmedNegative || !confirmedPositive) return null;
@@ -36,24 +41,30 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
   ), [ivRanges, confirmedNegative, confirmedPositive]);
 
   return (
-    <Container calculateHiddenPower={tracker.calculateHiddenPower}>
+    <Container generation={tracker.generation} calculateHiddenPower={tracker.calculateHiddenPower}>
       <TrackerName>{tracker.name}</TrackerName>
-      {STATS.map(stat => (
+      {STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense').map(stat => (
         <StatDisplay key={stat}>
-          <StatName positive={stat === confirmedPositive} negative={stat === confirmedNegative}>
-            {formatStatName(stat, true)}{stat !== 'hp' && getSymbolForStat(ivRanges[stat], stat, confirmedPositive, confirmedNegative)}
+          <StatName
+            positive={stat === confirmedPositive && stat !== confirmedNegative}
+            negative={stat === confirmedNegative && stat !== confirmedPositive}
+          >
+            {tracker.generation <= 2 && stat === 'spAttack' ? 'SPEC' : formatStatName(stat, true)}
+            {stat !== 'hp' && getSymbolForStat(ivRanges[stat], stat, confirmedPositive, confirmedNegative)}
           </StatName>
           <div>
             {ivRanges[stat].combined[0]}{ivRanges[stat].combined[0] !== ivRanges[stat].combined[1] && `–${ivRanges[stat].combined[1]}`}
           </div>
         </StatDisplay>
       ))}
-      <StatDisplay>
-        <StatName>Nature</StatName>
-        <div>
-          {confirmedNature?.name ?? '?'}
-        </div>
-      </StatDisplay>
+      {tracker.generation > 2 && (
+        <StatDisplay>
+          <StatName>Nature</StatName>
+          <div>
+            {confirmedNature?.name ?? '?'}
+          </div>
+        </StatDisplay>
+      )}
       {tracker.calculateHiddenPower && (
         <StatDisplay>
           <StatName>Hidden Power</StatName>
@@ -66,9 +77,9 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
   );
 };
 
-const Container = styled.div<{ calculateHiddenPower?: boolean }>`
+const Container = styled.div<{ generation: Generation; calculateHiddenPower?: boolean }>`
   display: grid;
-  grid-template-columns: repeat(7, 5.25rem) ${props => props.calculateHiddenPower && 'max-content'};
+  grid-template-columns: repeat(${props => props.generation <= 2 ? 5 : 7}, 5.25rem) ${props => props.calculateHiddenPower && 'max-content'};
 
   & + & {
     margin-top: 0.25rem;
