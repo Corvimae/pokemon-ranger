@@ -1,4 +1,5 @@
 import set from 'lodash/set';
+import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
@@ -36,19 +37,22 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
-    case SET_STAT:
+    case SET_STAT: {
+      const path = [
+        'trackers',
+        action.payload.name,
+        'recordedStats',
+        state.trackers[action.payload.name].evolution,
+        action.payload.level,
+        action.payload.stat,
+      ];
+
       return set(
         cloneDeep(state),
-        [
-          'trackers',
-          action.payload.name,
-          'recordedStats',
-          state.trackers[action.payload.name].evolution,
-          action.payload.level,
-          action.payload.stat,
-        ],
-        action.payload.value,
+        path,
+        get(state, path) === action.payload.value ? undefined : action.payload.value,
       );
+    }
 
     case SET_MANUAL_POSITIVE_NATURE:
       return {
