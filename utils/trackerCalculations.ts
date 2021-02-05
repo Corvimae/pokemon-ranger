@@ -87,6 +87,9 @@ export function calculatePossibleStats(
     relevantModifiers = relevantModifiers.filter(({ key }) => key !== 'positive');
   }
 
+  if (confirmedPositive === stat) relevantModifiers = [NATURE_MODIFIERS[2]];
+  if (confirmedNegative === stat) relevantModifiers = [NATURE_MODIFIERS[0]];
+
   return relevantModifiers.reduce<StatValuePossibilitySet>((combinedSet, { key, modifier }) => {
     const values = ivRanges[stat][key];
 
@@ -161,7 +164,7 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
     [stat]: calculatePossibleIVRange(stat, tracker),
   }), {} as Record<Stat, IVRangeSet>);
 
-  const [confirmedNegative, confirmedPositive] = tracker.generation <= 2 ? ['attack', 'attack'] : calculatePossibleNature(preliminaryResults);
+  const [confirmedNegative, confirmedPositive] = tracker.generation <= 2 ? ['attack', 'attack'] : calculatePossibleNature(preliminaryResults, tracker);
   
   return Object.entries(preliminaryResults).reduce((acc, [stat, ivRanges]) => {
     const relevantRanges = [
@@ -183,9 +186,13 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
   }, {} as Record<Stat, IVRangeSet>);
 }
 
-export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>): ConfirmedNature {
-  const confirmedNegative = Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.positive[0] === -1 && value.neutral[0] === -1);
-  const confirmedPositive = Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.negative[0] === -1 && value.neutral[0] === -1);
+export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>, tracker: Tracker): ConfirmedNature {
+  const confirmedNegative = tracker?.manualNegativeNature ? [tracker.manualNegativeNature] : (
+    Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.positive[0] === -1 && value.neutral[0] === -1)
+  );
+  const confirmedPositive = tracker?.manualPositiveNature ? [tracker.manualPositiveNature] : (
+    Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.negative[0] === -1 && value.neutral[0] === -1)
+  );
 
   const possibleNegatives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.negative[0] !== -1);
   const possiblePositives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.positive[0] !== -1);

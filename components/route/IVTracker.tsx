@@ -6,7 +6,7 @@ import { Tracker } from '../../reducers/route/types';
 import { capitalize } from '../../utils/utils';
 import { Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
-import { resetTracker, RouteContext, setStartingLevel, setStat, triggerEvolution } from '../../reducers/route/reducer';
+import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, StatValuePossibilitySet } from '../../utils/trackerCalculations';
 import { ConfirmedNature, Generation } from '../../utils/rangeTypes';
 
@@ -44,12 +44,20 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
     setCurrentLevel(level);
   }, [tracker.name, dispatch]);
 
+  const handleSetManualNature = useCallback((event: React.MouseEvent<HTMLButtonElement>, stat: Stat) => {
+    if (event.shiftKey) {
+      dispatch(setManualNegativeNature(tracker.name, tracker.manualNegativeNature === stat ? undefined : stat));
+    } else {
+      dispatch(setManualPositiveNature(tracker.name, tracker.manualPositiveNature === stat ? undefined : stat));
+    }
+  }, [tracker.name, tracker.manualNegativeNature, tracker.manualPositiveNature, dispatch]);
+
   const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
   const confirmedNatures = useMemo(() => {
     if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
 
-    return calculatePossibleNature(ivRanges);
-  }, [tracker.generation, ivRanges]);
+    return calculatePossibleNature(ivRanges, tracker);
+  }, [tracker, ivRanges]);
 
   const possibleStatValues = useMemo(() => (
     STATS.reduce((acc, stat) => {
@@ -102,18 +110,46 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
         </ActionButtons>
       </ActionRow>
       <IVGrid generation={tracker.generation}>
-        <IVGridHeader>
-          <div>HP</div>
-          <div>ATK</div>
-          <div>DEF</div>
-          {tracker.generation > 2 ? (
-            <>
-              <div>SP. ATK</div>
-              <div>SP. DEF</div>
-            </>
-          ) : <div>SPEC</div>}
-          <div>SPE</div>
-        </IVGridHeader>
+        <IVGridHeaderCell uninteractable>
+          HP
+        </IVGridHeaderCell>
+        <IVGridHeaderCell
+          isPositive={tracker.manualPositiveNature === 'attack'}
+          isNegative={tracker.manualNegativeNature === 'attack'}
+          onClick={event => handleSetManualNature(event, 'attack')}
+        >
+          ATK
+        </IVGridHeaderCell>
+        <IVGridHeaderCell
+          isPositive={tracker.manualPositiveNature === 'defense'}
+          isNegative={tracker.manualNegativeNature === 'defense'}
+          onClick={event => handleSetManualNature(event, 'defense')}
+        >
+          DEF
+        </IVGridHeaderCell>
+        <IVGridHeaderCell
+          isPositive={tracker.manualPositiveNature === 'spAttack'}
+          isNegative={tracker.manualNegativeNature === 'spAttack'}
+          onClick={event => handleSetManualNature(event, 'spAttack')}
+        >
+          {tracker.generation > 2 ? 'SP. ATK' : 'SPEC'}
+        </IVGridHeaderCell>
+        {tracker.generation > 2 && (
+          <IVGridHeaderCell
+            isPositive={tracker.manualPositiveNature === 'spDefense'}
+            isNegative={tracker.manualNegativeNature === 'spDefense'}
+            onClick={event => handleSetManualNature(event, 'spDefense')}
+          >
+            SP. DEF
+          </IVGridHeaderCell>
+        )}
+        <IVGridHeaderCell
+          isPositive={tracker.manualPositiveNature === 'speed'}
+          isNegative={tracker.manualNegativeNature === 'speed'}
+          onClick={event => handleSetManualNature(event, 'speed')}
+        >
+          SPE
+        </IVGridHeaderCell>
         {STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense').map(stat => (
           <StatSelectorGrid key={stat}>
             {possibleStatValues[stat].possible.map(value => (
@@ -166,17 +202,6 @@ const IVGrid = styled.div<{ generation: Generation }>`
   margin-top: 0.5rem;
 `;
 
-const IVGridHeader = styled.div`
-  display: contents;
-
-  & > div {
-    padding: 0.5rem;
-    font-weight: 700;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-`;
-
 const StatSelectorGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -210,5 +235,33 @@ const StartingLevelButton = styled(Button)<{ active?: boolean }>`
 
   &:not(:disabled):hover {
     background-color: ${props => props.active && '#be45be'};
+  }
+`;
+
+const IVGridHeaderCell = styled.button<{ uninteractable?: boolean; isPositive?: boolean; isNegative?: boolean }>`
+  color: ${props => {
+    if (props.isPositive) return '#ff7f7f';
+    if (props.isNegative) return '#a1a1ff';
+
+    return '#fff';
+  }};
+  border: none;
+  padding: 0.5rem;
+  font-weight: 700;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 0;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:not(:disabled):hover,
+  &:not(:disabled):active {
+    background-color: ${props => !props.uninteractable && 'rgba(255, 255, 255, 0.2)'};
+  }
+
+  &:disabled {
+    opacity: 0.5;
   }
 `;

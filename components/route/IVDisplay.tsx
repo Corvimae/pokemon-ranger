@@ -27,8 +27,8 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
   const [confirmedNegative, confirmedPositive] = useMemo(() => {
     if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
 
-    return calculatePossibleNature(ivRanges);
-  }, [ivRanges, tracker.generation]);
+    return calculatePossibleNature(ivRanges, tracker);
+  }, [ivRanges, tracker]);
   
   const confirmedNature = useMemo(() => {
     if (!confirmedNegative || !confirmedPositive) return null;
@@ -53,7 +53,11 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
             {stat !== 'hp' && getSymbolForStat(ivRanges[stat], stat, confirmedPositive, confirmedNegative)}
           </StatName>
           <div>
-            {ivRanges[stat].combined[0]}{ivRanges[stat].combined[0] !== ivRanges[stat].combined[1] && `–${ivRanges[stat].combined[1]}`}
+            {!ivRanges[stat].combined.some(Number.isFinite) ? (
+              'Invalid'
+            ) : (
+              `${ivRanges[stat].combined[0]}${ivRanges[stat].combined[0] !== ivRanges[stat].combined[1] ? `–${ivRanges[stat].combined[1]}` : ''}`
+            )}
           </div>
         </StatDisplay>
       ))}

@@ -26,11 +26,12 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   children,
 }) => {
   const state = RouteContext.useState();
+  const tracker = source && state.trackers[source];
 
   const ivRanges = useMemo(() => (
-    source && state.trackers[source] && calculateAllPossibleIVRanges(state.trackers[source])
-  ), [state.trackers, source]);
-  const confirmedNatures = useMemo(() => ivRanges && calculatePossibleNature(ivRanges), [ivRanges]);
+    tracker && calculateAllPossibleIVRanges(tracker)
+  ), [tracker]);
+  const confirmedNatures = useMemo(() => tracker && ivRanges && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
 
   const parsedCondition: ParsedCondition | null = useMemo(() => {
     if (!condition) return null;

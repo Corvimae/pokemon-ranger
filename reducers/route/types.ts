@@ -21,6 +21,8 @@ export interface Tracker {
   baseStats: StatLine[];
   recordedStats: Record<number, Record<number, StatLine>>;
   evSegments: Record<number, EVsByLevel>;
+  manualPositiveNature: Stat | undefined;
+  manualNegativeNature: Stat | undefined;
 }
 
 export interface RouteState {
@@ -31,6 +33,8 @@ export interface RouteState {
 export const SET_REPO_PATH = 'SET_REPO_PATH';
 export const REGISTER_TRACKER = 'REGISTER_TRACKER';
 export const SET_STAT = 'SET_STAT';
+export const SET_MANUAL_POSITIVE_NATURE = 'SET_MANUAL_POSITIVE_NATURE';
+export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
@@ -64,6 +68,22 @@ type SetStatAction = {
   };
 }
 
+type SetManualPositiveNature = {
+  type: typeof SET_MANUAL_POSITIVE_NATURE;
+  payload: {
+    name: string;
+    stat: Stat | undefined;
+  };
+}
+
+type SetManualNegativeNature = {
+  type: typeof SET_MANUAL_NEGATIVE_NATURE;
+  payload: {
+    name: string;
+    stat: Stat | undefined;
+  };
+}
+
 type TriggerEvolutionAction = {
   type: typeof TRIGGER_EVOLUTION;
   payload: {
@@ -94,6 +114,8 @@ export type RouteAction =
   SetRepoPathAction |
   RegisterTrackerAction |
   SetStatAction |
+  SetManualPositiveNature |
+  SetManualNegativeNature |
   TriggerEvolutionAction |
   ResetTrackerAction |
   SetStartingLevelAction |

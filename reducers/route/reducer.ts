@@ -2,7 +2,7 @@ import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
@@ -50,6 +50,32 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         action.payload.value,
       );
 
+    case SET_MANUAL_POSITIVE_NATURE:
+      return {
+        ...state,
+        trackers: {
+          ...state.trackers,
+          [action.payload.name]: {
+            ...state.trackers[action.payload.name],
+            manualPositiveNature: action.payload.stat,
+            manualNegativeNature: state.trackers[action.payload.name].manualNegativeNature === action.payload.stat ? undefined : state.trackers[action.payload.name].manualNegativeNature,
+          },
+        },
+      };
+
+    case SET_MANUAL_NEGATIVE_NATURE:
+      return {
+        ...state,
+        trackers: {
+          ...state.trackers,
+          [action.payload.name]: {
+            ...state.trackers[action.payload.name],
+            manualNegativeNature: action.payload.stat,
+            manualPositiveNature: state.trackers[action.payload.name].manualPositiveNature === action.payload.stat ? undefined : state.trackers[action.payload.name].manualPositiveNature,
+          },
+        },
+      };
+
     case TRIGGER_EVOLUTION:
       return set(
         cloneDeep(state),
@@ -66,6 +92,8 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             ...state.trackers[action.payload.name],
             evolution: 0,
             recordedStats: {},
+            manualPositiveNature: undefined,
+            manualNegativeNature: undefined,
           },
         },
       };
@@ -122,6 +150,26 @@ export function setStat(name: string, stat: Stat, level: number, value: number):
       stat,
       level,
       value,
+    },
+  };
+}
+
+export function setManualPositiveNature(name: string, stat?: Stat): RouteAction {
+  return {
+    type: SET_MANUAL_POSITIVE_NATURE,
+    payload: {
+      name,
+      stat,
+    },
+  };
+}
+
+export function setManualNegativeNature(name: string, stat?: Stat): RouteAction {
+  return {
+    type: SET_MANUAL_NEGATIVE_NATURE,
+    payload: {
+      name,
+      stat,
     },
   };
 }

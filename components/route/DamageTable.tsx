@@ -76,12 +76,13 @@ export const DamageTable: React.FC<DamageTableProps> = ({
 }) => {
   const state = RouteContext.useState();
   const baseStats = source ? state.trackers[source]?.baseStats[Number(evolution)] : null;
+  const tracker = source && state.trackers[source];
 
   const ivRanges = useMemo(() => (
-    source && state.trackers[source] && calculateAllPossibleIVRanges(state.trackers[source])
-  ), [state.trackers, source]);
+    tracker && calculateAllPossibleIVRanges(tracker)
+  ), [tracker]);
 
-  const confirmedNature = useMemo(() => ivRanges && calculatePossibleNature(ivRanges), [ivRanges]);
+  const confirmedNature = useMemo(() => ivRanges && tracker && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
   
   const offensiveStat: Stat = special === 'true' ? 'spAttack' : 'attack';
   const defensiveStat: Stat = special === 'true' ? 'spDefense' : 'defense';
