@@ -87,8 +87,8 @@ export function calculatePossibleStats(
     relevantModifiers = relevantModifiers.filter(({ key }) => key !== 'positive');
   }
 
-  if (confirmedPositive === stat) relevantModifiers = [NATURE_MODIFIERS[2]];
-  if (confirmedNegative === stat) relevantModifiers = [NATURE_MODIFIERS[0]];
+  if (confirmedPositive === stat && confirmedNegative !== stat) relevantModifiers = [NATURE_MODIFIERS[2]];
+  if (confirmedNegative === stat && confirmedPositive !== stat) relevantModifiers = [NATURE_MODIFIERS[0]];
 
   return relevantModifiers.reduce<StatValuePossibilitySet>((combinedSet, { key, modifier }) => {
     const values = ivRanges[stat][key];
