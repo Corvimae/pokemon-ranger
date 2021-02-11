@@ -82,7 +82,9 @@ The content within the square brackets is displayed as a header above the table,
 
 `opponentStat` (number, required) - The relevant stat of the opponent's Pokémon at the time of the attack.
 
-`level` (number) - The level of the runner's Pokémon at the time of the attack. Required if in offensive mode.
+`level` (number, required) - The level of the runner's Pokémon at the time of the attack.
+
+`opponentLevel` (number) - The level of the opponent's Pokemon at the time of the attack. Required in offensive mode.
 
 `healthThreshold` (number) - If specified, the table will display the number of damage rolls (out of 16) that are at least the specified value rather than the damage range.
 
