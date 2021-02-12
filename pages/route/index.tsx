@@ -71,6 +71,7 @@ const schema = merge(gh, {
       'offensive',
       'special',
       'healthThreshold',
+      'theme',
     ],
   },
 });

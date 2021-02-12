@@ -112,6 +112,8 @@ The content within the square brackets is displayed as a header above the table,
 
 `friendship` (number, default: `0`) - The friendship of the Pokémon, from 0-255. Only relevant if the tracker's generation is `lgpe`.
 
+`theme` (string, default: `info`): The color theme to apply to the damage cable. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `info` is used.
+
 ### Trainer Blocks
 
 Trainer blocks are useful for organizing content by fight and ensure child Pokémon blocks (see below) are rendered correctly.

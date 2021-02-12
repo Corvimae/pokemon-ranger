@@ -49,6 +49,7 @@ interface DamageTableProps {
   offensive?: string;
   special?: string;
   friendship?: string;
+  theme?: string;
 }
 
 export const DamageTable: React.FC<DamageTableProps> = ({
@@ -73,6 +74,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   offensive = 'true',
   special = 'false',
   friendship = 0,
+  theme = 'info',
 }) => {
   const state = RouteContext.useState();
   const baseStats = source ? state.trackers[source]?.baseStats[Number(evolution)] : null;
@@ -132,7 +134,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   const isAgainstThreshold = Number(healthThreshold) !== -1;
 
   return (
-    <Card>
+    <Card variant={theme}>
       <Header>
         {contents}
         {resultCount === 1 && (
