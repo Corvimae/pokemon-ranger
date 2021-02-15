@@ -125,7 +125,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     }
 
     return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, ivRanges[relevantStat]);
-  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, evs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, source, state.trackers]);
+  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, trackerEvs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, source, state.trackers]);
 
   if (!state.trackers[source || '']) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
   if (!level) return <ErrorCard>The level attribute must be specified.</ErrorCard>;
