@@ -50,7 +50,7 @@ function calculateInverseRangeSegment(segment: Terms.IVRangeSegment): Terms.IVRa
 
     throw new Error('Cannot invert a single IV value unless it is 0 or 31.');
   }
-  
+
   switch (segment.type) {
     case 'boundedRange':
       throw new Error('Cannot invert a bounded range.');
@@ -58,7 +58,7 @@ function calculateInverseRangeSegment(segment: Terms.IVRangeSegment): Terms.IVRa
     case 'unboundedRange':
       if (segment.operator === '+' && segment.value === 0) return 'x';
       if (segment.operator === '-' && segment.value === 31) return 'x';
-      
+
       return {
         type: 'unboundedRange',
         value: segment.operator === '+' ? segment.value - 1 : segment.value + 1,
@@ -90,7 +90,7 @@ function getMatchingStat(stat: string): ConditionalStat {
   if (!match) {
     const distances = Object.values(VALID_STATS).flatMap(value => value.map(key => [key, levenshtein(stat ?? '', key)])) as [string, number][];
     const [closestMatch] = minBy(distances, ([, distance]) => distance) ?? [0, '<unknown>'];
-    
+
     throw new Error(`${stat} is not a valid stat; did you mean ${closestMatch}?`);
   }
 
@@ -115,7 +115,7 @@ function calculatePossibleStatsAtLevel(
 ): number[] {
   if (isIVStat(stat)) {
     const { valid } = calculatePossibleStats(stat, level, ivRanges, confirmedNatures, tracker, evolution);
-    
+
     return valid;
   }
 
@@ -149,7 +149,7 @@ function evaluateIVExpression(
   return matchingConditions.some(([subCondition, [min, max]]) => {
     if (subCondition === 'x' || subCondition === 'X') return false;
     if (subCondition === '#') return min !== -1;
-  
+
     return evaluateRange(range(min, max), subCondition);
   });
 }
@@ -161,14 +161,14 @@ function evaluateRange(possibleValues: number[], expression: Terms.RangeSegment)
 
   switch (expression.type) {
     case 'boundedRange':
-      return range(expression.from, expression.to).some(value => possibleValues.indexOf(value) !== -1);
+      return possibleValues.some(value => expression.from <= value && value <= expression.to);
 
     case 'unboundedRange':
       if (expression.operator === '-') {
-        return range(0, expression.value).some(value => possibleValues.indexOf(value) !== -1);
+        return possibleValues.some(value => value <= expression.value);
       }
-      
-      return range(expression.value, 31).some(value => possibleValues.indexOf(value) !== -1);
+
+      return possibleValues.some(value => expression.value <= value);
 
     default:
       throw new Error('Unknown expression type is not handled by evaluateStatExpression.');
@@ -207,7 +207,7 @@ export function evaluateCondition(
 
       return evaluateStatExpression(stat, expression, level, ivRanges, confirmedNatures, tracker, evolution);
     }
-    
+
     case 'logicalExpression': {
       const left = evaluateCondition(term.left, level, ivRanges, confirmedNatures, tracker, evolution);
       const right = evaluateCondition(term.right, level, ivRanges, confirmedNatures, tracker, evolution);
@@ -244,7 +244,7 @@ export function formatCondition(expression: Terms.Expression): string {
   switch (expression.type) {
     case 'statExpression': {
       const statName = formatConditionalStatName(getMatchingStat(expression.stat));
-      
+
       if (isIVRange(expression.expression)) {
         const formattedSegments = calculatePossiblyInvertedIVRangeSegments(expression.expression)
           .map(formatRangeSegment)
