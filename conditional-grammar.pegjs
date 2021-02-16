@@ -3,36 +3,36 @@ Expression 'expression'
     return term
   }
 
-Term 'term' 
+Term 'term'
   = BinaryOrExpression
-  
+
 Literal
   = IntegerLiteral
-  
+
 Factor
   = "(" _ term: Term _ ")" { return term; }
   / StatExpression
-  
+
 Stat 'stat'
   = 'hp'
   / 'health'
   / 'atk'
   / 'attack'
-  / 'def'
   / 'defense'
-  / 'spa'
-  / 'spatk'
+  / 'def'
   / 'spattack'
+  / 'spatk'
+  / 'spa'
   / 'specialattack'
-  / 'spd'
-  / 'spdef'
   / 'spdefense'
+  / 'spdef'
+  / 'spd'
   / 'specialdefense'
-  / 'spe'
   / 'speed'
+  / 'spe'
   / 'startingLevel'
   / 'caughtLevel'
-  
+
 StatExpression 'statExpression'
   = _ stat: Stat _ '=' _ expression: Range {
     return {
@@ -52,7 +52,7 @@ BinaryOrExpression
         right: element[3]
       }), head);
     }
-   
+
 BinaryAndExpression
   = head: Factor
     tail:(_ '&&' _ BinaryAndExpression)* {
@@ -68,12 +68,12 @@ IntegerLiteral 'integer'
   = _ [0-9]+ {
     return parseInt(text(), 10);
   }
-  
+
 
 Range
-  = IVRange 
+  = IVRange
   / RangeSegment
-  
+
 IVRange = DeliminatedIVRange / InverseIVRange
 
 InverseIVRange
@@ -83,7 +83,7 @@ InverseIVRange
       inverse: true
 	};
   }
-  
+
 DeliminatedIVRange
 	= PositiveIVRange
 	/ '(' _ range: PositiveIVRange _ ')' { return range; }
@@ -98,14 +98,14 @@ PositiveIVRange 'ivRange'
       inverse: false,
     };
   }
-  
+
 IVRangeSegment = RangeSegment / '#' / 'x' / 'X'
 
 RangeSegment
  = BoundedRange
  / UnboundedRange
  / IntegerLiteral
- 
+
 UnboundedRange
   = value: IntegerLiteral _ operator: ('-' / '+') {
     return {
@@ -113,8 +113,8 @@ UnboundedRange
       value,
       operator,
     };
-  }  
- 
+  }
+
 BoundedRange
   = from: IntegerLiteral _ ('–' / '-' / '—') _ to: IntegerLiteral {
   	if (to < from) throw new Error('BoundedRange: upper limit must be greater than or equal to lower limit');
@@ -125,6 +125,6 @@ BoundedRange
       to,
     };
   }
-  
+
 _ "whitespace"
   = [ \t\n\r]*
