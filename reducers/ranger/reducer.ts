@@ -1,7 +1,7 @@
 import { Dispatch } from 'react';
 import { useParameterizedReducer } from '../../utils/hooks';
 import { Generation } from '../../utils/rangeTypes';
-import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_FRIENDSHIP, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
+import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_FRIENDSHIP, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_OTHER_POWER_MODIFIER, SET_SCREEN, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
 
 const defaultState: RangerReducerState = {
   displayMode: 'compact',
@@ -26,6 +26,8 @@ const defaultState: RangerReducerState = {
   opponentCombatStages: 0,
   healthThreshold: 50,
   friendship: 0,
+  screen: false,
+  otherPowerModifier: 1,
 };
 
 const reducer = (state: RangerReducerState, action: RangerReducerAction): RangerReducerState => {
@@ -160,6 +162,18 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
       return {
         ...state,
         friendship: action.payload.friendship,
+      };
+
+    case SET_SCREEN:
+      return {
+        ...state,
+        screen: action.payload.screen,
+      };
+
+    case SET_OTHER_POWER_MODIFIER:
+      return {
+        ...state,
+        otherPowerModifier: action.payload.otherPowerModifier,
       };
 
     case SET_INITIAL_STATE:
@@ -328,6 +342,20 @@ export function setFriendship(friendship: number): RangerReducerAction {
   return {
     type: SET_FRIENDSHIP,
     payload: { friendship },
+  };
+}
+
+export function setScreen(screen: boolean): RangerReducerAction {
+  return {
+    type: SET_SCREEN,
+    payload: { screen },
+  };
+}
+
+export function setOtherPowerModifier(otherPowerModifier: number): RangerReducerAction {
+  return {
+    type: SET_OTHER_POWER_MODIFIER,
+    payload: { otherPowerModifier },
   };
 }
 

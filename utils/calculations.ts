@@ -77,6 +77,8 @@ export interface CalculateRangesParameters {
   opponentStat: number;
   opponentCombatStages: number;
   friendship: number;
+  screen: boolean;
+  otherPowerModifier: number;
 }
 
 export function calculateRanges({
@@ -99,6 +101,8 @@ export function calculateRanges({
   opponentStat,
   opponentCombatStages,
   friendship,
+  screen,
+  otherPowerModifier,
 }: CalculateRangesParameters): NatureResult[] {
   return NATURE_MODIFIERS.map(natureModifierData => {
     const possibleStats = [...Array(32).keys()].map(possibleIV => {
@@ -146,6 +150,8 @@ export function calculateRanges({
         const critMultiplier = generation <= 5 ? 2.0 : 1.5;
         const offensiveStat = offensiveMode ? playerStatAdjusted : opponentStatAdjusted;
         const defensiveStat = offensiveMode ? opponentStatAdjusted : playerStatAdjusted;
+        const baseScreenMultiplier = multiTarget ? (2 / 3) : 0.5;
+        const screenModifier = screen && !criticalHit ? baseScreenMultiplier : 1;
 
         const damageValues = calculateDamageValues(
           offensiveMode ? level : opponentLevel,
@@ -153,14 +159,26 @@ export function calculateRanges({
           torrent && generation >= 5 ? offensiveStat * 1.5 : offensiveStat,
           defensiveStat,
           [
-            multiTarget ? getMultiTargetModifier(generation) : 1,
-            weatherBoosted ? 1.5 : 1,
-            weatherReduced ? 0.5 : 1,
+            ...(generation === 4 ? [
+              screenModifier,
+              multiTarget ? getMultiTargetModifier(generation) : 1,
+              weatherBoosted ? 1.5 : 1,
+              weatherReduced ? 0.5 : 1,
+            ] : []),
+            otherPowerModifier,
+          ],
+          [
+            ...(generation >= 5 ? [
+              multiTarget ? getMultiTargetModifier(generation) : 1,
+              weatherBoosted ? 1.5 : 1,
+              weatherReduced ? 0.5 : 1,
+            ] : []),
             criticalHit ? critMultiplier : 1.0,
             ...(generation === 3 ? stabAndTypeEffectivenessModifier : []),
           ],
           [
             ...(generation === 3 ? [] : stabAndTypeEffectivenessModifier),
+            ...(generation >= 5 ? [screenModifier] : []),
             otherModifier,
           ],
         );
@@ -182,12 +200,14 @@ export function calculateDamageValues(
   power: number,
   attack: number,
   defense: number,
+  basePowerModifiers: number[],
   preRandModifiers: number[],
   postRandModifiers: number[],
 ): number[] {
   return [...Array(16).keys()].map(randomValue => {
     const levelModifier = Math.trunc((2 * level) / 5) + 2;
-    const baseDamage = Math.trunc(Math.floor((levelModifier * power * attack) / defense) / 50) + 2;
+    const adjustedPower = basePowerModifiers.reduce((acc, modifier) => Math.trunc(acc * modifier), power);
+    const baseDamage = Math.trunc(Math.floor((levelModifier * adjustedPower * attack) / defense) / 50) + 2;
 
     return [...preRandModifiers, (85 + randomValue) / 100, ...postRandModifiers].reduce((acc, modifier) => (
       Math.trunc(acc * modifier)

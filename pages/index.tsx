@@ -5,7 +5,7 @@ import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox } from '../components/Layout';
 import { Button } from '../components/Button';
-import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { calculateRanges } from '../utils/calculations';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
@@ -43,6 +43,8 @@ const Home: NextPage = () => {
   const handleSetOpponentCombatStages = useCallback(event => dispatch(setOpponentCombatStages(Number(event.target.value))), [dispatch]);
   const handleSetHealthThreshold = useCallback(event => dispatch(setHealthThreshold(Number(event.target.value))), [dispatch]);
   const handleSetFriendship = useCallback(event => dispatch(setFriendship(Number(event.target.value))), [dispatch]);
+  const handleSetScreen = useCallback(() => dispatch(setScreen(!state.screen)), [state.screen, dispatch]);
+  const handleSetOtherPowerModifier = useCallback(event => dispatch(setOtherPowerModifier(Number(event.target.value))), [dispatch]);
 
   const results = useMemo(() => calculateRanges(state), [state]);
 
@@ -114,6 +116,12 @@ const Home: NextPage = () => {
             <Checkbox id="stab" data-checked={state.stab} onClick={handleSetSTAB} />
           </InputRow>
 
+          <InputRow>
+            <label htmlFor="otherPowerModifier">Base Power Modifier</label>
+            <input id="otherPowerModifier" type="number" value={state.otherPowerModifier} onChange={handleSetOtherPowerModifier} />
+            <HelpText>Any additional modifiers to the base power that aren&apos;t handled by Ranger, such as held items.</HelpText>
+          </InputRow>
+
           <InputSubheader>Opponent</InputSubheader>
           {!state.offensiveMode && (
             <InputRow>
@@ -144,6 +152,12 @@ const Home: NextPage = () => {
             <label htmlFor="torrent">Torrent/Overgrow/Blaze?</label>
             <Checkbox id="torrent" data-checked={state.torrent} onClick={handleSetTorrent} />
             <HelpText>These abilities double the base power in Gen 3&ndash;4, and boost Attack or Sp. Attack by 50% in Gen 5+.</HelpText>
+          </InputRow>
+
+          <InputRow>
+            <label htmlFor="screen">Screen Active?</label>
+            <Checkbox id="screen" data-checked={state.screen} onClick={handleSetScreen} />
+            <HelpText>Does the defender have Reflect up and is the attacker using a physical move, or does the defender have Light Screen up and the attacker is using a special move?</HelpText>
           </InputRow>
 
           <InputRow>
