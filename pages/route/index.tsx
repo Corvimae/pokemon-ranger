@@ -71,6 +71,8 @@ const schema = merge(gh, {
       'offensive',
       'special',
       'healthThreshold',
+      'screen',
+      'otherPowerModifier',
       'theme',
     ],
   },

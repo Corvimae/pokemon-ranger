@@ -49,6 +49,8 @@ interface DamageTableProps {
   offensive?: string;
   special?: string;
   friendship?: string;
+  screen?: string;
+  otherPowerModifier?: string;
   theme?: string;
 }
 
@@ -73,6 +75,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   otherModifier = 1,
   offensive = 'true',
   special = 'false',
+  screen = 'false',
+  otherPowerModifier = 1,
   friendship = 0,
   theme = 'info',
 }) => {
@@ -111,6 +115,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       opponentLevel: Number(opponentLevel),
       offensiveMode: offensive === 'true',
       friendship: Number(friendship),
+      screen: screen === 'true',
+      otherPowerModifier: Number(otherPowerModifier),
     });
 
     const threshold = Number(healthThreshold);
@@ -123,7 +129,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     }
 
     return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, ivRanges[relevantStat]);
-  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, evs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, source, state.trackers]);
+  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, evs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, screen, otherPowerModifier, source, state.trackers]);
 
   if (!state.trackers[source || '']) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
   if (!level) return <ErrorCard>The level attribute must be specified.</ErrorCard>;
