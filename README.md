@@ -90,7 +90,7 @@ The content within the square brackets is displayed as a header above the table,
 
 `evolution` (number, default: `0`) - The evolution of the runner's Pokémon at the time of the attack, zero-indexed.
 
-`evs` (number, default: `0`) - The EVs in the relevant stat of the runner's Pokémon at the time of the attack.
+`evs` (number, default: `0`) - The EVs in the relevant stat of the runner's Pokémon at the time of the attack. When no EVs are specified, the EVs from the IV tracker for the given level will be used if available.
 
 `combatStages` (number, default: `0`) - The number of combat stages in the relevant stat of the runner's Pokémon at the time of the attack.
 

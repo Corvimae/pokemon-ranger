@@ -61,7 +61,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   movePower,
   opponentStat,
   evolution = 0,
-  evs = 0,
+  evs = -1,
   combatStages = 0,
   effectiveness = 1,
   stab = 'false',
@@ -89,16 +89,18 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   ), [tracker]);
 
   const confirmedNature = useMemo(() => ivRanges && tracker && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
-  
+
   const offensiveStat: Stat = special === 'true' ? 'spAttack' : 'attack';
   const defensiveStat: Stat = special === 'true' ? 'spDefense' : 'defense';
   const relevantStat = offensive === 'true' ? offensiveStat : defensiveStat;
+
+  const trackerEvs = evs === -1 ? tracker && (tracker.evSegments[tracker.startingLevel]?.[Number(level)]?.[relevantStat] ?? 0) : evs;
 
   const rangeResults = useMemo(() => {
     const ranges = calculateRanges({
       level: Number(level || 0),
       baseStat: baseStats?.[relevantStat] ?? 0,
-      evs: Number(evs),
+      evs: Number(trackerEvs),
       combatStages: Number(combatStages),
       movePower: Number(movePower),
       typeEffectiveness: Number(effectiveness),
@@ -129,7 +131,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     }
 
     return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, ivRanges[relevantStat]);
-  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, evs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, screen, otherPowerModifier, source, state.trackers]);
+  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, trackerEvs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, screen, otherPowerModifier, source, state.trackers]);
 
   if (!state.trackers[source || '']) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
   if (!level) return <ErrorCard>The level attribute must be specified.</ErrorCard>;
