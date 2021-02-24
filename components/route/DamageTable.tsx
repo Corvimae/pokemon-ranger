@@ -85,7 +85,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   ), [tracker]);
 
   const confirmedNature = useMemo(() => ivRanges && tracker && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
-  
+
   const offensiveStat: Stat = special === 'true' ? 'spAttack' : 'attack';
   const defensiveStat: Stat = special === 'true' ? 'spDefense' : 'defense';
   const relevantStat = offensive === 'true' ? offensiveStat : defensiveStat;
@@ -151,7 +151,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
           <RangeGridHeader>
             <div>IVs</div>
             <div>Stat</div>
-            <div>{isAgainstThreshold ? 'Damage' : 'Chance to Kill'}</div>
+            <div>{isAgainstThreshold ? 'Chance to Kill' : 'Damage'}</div>
           </RangeGridHeader>
           {Object.entries(rangeResults).map(([key, value], index) => (
             <React.Fragment key={index}>
