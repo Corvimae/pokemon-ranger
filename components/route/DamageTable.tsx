@@ -159,7 +159,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
           <RangeGridHeader>
             <div>IVs</div>
             <div>Stat</div>
-            <div>{isAgainstThreshold ? 'Damage' : 'Chance to Kill'}</div>
+            <div>{isAgainstThreshold ? 'Chance to Kill' : 'Damage'}</div>
           </RangeGridHeader>
           {Object.entries(rangeResults).map(([key, value], index) => (
             <React.Fragment key={index}>
