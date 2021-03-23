@@ -35,6 +35,7 @@ export const REGISTER_TRACKER = 'REGISTER_TRACKER';
 export const SET_STAT = 'SET_STAT';
 export const SET_MANUAL_POSITIVE_NATURE = 'SET_MANUAL_POSITIVE_NATURE';
 export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
+export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
@@ -84,6 +85,14 @@ type SetManualNegativeNature = {
   };
 }
 
+type SetManualNeutralNature = {
+  type: typeof SET_MANUAL_NEUTRAL_NATURE;
+  payload: {
+    name: string;
+    stat: Stat | undefined;
+  };
+}
+
 type TriggerEvolutionAction = {
   type: typeof TRIGGER_EVOLUTION;
   payload: {
@@ -116,6 +125,7 @@ export type RouteAction =
   SetStatAction |
   SetManualPositiveNature |
   SetManualNegativeNature |
+  SetManualNeutralNature |
   TriggerEvolutionAction |
   ResetTrackerAction |
   SetStartingLevelAction |

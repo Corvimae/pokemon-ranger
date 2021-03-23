@@ -226,13 +226,18 @@ export function getPossibleNatureAdjustmentsForStat(
   stat: Stat,
   [confirmedNegative, confirmedPositive]: ConfirmedNature,
 ): [boolean, boolean, boolean] {
+  const isNegativeValid = rangeSet.negative[0] !== -1;
+  const isNeutralValid = rangeSet.neutral[0] !== -1;
+  const isPositiveValid = rangeSet.positive[0] !== -1;
+
   if (confirmedPositive === stat) return [false, false, true];
   if (confirmedNegative === stat) return [true, false, false];
-  if (confirmedPositive === null && rangeSet.negative[0] === -1 && (confirmedNegative !== null || rangeSet.positive[0] !== -1)) return [false, true, true];
-  if (confirmedNegative === null && rangeSet.negative[0] !== -1 && (confirmedPositive !== null || rangeSet.positive[0] === -1)) return [true, true, false];
-  if (confirmedNegative === null && confirmedPositive === null && rangeSet.negative[0] !== -1 && rangeSet.positive[0] !== -1) return [true, true, true];
-
-  return [false, true, false];
+  
+  return [
+    isNegativeValid && confirmedNegative === null,
+    isNeutralValid,
+    isPositiveValid && confirmedPositive === null,
+  ];
 }
 
 export function isIVWithinValues(calculatedValue: StatRange, ivRange: [number, number]): boolean {

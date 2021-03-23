@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
@@ -76,6 +76,19 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             ...state.trackers[action.payload.name],
             manualNegativeNature: action.payload.stat,
             manualPositiveNature: state.trackers[action.payload.name].manualPositiveNature === action.payload.stat ? undefined : state.trackers[action.payload.name].manualPositiveNature,
+          },
+        },
+      };
+
+    case SET_MANUAL_NEUTRAL_NATURE:
+      return {
+        ...state,
+        trackers: {
+          ...state.trackers,
+          [action.payload.name]: {
+            ...state.trackers[action.payload.name],
+            manualNegativeNature: action.payload.stat,
+            manualPositiveNature: action.payload.stat,
           },
         },
       };
@@ -171,6 +184,16 @@ export function setManualPositiveNature(name: string, stat?: Stat): RouteAction 
 export function setManualNegativeNature(name: string, stat?: Stat): RouteAction {
   return {
     type: SET_MANUAL_NEGATIVE_NATURE,
+    payload: {
+      name,
+      stat,
+    },
+  };
+}
+
+export function setManualNeutralNature(name: string, stat?: Stat): RouteAction {
+  return {
+    type: SET_MANUAL_NEUTRAL_NATURE,
     payload: {
       name,
       stat,

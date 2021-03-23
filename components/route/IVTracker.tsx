@@ -6,7 +6,7 @@ import { Tracker } from '../../reducers/route/types';
 import { capitalize } from '../../utils/utils';
 import { Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
-import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution } from '../../reducers/route/reducer';
+import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution, setManualNeutralNature } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, StatValuePossibilitySet } from '../../utils/trackerCalculations';
 import { ConfirmedNature, Generation } from '../../utils/rangeTypes';
 
@@ -45,7 +45,9 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
   }, [tracker.name, dispatch]);
 
   const handleSetManualNature = useCallback((event: React.MouseEvent<HTMLButtonElement>, stat: Stat) => {
-    if (event.shiftKey) {
+    if (event.metaKey) {
+      dispatch(setManualNeutralNature(tracker.name, tracker.manualNegativeNature === stat && tracker.manualPositiveNature === stat ? undefined : stat));
+    } else if (event.shiftKey) {
       dispatch(setManualNegativeNature(tracker.name, tracker.manualNegativeNature === stat ? undefined : stat));
     } else {
       dispatch(setManualPositiveNature(tracker.name, tracker.manualPositiveNature === stat ? undefined : stat));
@@ -240,6 +242,7 @@ const StartingLevelButton = styled(Button)<{ active?: boolean }>`
 
 const IVGridHeaderCell = styled.button<{ uninteractable?: boolean; isPositive?: boolean; isNegative?: boolean }>`
   color: ${props => {
+    if (props.isPositive && props.isNegative) return '#fff';
     if (props.isPositive) return '#ff7f7f';
     if (props.isNegative) return '#a1a1ff';
 

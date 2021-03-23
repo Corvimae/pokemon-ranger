@@ -15,9 +15,9 @@ function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: S
 
   const [negative, neutral, positive] = getPossibleNatureAdjustmentsForStat(rangeSet, stat, [confirmedNegative, confirmedPositive]);
 
+  if (negative && neutral && positive) return ' ±';
   if (neutral && positive) return ' +';
   if (negative && neutral) return ' -';
-  if (negative && neutral && positive) return ' ±';
 
   return '';
 }
