@@ -21,7 +21,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   source,
   condition,
   level: rawLevel,
-  evolution: rawEvolution,
+  evolution: rawEvolution = '0',
   theme = 'borderless',
   children,
 }) => {
