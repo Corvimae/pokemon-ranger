@@ -241,7 +241,7 @@ export function combineIdenticalLines(results: NatureResult[]): Record<string, C
             damageValues: result.damageValues,
             damageRangeOutput: result.damageRangeOutput,
             statFrom: currentValue?.statFrom ?? result.stat,
-            statTo: result.stat,
+            statTo: Math.max(result.stat, acc[result.damageRangeOutput]?.statTo ?? 0),
             [key]: {
               ...currentValue?.[key],
               from: (currentValue || {})[key]?.from ?? result.from,
