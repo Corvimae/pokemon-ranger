@@ -8,6 +8,7 @@ import { calculateAllPossibleIVRanges, calculateHiddenPowerType, calculatePossib
 
 interface IVDisplayProps {
   tracker: Tracker;
+  compactIVs: boolean;
 }
 
 function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: Stat | null, confirmedNegative: Stat | null): string {
@@ -22,7 +23,7 @@ function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: S
   return '';
 }
 
-export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
+export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => {
   const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
   const [confirmedNegative, confirmedPositive] = useMemo(() => {
     if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
@@ -41,8 +42,8 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
   ), [ivRanges, confirmedNegative, confirmedPositive]);
 
   return (
-    <Container generation={tracker.generation} calculateHiddenPower={tracker.calculateHiddenPower}>
-      <TrackerName>{tracker.name}</TrackerName>
+    <Container generation={tracker.generation} calculateHiddenPower={tracker.calculateHiddenPower} compactIVs={compactIVs}>
+      {!compactIVs && <TrackerName>{tracker.name}</TrackerName>}
       {STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense').map(stat => (
         <StatDisplay key={stat}>
           <StatName
@@ -81,12 +82,13 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker }) => {
   );
 };
 
-const Container = styled.div<{ generation: Generation; calculateHiddenPower?: boolean }>`
+const Container = styled.div<{ generation: Generation; calculateHiddenPower?: boolean; compactIVs: boolean }>`
   display: grid;
   grid-template-columns: repeat(${props => props.generation <= 2 ? 5 : 7}, 5.25rem) ${props => props.calculateHiddenPower && 'max-content'};
+  padding: ${props => props.compactIVs && '0.25rem 0'};
 
   & + & {
-    margin-top: 0.25rem;
+    margin-top: ${props => props.compactIVs ? 0 : '0.25rem'};
   }
 `;
 

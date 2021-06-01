@@ -25,17 +25,30 @@ export interface Tracker {
   manualNegativeNature: Stat | undefined;
 }
 
+export interface RouteOptionsState {
+  compactIVs: boolean;
+  ivBackgroundColor: string;
+  ivFontFamily: string | undefined;
+}
+
 export interface RouteState {
   repoPath: string | undefined;
+  showOptions: boolean;
   trackers: Record<string, Tracker>;
+  options: RouteOptionsState
 }
 
 export const SET_REPO_PATH = 'SET_REPO_PATH';
 export const REGISTER_TRACKER = 'REGISTER_TRACKER';
+export const SET_SHOW_OPTIONS = 'SET_SHOW_OPTIONS';
 export const SET_STAT = 'SET_STAT';
 export const SET_MANUAL_POSITIVE_NATURE = 'SET_MANUAL_POSITIVE_NATURE';
 export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
 export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
+export const LOAD_OPTIONS = 'LOAD_OPTIONS';
+export const SET_OPTION_COMPACT_IVS = 'SET_OPTION_COMPACT_IVS';
+export const SET_OPTION_IV_BACKGROUND_COLOR = 'SET_OPTION_IV_BACKGROUND_COLOR';
+export const SET_OPTION_IV_FONT_FAMILY = 'SET_OPTION_IV_FONT_FAMILY';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
@@ -56,8 +69,15 @@ type RegisterTrackerAction = {
     calculateHiddenPower: boolean;
     baseStats: StatLine[];
     evSegments: Record<number, EVsByLevel>;
-  },
-};
+  };
+}
+
+type SetShowOptionsAction = {
+  type: typeof SET_SHOW_OPTIONS;
+  payload: {
+    value: boolean;
+  };
+}
 
 type SetStatAction = {
   type: typeof SET_STAT;
@@ -69,7 +89,7 @@ type SetStatAction = {
   };
 }
 
-type SetManualPositiveNature = {
+type SetManualPositiveNatureAction = {
   type: typeof SET_MANUAL_POSITIVE_NATURE;
   payload: {
     name: string;
@@ -77,7 +97,7 @@ type SetManualPositiveNature = {
   };
 }
 
-type SetManualNegativeNature = {
+type SetManualNegativeNatureAction = {
   type: typeof SET_MANUAL_NEGATIVE_NATURE;
   payload: {
     name: string;
@@ -85,11 +105,39 @@ type SetManualNegativeNature = {
   };
 }
 
-type SetManualNeutralNature = {
+type SetManualNeutralNatureAction = {
   type: typeof SET_MANUAL_NEUTRAL_NATURE;
   payload: {
     name: string;
     stat: Stat | undefined;
+  };
+}
+
+type LoadOptionsAction = {
+  type: typeof LOAD_OPTIONS,
+  payload: {
+    values: Partial<RouteOptionsState>;
+  };
+}
+
+type SetOptionCompactIVsAction = {
+  type: typeof SET_OPTION_COMPACT_IVS;
+  payload: {
+    value: boolean;
+  };
+}
+
+type SetOptionIVBackgroundColorAction = {
+  type: typeof SET_OPTION_IV_BACKGROUND_COLOR;
+  payload: {
+    value: string;
+  };
+}
+
+type SetOptionIVFontFamilyAction = {
+  type: typeof SET_OPTION_IV_FONT_FAMILY;
+  payload: {
+    value: string;
   };
 }
 
@@ -122,10 +170,15 @@ type LoadFileAction = {
 export type RouteAction =
   SetRepoPathAction |
   RegisterTrackerAction |
+  SetShowOptionsAction |
   SetStatAction |
-  SetManualPositiveNature |
-  SetManualNegativeNature |
-  SetManualNeutralNature |
+  SetManualPositiveNatureAction |
+  SetManualNegativeNatureAction |
+  SetManualNeutralNatureAction |
+  LoadOptionsAction |
+  SetOptionCompactIVsAction |
+  SetOptionIVBackgroundColorAction |
+  SetOptionIVFontFamilyAction |
   TriggerEvolutionAction |
   ResetTrackerAction |
   SetStartingLevelAction |

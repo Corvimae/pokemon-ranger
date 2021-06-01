@@ -154,6 +154,10 @@ export const HelpText = styled.div`
   font-style: italic;
   color: #666;
   margin: -0.5rem 0 0.5rem;
+
+  & a {
+    color: #317c99;
+  }
 `;
 
 export const Checkbox = styled.button<{ 'data-checked': boolean }>`

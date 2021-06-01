@@ -235,3 +235,32 @@ export function prepareContextualReducer<S, A extends Action>(
     useDispatch: (): React.Dispatch<A> => useContext(DispatchContext) as React.Dispatch<A>,
   };
 }
+
+export function useLocalStorage<T>(key: string, defaultValue: T | null = null): [T | null, (value: T) => void] {
+  var storedValue = window.localStorage.getItem(key);
+  const [value, setValue] = useState<T | null>(storedValue === null ? defaultValue : (JSON.parse(storedValue) as T));
+  const updateValue = useCallback((value: T) => {
+    window.localStorage.setItem(key, JSON.stringify(value));
+
+    setValue(value);
+  }, []);
+
+
+  return [value, updateValue];
+}
+
+export function useOnMount(callback: React.EffectCallback): void {
+  const savedCallback = useRef<React.EffectCallback>();
+
+  useEffect(() => {
+    savedCallback.current = callback;
+  });
+
+  useEffect(() => {
+    const onDismount = savedCallback.current?.();
+
+    return (): void => {
+      if (onDismount) onDismount();
+    };
+  }, []);
+}

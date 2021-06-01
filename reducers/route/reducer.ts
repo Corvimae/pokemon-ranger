@@ -3,12 +3,18 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
   repoPath: undefined,
+  showOptions: false,
   trackers: {},
+  options: {
+    compactIVs: false,
+    ivBackgroundColor: '#222',
+    ivFontFamily: undefined,
+  },
 };
 
 const reducer = (state: RouteState, action: RouteAction): RouteState => {
@@ -35,6 +41,12 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             evSegments: action.payload.evSegments,
           },
         },
+      };
+
+    case SET_SHOW_OPTIONS:
+      return {
+        ...state,
+        showOptions: action.payload.value,
       };
 
     case SET_STAT: {
@@ -90,6 +102,42 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             manualNegativeNature: action.payload.stat,
             manualPositiveNature: action.payload.stat,
           },
+        },
+      };
+
+    case LOAD_OPTIONS:
+      return {
+        ...state,
+        options: {
+          ...state.options,
+          ...action.payload.values,
+        },
+      };
+
+    case SET_OPTION_COMPACT_IVS:
+      return {
+        ...state,
+        options: {
+          ...state.options,
+          compactIVs: action.payload.value,
+        },
+      };
+
+    case SET_OPTION_IV_BACKGROUND_COLOR:
+      return {
+        ...state,
+        options: {
+          ...state.options,
+          ivBackgroundColor: action.payload.value,
+        },
+      };
+
+    case SET_OPTION_IV_FONT_FAMILY:
+      return {
+        ...state,
+        options: {
+          ...state.options,
+          ivFontFamily: action.payload.value,
         },
       };
 
@@ -159,6 +207,13 @@ export function registerTracker(name: string, baseStats: StatLine[], generation:
   };
 }
 
+export function setShowOptions(value: boolean): RouteAction {
+  return {
+    type: SET_SHOW_OPTIONS,
+    payload: { value },
+  };
+}
+
 export function setStat(name: string, stat: Stat, level: number, value: number): RouteAction {
   return {
     type: SET_STAT,
@@ -198,6 +253,34 @@ export function setManualNeutralNature(name: string, stat?: Stat): RouteAction {
       name,
       stat,
     },
+  };
+}
+
+export function loadOptions(values: Partial<RouteOptionsState>): RouteAction {
+  return {
+    type: LOAD_OPTIONS,
+    payload: { values },
+  };
+}
+
+export function setOptionCompactIVs(value: boolean): RouteAction {
+  return {
+    type: SET_OPTION_COMPACT_IVS,
+    payload: { value },
+  };
+}
+
+export function setOptionIVBackgroundColor(value: string): RouteAction {
+  return {
+    type: SET_OPTION_IV_BACKGROUND_COLOR,
+    payload: { value },
+  };
+}
+
+export function setOptionIVFontFamily(value: string): RouteAction {
+  return {
+    type: SET_OPTION_IV_FONT_FAMILY,
+    payload: { value },
   };
 }
 

@@ -16,7 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { directiveConverter } from '../../directives/directiveConverter';
 import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
-import { loadFile, RouteContext } from '../../reducers/route/reducer';
+import { loadFile, RouteContext, setShowOptions } from '../../reducers/route/reducer';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
@@ -29,6 +29,9 @@ import { TrainerBlock } from '../../components/route/TrainerBlock';
 import { PokemonBlock } from '../../components/route/PokemonBlock';
 import { ImportPrompt } from '../../components/route/ImportPrompt';
 import { RouteImage } from '../../components/route/RouteImage';
+import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
+import { useOnMount } from '../../utils/hooks';
+import { loadOptions } from '../../utils/options';
 
 const schema = merge(gh, {
   tagNames: [
@@ -117,6 +120,10 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
     hasAttemptedQueryParamLoad.current = true;
   }, []);
 
+  const handleShowOptions = useCallback(() => {
+    dispatch(setShowOptions(true));
+  }, [dispatch]);
+
   const handleCloseRoute = useCallback(() => {
     dispatch(loadFile());
 
@@ -155,6 +162,8 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
 
   const state = RouteContext.useState();
 
+  useOnMount(() => loadOptions(dispatch));
+
   useEffect(() => {
     const element = guideContentElement.current;
     const onGuideScroll = () => {
@@ -176,11 +185,13 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
         {content && !content?.error ? (
           <Guide ref={guideContentElement}>
             <RouteActions>
+              <Button onClick={handleShowOptions}>Options</Button>
               <Button onClick={handleCloseRoute}>Close</Button>
             </RouteActions>
             <RouteContent>
               {content.content}
             </RouteContent>
+            {state.showOptions && <RouteOptionsModal />}
           </Guide>
         ) : (
           <>
@@ -207,7 +218,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
           <FontAwesomeIcon icon={faChevronUp} />
         </ReturnToTopButton>
       </MainContent>
-      <Sidebar>
+      <Sidebar backgroundColor={state.options.ivBackgroundColor} fontFamily={state.options.ivFontFamily}>
         <TrackerInputContainer>
           {Object.values(state.trackers).map(tracker => (
             <IVTracker key={tracker.name} tracker={tracker} />
@@ -215,7 +226,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
         </TrackerInputContainer>
         <div>
           {Object.values(state.trackers).map(tracker => (
-            <IVDisplay key={tracker.name} tracker={tracker} />
+            <IVDisplay key={tracker.name} tracker={tracker} compactIVs={state.options.compactIVs} />
           ))}
         </div>
       </Sidebar>
@@ -252,11 +263,12 @@ const Guide = styled.div`
   overflow-y: auto;
 `;
 
-const Sidebar = styled.div`
+const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; }>`
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
-  background-color: #222;
+  font-family: ${props => props.fontFamily ?? undefined};
+  background-color: ${props => props.backgroundColor ?? '#222'};
   color: #eee;
   overflow: hidden;
 `;
