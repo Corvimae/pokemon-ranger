@@ -183,7 +183,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
     <Container>
       <MainContent>
         {content && !content?.error ? (
-          <Guide ref={guideContentElement}>
+          <Guide showOptions={state.showOptions} ref={guideContentElement}>
             <RouteActions>
               <Button onClick={handleShowOptions}>Options</Button>
               <Button onClick={handleCloseRoute}>Close</Button>
@@ -256,11 +256,11 @@ const MainContent = styled.div`
   overflow-y: hidden;
 `;
 
-const Guide = styled.div`
+const Guide = styled.div<{ showOptions: boolean }>`
   position: relative;
   height: 100%;
   padding: 0.5rem;
-  overflow-y: auto;
+  overflow-y: ${props => props.showOptions ? 'none' : 'auto'};
 `;
 
 const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; }>`
