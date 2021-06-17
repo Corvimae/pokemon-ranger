@@ -34,7 +34,7 @@ export function calculateStat(level: number, base: number, iv: number, ev: numbe
 export function calculateLGPEStat(level: number, base: number, iv: number, av: number, modifier: number, friendship: number): number {
   const friendshipModifier = 1 + Math.floor(10 * (friendship / 255)) / 100;
 
-  return Math.floor((Math.floor(((2 * base + iv) * level) / 100) + 5) * modifier * friendshipModifier) + av;
+  return Math.floor(Math.floor((Math.floor(((2 * base + iv) * level) / 100) + 5) * modifier) * friendshipModifier) + av;
 }
 
 export function calculateHP(level: number, base: number, iv: number, ev: number, generation: Generation): number {
