@@ -237,14 +237,13 @@ export function prepareContextualReducer<S, A extends Action>(
 }
 
 export function useLocalStorage<T>(key: string, defaultValue: T | null = null): [T | null, (value: T) => void] {
-  var storedValue = window.localStorage.getItem(key);
+  const storedValue = window.localStorage.getItem(key);
   const [value, setValue] = useState<T | null>(storedValue === null ? defaultValue : (JSON.parse(storedValue) as T));
-  const updateValue = useCallback((value: T) => {
-    window.localStorage.setItem(key, JSON.stringify(value));
+  const updateValue = useCallback((newValue: T) => {
+    window.localStorage.setItem(key, JSON.stringify(newValue));
 
-    setValue(value);
-  }, []);
-
+    setValue(newValue);
+  }, [key]);
 
   return [value, updateValue];
 }

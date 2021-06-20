@@ -26,7 +26,7 @@ const LGPE_FRIENDSHIP_EVENTS: Record<LGPEFriendshipEvent, [number, number]> = {
   candy: [5, 3],
   xItem: [1, 1],
   gymFight: [4, 4],
-}
+};
 
 function getMultiTargetModifier(generation: Generation): number {
   return generation === 3 ? 0.5 : 0.75;
@@ -66,7 +66,7 @@ export function applyCombatStages(stat: number, combatStages: number): number {
   return Math.floor(stat * (2 / (Math.abs(combatStages) + 2)));
 }
 
-export function calculateLGPEFriendship(baseFriendship: number, friendshipEvents: LGPEFriendshipEvent[]) {
+export function calculateLGPEFriendship(baseFriendship: number, friendshipEvents: LGPEFriendshipEvent[]): number {
   return friendshipEvents.reduce((friendship, action) => (
     friendship + LGPE_FRIENDSHIP_EVENTS[action][friendship < 100 ? 0 : 1]
   ), baseFriendship);

@@ -35,7 +35,7 @@ const LGPEFriendship: NextPage = () => {
     dispatch(removeFriendshipEvent(id));
   }, [dispatch]);
 
-  const handleDragEnd = useCallback((dragEvent) => {
+  const handleDragEnd = useCallback(dragEvent => {
     const updatedList = [...state.friendshipEvents];
     const [removed] = updatedList.splice(dragEvent.source.index, 1);
 
@@ -74,13 +74,13 @@ const LGPEFriendship: NextPage = () => {
         </AddFriendshipActions>
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="friendshipEvents">
-            {(provided) => (
+            {provided => (
               <FriendshipEventList {...provided.droppableProps} ref={provided.innerRef}>
                 {state.friendshipEvents.map((friendshipEvent, index) => (
                   <Draggable key={friendshipEvent.id} draggableId={friendshipEvent.id} index={index}>
-                    {(provided) => (
-                      <FriendshipEvent ref={provided.innerRef} {...provided.draggableProps}>
-                        <div {...provided.dragHandleProps}>
+                    {draggableProvided => (
+                      <FriendshipEvent ref={draggableProvided.innerRef} {...draggableProvided.draggableProps}>
+                        <div {...draggableProvided.dragHandleProps}>
                           <FontAwesomeIcon icon={faBars} color="#CCC" />
                         </div>
                         <FriendshipEventText>

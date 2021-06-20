@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { RouteContext, setOptionCompactIVs, setOptionIVBackgroundColor, setOptionIVFontFamily, setShowOptions } from '../../reducers/route/reducer';
 import { OptionKeys } from '../../utils/options';
@@ -41,7 +41,7 @@ export const RouteOptionsModal: React.FC = () => {
             <InputRow>
               <label htmlFor="compactIVs">Compact IV Display</label>
               <Checkbox id="compactIVs" data-checked={state.options.compactIVs} onClick={handleToggleCompactIVs} />
-              <HelpText>Hide the Pokémon's name above the IV display.</HelpText>
+              <HelpText>Hide the Pokémon&apos;s name above the IV display.</HelpText>
             </InputRow>
 
             <InputRow>
@@ -65,7 +65,7 @@ export const RouteOptionsModal: React.FC = () => {
       </Modal>
     </Backdrop>
   );
-}
+};
 
 const Backdrop = styled.div`
   position: fixed;

@@ -1,4 +1,4 @@
-import { Dispatch } from "react";
+import { Dispatch } from 'react';
 
 export function hasParentElement(child: Element | null, parent: Element): boolean {
   if (child === parent) return true;
@@ -13,6 +13,7 @@ export function splitOnLastElement<T>(list: T[]): [T[], T | undefined] {
 
 export function capitalize(value: string): string {
   if (!value.length) return '';
+
   return value.charAt(0).toUpperCase() + value.substr(1);
 }
 
@@ -24,7 +25,7 @@ export function rangesOverlap([fromA, toA]: [number, number], [fromB, toB]: [num
   return Math.max(fromA, fromB) <= Math.min(toA, toB);
 }
 
-export function dispatchAndPersist<T, U>(key: string, value: T, action: (value: T) => U, dispatch: Dispatch<U>) {
+export function dispatchAndPersist<T, U>(key: string, value: T, action: (val: T) => U, dispatch: Dispatch<U>): void {
   window.localStorage.setItem(key, JSON.stringify(value));
   dispatch(action(value));
 }

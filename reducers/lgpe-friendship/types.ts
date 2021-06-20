@@ -1,4 +1,4 @@
-import { LGPEFriendshipEvent } from "../../utils/calculations";
+import { LGPEFriendshipEvent } from '../../utils/calculations';
 
 export const SET_BASE_FRIENDSHIP = 'SET_BASE_FRIENDSHIP';
 export const ADD_FRIENDSHIP_EVENT = 'ADD_FRIENDSHIP_EVENT';
