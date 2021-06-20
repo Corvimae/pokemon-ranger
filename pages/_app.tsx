@@ -28,6 +28,9 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
         <li>
           <Link href="/route">Routes</Link>
         </li>
+        <li>
+          <Link href="/lgpe-friendship">LGPE Friendship</Link>
+        </li>
       </Header>
       <Content>
         <Component {...pageProps} />
