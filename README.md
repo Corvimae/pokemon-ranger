@@ -1,6 +1,6 @@
 # Pokemon Ranger
 
-Any likeness in naming to any DS series of videogames is purely coincidental. Ranger calculates ranges, nothing more.
+Any likeness in naming to any DS series of videogames is purely coincidental. Ranger calculates ranges, ~~nothing more~~ and does some other stuff too.
 
 ## Writing Routefiles
 
