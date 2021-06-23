@@ -183,7 +183,7 @@ export function calculateRanges({
             otherPowerModifier,
           ],
           [
-            ...(generation >= 5 ? [
+            ...((generation >= 5 || generation === 'lgpe') ? [
               multiTarget ? getMultiTargetModifier(generation) : 1,
               weatherBoosted ? 1.5 : 1,
               weatherReduced ? 0.5 : 1,
