@@ -45,7 +45,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
   }, [tracker.name, dispatch]);
 
   const handleSetManualNature = useCallback((event: React.MouseEvent<HTMLButtonElement>, stat: Stat) => {
-    if (event.metaKey) {
+    if (event.altKey) {
       dispatch(setManualNeutralNature(tracker.name, tracker.manualNegativeNature === stat && tracker.manualPositiveNature === stat ? undefined : stat));
     } else if (event.shiftKey) {
       dispatch(setManualNegativeNature(tracker.name, tracker.manualNegativeNature === stat ? undefined : stat));

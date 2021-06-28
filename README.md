@@ -2,6 +2,10 @@
 
 Any likeness in naming to any DS series of videogames is purely coincidental. Ranger calculates ranges, ~~nothing more~~ and does some other stuff too.
 
+## Tips and Tricks
+
+- You can click the name of a stat in the IV tracker to force it to be a positive nature, or shift-click will force it to be a negative nature. Alt-clicking on any stat (option-click on Mac) will force a neutral nature.
+
 ## Writing Routefiles
 
 Routefiles use [generic directives](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444) to provide an superset of [Markdown](https://www.markdownguide.org/cheat-sheet/) with additional features for writing routes for manipless Pokémon speedruns. All standard Markdown syntax is supported, in addition to the additional directives explained below.

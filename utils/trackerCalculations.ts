@@ -197,6 +197,8 @@ export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>, trac
   const possibleNegatives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.negative[0] !== -1);
   const possiblePositives = Object.entries(ivRanges).filter(([stat, value]) => stat !== 'hp' && value.positive[0] !== -1);
 
+  if (possibleNegatives.length === 0 || possiblePositives.length === 0) return ['attack', 'attack'];
+
   const negativeByExclusion = confirmedPositive && possibleNegatives.length === 1 ? (possibleNegatives[0][0] as Stat) : null;
   const positiveByExclusion = confirmedNegative && possiblePositives.length === 1 ? (possiblePositives[0][0] as Stat) : null;
 
