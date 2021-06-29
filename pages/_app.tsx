@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
 import { config, dom } from '@fortawesome/fontawesome-svg-core';
 
+import 'react-tippy/dist/tippy.css';
 import '../styles/globals.css';
 
 config.autoAddCss = false;
@@ -30,6 +31,9 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
         </li>
         <li>
           <Link href="/lgpe-friendship">LGPE Friendship</Link>
+        </li>
+        <li>
+          <Link href="/experience">Exp. Route Builder (BETA)</Link>
         </li>
       </Header>
       <Content>

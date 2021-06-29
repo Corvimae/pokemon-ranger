@@ -112,7 +112,7 @@ export const InputSection = styled.div`
 export const InputRow = styled.div`
   display: contents;
 
-  & > label {
+  & label {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 0.5rem;
@@ -121,7 +121,7 @@ export const InputRow = styled.div`
     line-height: 2;
   }
 
-  & > input {
+  & input {
     border-radius: 0.25rem;
     height: 2rem;
     margin: 0 0 0.5rem;
@@ -130,7 +130,7 @@ export const InputRow = styled.div`
     border: 1px solid #999;
   }
 
-  & > select {
+  & select {
     border-radius: 0.25rem;
     height: 2rem;
     margin: 0 0 0.5rem;

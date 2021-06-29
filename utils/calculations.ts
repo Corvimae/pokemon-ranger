@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { formatDamageRange } from './rangeFormat';
 import { CompactRange, Generation, NatureKey, NatureModifier, NatureResult, OneShotResult, StatRange } from './rangeTypes';
 
@@ -290,4 +291,244 @@ export function calculateKillRanges(results: NatureResult[], healthThreshold: nu
         },
       };
     }, {});
+}
+
+export type GrowthRate = 'fast' | 'medium-fast' | 'medium-slow' | 'slow' | 'erratic' | 'fluctuating';
+
+interface BaseExperienceEvent {
+  id: string;
+}
+
+interface RareCandyExperienceEvent extends BaseExperienceEvent {
+  type: 'rareCandy';
+}
+
+interface SpeciesExperienceEvent extends BaseExperienceEvent {
+  type: 'species';
+  name: string;
+  baseExperience: number;
+  level: number;
+  expShareEnabled: boolean;
+  participated: boolean;
+  otherParticipantCount: number;
+  otherPokemonHoldingExperienceShare: number;
+  partySize: number;
+  isTrade: boolean;
+  isInternationalTrade: boolean;
+  hasLuckyEgg: boolean;
+  hasAffectionBoost: boolean;
+  isWild: boolean;
+  isPastEvolutionPoint: boolean;
+}
+
+interface ManualExperienceEvent extends BaseExperienceEvent {
+  type: 'manual';
+  name: string;
+  value: number;
+}
+
+export type ExperienceEvent = RareCandyExperienceEvent | SpeciesExperienceEvent | ManualExperienceEvent;
+
+function calculateExperienceRequiredForLevel(level: number, growthRate: GrowthRate): number {
+  if (level <= 1) return 0;
+  if (level > 100) return -1;
+
+  switch (growthRate) {
+    case 'fast':
+      return Math.floor((level ** 3) * 0.8);
+
+    case 'medium-fast':
+      return level ** 3;
+    
+    case 'medium-slow':
+      return Math.floor(1.2 * (level ** 3) - 15 * (level ** 2) + 100 * level - 140);
+
+    case 'slow':
+      return Math.floor(1.25 * (level ** 3));
+
+    case 'erratic':
+      if (level < 50) return Math.floor(((level ** 3) * (100 - level)) / 50);
+      if (level < 68) return Math.floor(((level ** 3) * (150 - level)) / 100);
+      if (level < 98) return Math.floor(((level ** 3) * Math.floor((1911 - (10 * level)) / 3)) / 500);
+    
+      return Math.floor(((level ** 3) * (160 - level)) / 100);
+
+    case 'fluctuating':
+      if (level < 15) return Math.floor((level ** 3) * ((Math.floor((level + 1) / 3) + 24) / 50));
+      if (level < 36) return Math.floor((level ** 3) * ((level + 14) / 50));
+
+      return Math.floor((level ** 3) * ((Math.floor(level / 2) + 32) / 50));
+    default:
+      throw new Error(`Unsupported growth rate: ${growthRate}.`);
+  }
+}
+
+function calculateExperienceShareMultiplier(
+  generation: Generation,
+  expShareEnabled: boolean,
+  participated: boolean,
+  otherParticipantCount: number,
+  otherPokemonHoldingExperienceShare: number,
+  partySize: number,
+): number {
+  const participantCount = otherParticipantCount + 1;
+  const expShareCount = otherPokemonHoldingExperienceShare + (expShareEnabled ? 1 : 0);
+
+  if (generation === 1) {
+    if (!expShareEnabled) return participantCount;
+
+    if (participated) return 2 * participantCount;
+
+    return 2 * participantCount * partySize;
+  }
+  
+  if (generation <= 5) {
+    if (expShareCount === 0) return participantCount;
+
+    if (participated) return 2 * participantCount;
+      
+    return 2 * expShareCount;
+  }
+
+  if (participated) return 1;
+
+  if (expShareEnabled || generation >= 8 || generation === 'lgpe') return 2;
+
+  return 1;
+}
+function getInternationalTradeMultiplier(generation: Generation) {
+  if (generation < 4) return 1.5;
+  if (generation === 5) return 6963 / 4096;
+  
+  return 1.7;
+}
+
+function calculateExperienceGain(
+  generation: Generation,
+  baseExperience: number,
+  level: number,
+  opponentLevel: number,
+  expShareEnabled: boolean,
+  participated: boolean,
+  otherParticipantCount: number,
+  otherPokemonHoldingExperienceShare: number,
+  partySize: number,
+  isTrade: boolean,
+  isInternationalTrade: boolean,
+  hasLuckyEgg: boolean,
+  hasAffectionBoost: boolean,
+  isWild: boolean,
+  isPastEvolutionPoint: boolean,
+): number {
+  const useScaledExperienceFormula = generation === 5 || generation >= 7;
+
+  const wildMultiplier = generation <= 6 ? (isWild ? 1 : 1.5) : 1;
+  const luckyEggMultiplier = hasLuckyEgg ? 1.5 : 1;
+  const affectionMultiplier = hasAffectionBoost ? 1.2 : 1;
+  const expShareMultiplier = calculateExperienceShareMultiplier(
+    generation,
+    expShareEnabled,
+    participated,
+    otherParticipantCount,
+    otherPokemonHoldingExperienceShare,
+    partySize,
+  );
+  const tradeMultiplier = isInternationalTrade ? getInternationalTradeMultiplier(generation) : (isTrade ? 1.5 : 1);
+  const evolutionMultiplier = generation >= 6 && isPastEvolutionPoint ? 1.2 : 1;
+  
+  if (useScaledExperienceFormula) {
+    const multiplier1 = ((wildMultiplier * baseExperience * opponentLevel) / (5 * expShareMultiplier));
+    const multiplier2 = ((2 * opponentLevel + 10) / (opponentLevel + level + 10)) ** 2.5;
+
+    return Math.floor((multiplier1 * multiplier2 + 1) * tradeMultiplier * luckyEggMultiplier);
+  }
+
+  const numerator = wildMultiplier * tradeMultiplier * baseExperience * luckyEggMultiplier * opponentLevel * affectionMultiplier * evolutionMultiplier;
+
+  return Math.floor(numerator / (7 * expShareMultiplier));
+}
+
+function calculateExperienceGainedFromEvent(event: ExperienceEvent, generation: Generation, currentExperience: number, growthRate: GrowthRate, level: number) {
+  switch (event.type) {
+    case 'manual':
+      return event.value;
+
+    case 'rareCandy':
+      if (level === 100) return 0;
+
+      return calculateExperienceRequiredForLevel(level + 1, growthRate) - currentExperience;
+    case 'species':
+      return calculateExperienceGain(
+        generation,
+        event.baseExperience,
+        level,
+        event.level,
+        event.expShareEnabled,
+        event.participated,
+        event.otherParticipantCount,
+        event.otherPokemonHoldingExperienceShare,
+        event.partySize,
+        event.isTrade,
+        event.isInternationalTrade,
+        event.hasLuckyEgg,
+        event.hasAffectionBoost,
+        event.isWild,
+        event.isPastEvolutionPoint,
+      );
+
+    default:
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      throw new Error(`Unsupported experience event: ${(event as any).type}.`);
+  }
+}
+
+export type ExperienceEventWithMetadata = ExperienceEvent & {
+  experienceGained: number;
+  isLevelUp: boolean;
+  levelAfterExperience: number;
+}
+
+export function buildExperienceRoute(generation: Generation, initialLevel: number, growthRate: GrowthRate, events: ExperienceEvent[]): ExperienceEventWithMetadata[] {
+  const startingExperience = calculateExperienceRequiredForLevel(initialLevel, growthRate);
+
+  const [updatedEvents] = events.reduce<[ExperienceEvent[], number, number]>(([eventAcc, level, expTotal], event) => {
+    if (level >= 100) {
+      return [
+        [
+          ...eventAcc,
+          {
+            ...event,
+            experienceGained: 0,
+            isLevelUp: false,
+            levelAfterExperience: 100,
+          },
+        ],
+        level,
+        expTotal,
+      ];
+    }
+
+    const experienceForNextLevel = calculateExperienceRequiredForLevel(level + 1, growthRate);
+    const experienceGained = calculateExperienceGainedFromEvent(event, generation, expTotal, growthRate, level);
+    const isLevelUp = expTotal + experienceGained >= experienceForNextLevel;
+
+    let levelAfterExperience = level;
+
+    while (calculateExperienceRequiredForLevel(levelAfterExperience + 1, growthRate) <= expTotal + experienceGained) {
+      levelAfterExperience += 1;
+    }
+    
+    return [
+      [...eventAcc, {
+        ...event,
+        experienceGained,
+        isLevelUp,
+        levelAfterExperience,
+      }],
+      levelAfterExperience,
+      expTotal + experienceGained,
+    ];
+  }, [[], initialLevel, startingExperience]);
+
+  return updatedEvents as ExperienceEventWithMetadata[];
 }
