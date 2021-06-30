@@ -20,6 +20,8 @@ const GROWTH_RATE_NAMES: Record<GrowthRate, string> = {
   fluctuating: 'Fluctuating',
 };
 
+const BLANK_EV_SET = [0, 0, 0, 0, 0, 0];
+
 interface PokemonSpeciesData {
   name: string;
   url: string;
@@ -53,6 +55,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
                   </div>
                 )}
                 position="bottom"
+                className="tooltip"
                 distance={8}
                 duration={0}
                 arrow
@@ -63,6 +66,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
             {event.hasLuckyEgg && (
               <Tooltip
                 title="Affected by Lucky Egg"
+                className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
@@ -74,6 +78,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
             {event.hasAffectionBoost && (
               <Tooltip
                 title="Affected by Affection Exp. boost (>= 2)"
+                className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
@@ -85,6 +90,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
             {event.isTrade && (
               <Tooltip
                 title="Affected by domestic trade Exp. boost"
+                className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
@@ -96,6 +102,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
             {event.isInternationalTrade && (
               <Tooltip
                 title="Affected by international trade Exp. boost"
+                className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
@@ -107,6 +114,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
             {!event.isWild && (
               <Tooltip
                 title="Opponent is owned by a trainer"
+                className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
@@ -118,6 +126,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
             {event.isInternationalTrade && (
               <Tooltip
                 title="Affected by international trade Exp. boost"
+                className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
@@ -130,6 +139,10 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
           </>
         )}
       </ExperienceEventText>
+      <ExperienceEventEVs>
+        <ExperienceEVsLabel>EVs</ExperienceEVsLabel>
+        <div>{(event.evs ?? BLANK_EV_SET).join('/')}</div>
+      </ExperienceEventEVs>
       <Button theme="error" onClick={onRemove}>&times;</Button>
     </ExperienceEventContainer>
     {event.isLevelUp && (
@@ -145,6 +158,8 @@ const ExperienceRoute: NextPage = () => {
   const [generation, setGeneration] = useState(4);
   const [manualNameValue, setManualNameValue] = useState('');
   const [manualRewardValue, setManualRewardValue] = useState(0);
+  const [speciesNameValue, setSpeciesNameValue] = useState('');
+  const [speciesBaseExperienceValue, setSpeciesBaseExperienceValue] = useState(0);
   const [speciesLevelValue, setSpeciesLevelValue] = useState(5);
   const [expShareEnabledValue, setExpShareEnabledValue] = useState(false);
   const [didParticipateValue, setDidParticipateValue] = useState(true);
@@ -156,8 +171,18 @@ const ExperienceRoute: NextPage = () => {
   const [hasAffectionBoostValue, setHasAffectionBoostValue] = useState(false);
   const [isWildValue, setIsWildValue] = useState(false);
   const [isPastEvolutionPointValue, setIsPastEvolutionPointValue] = useState(false);
-
-  const [selectedSpeciesDataURL, setSelectedSpeciesDataURL] = useState<string | null>(null);
+  const [hpEVValue, setHpEVValue] = useState(0);
+  const [attackEVValue, setAttackEVValue] = useState(0);
+  const [defenseEVValue, setDefenseEVValue] = useState(0);
+  const [spAttackEVValue, setSpAttackEVValue] = useState(0);
+  const [spDefenseEVValue, setSpDefenseEVValue] = useState(0);
+  const [speedEVValue, setSpeedEVValue] = useState(0);
+  const [manualHpEVValue, setManualHpEVValue] = useState(0);
+  const [manualAttackEVValue, setManualAttackEVValue] = useState(0);
+  const [manualDefenseEVValue, setManualDefenseEVValue] = useState(0);
+  const [manualSpAttackEVValue, setManualSpAttackEVValue] = useState(0);
+  const [manualSpDefenseEVValue, setManualSpDefenseEVValue] = useState(0);
+  const [manualSpeedEVValue, setManualSpeedEVValue] = useState(0);
 
   const [pokemonSpeciesList, setPokemonSpeciesList] = useState<PokemonSpeciesData[]>([]);
 
@@ -169,8 +194,20 @@ const ExperienceRoute: NextPage = () => {
     setSpeciesLevelValue(Number(event.target.value));
   }, []);
   
-  const handleSetSelectedSpeciesDataURL = useCallback(event => {
-    setSelectedSpeciesDataURL(event.target.value);
+  const handleSetSelectedSpecies = useCallback(async value => {
+    if (!value) return;
+
+    const speciesDataRequest = await fetch(value);
+    const speciesData = await speciesDataRequest.json();
+
+    setSpeciesNameValue(speciesData.name[0].toUpperCase() + speciesData.name.substr(1));
+    setSpeciesBaseExperienceValue(speciesData.base_experience);
+    setHpEVValue(speciesData.stats[0].effort);
+    setAttackEVValue(speciesData.stats[1].effort);
+    setDefenseEVValue(speciesData.stats[2].effort);
+    setSpAttackEVValue(speciesData.stats[3].effort);
+    setSpDefenseEVValue(speciesData.stats[4].effort);
+    setSpeedEVValue(speciesData.stats[5].effort);
   }, []);
 
   const handleResetValues = useCallback(() => {
@@ -186,22 +223,26 @@ const ExperienceRoute: NextPage = () => {
   }, [dispatch]);
 
   const handleAddManualExperienceEvent = useCallback(() => {
-    dispatch(addManualExperienceEvent(manualNameValue, manualRewardValue));
-  }, [dispatch, manualNameValue, manualRewardValue]);
+    dispatch(addManualExperienceEvent(
+      manualNameValue,
+      manualRewardValue,
+      manualHpEVValue,
+      manualAttackEVValue,
+      manualDefenseEVValue,
+      manualSpAttackEVValue,
+      manualSpDefenseEVValue,
+      manualSpeedEVValue,
+    ));
+  }, [dispatch, manualNameValue, manualRewardValue, manualHpEVValue, manualAttackEVValue, manualDefenseEVValue, manualSpAttackEVValue, manualSpDefenseEVValue, manualSpeedEVValue]);
 
   const handleAddRareCandyExperienceEvent = useCallback(() => {
     dispatch(addRareCandyExperienceEvent());
   }, [dispatch]);
 
   const handleAddSpeciesExperienceEvent = useCallback(async () => {
-    if (!selectedSpeciesDataURL) return;
-
-    const speciesDataRequest = await fetch(selectedSpeciesDataURL);
-    const speciesData = await speciesDataRequest.json();
-
     dispatch(addSpeciesExperienceEvent(
-      speciesData.name,
-      speciesData.base_experience,
+      speciesNameValue,
+      speciesBaseExperienceValue,
       speciesLevelValue,
       expShareEnabledValue,
       didParticipateValue,
@@ -214,8 +255,14 @@ const ExperienceRoute: NextPage = () => {
       hasAffectionBoostValue,
       isWildValue,
       isPastEvolutionPointValue,
+      hpEVValue,
+      attackEVValue,
+      defenseEVValue,
+      spAttackEVValue,
+      spDefenseEVValue,
+      speedEVValue,
     ));
-  }, [dispatch, speciesLevelValue, selectedSpeciesDataURL, expShareEnabledValue, didParticipateValue, otherParticipantCountValue, otherPokemonHoldingExperienceShareValue, partySizeValue, tradeExperienceType, hasLuckyEggValue, hasAffectionBoostValue, isWildValue, isPastEvolutionPointValue]);
+  }, [dispatch, speciesNameValue, speciesBaseExperienceValue, speciesLevelValue, expShareEnabledValue, didParticipateValue, otherParticipantCountValue, otherPokemonHoldingExperienceShareValue, partySizeValue, tradeExperienceType, hasLuckyEggValue, hasAffectionBoostValue, isWildValue, isPastEvolutionPointValue, hpEVValue, attackEVValue, defenseEVValue, spAttackEVValue, spDefenseEVValue, speedEVValue]);
 
   const handleRemoveExperienceEvent = useCallback(id => {
     dispatch(removeExperienceEvent(id));
@@ -290,14 +337,18 @@ const ExperienceRoute: NextPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=10000');
-      const { results } = await response.json();
+      const speciesList = (await response.json()).results.map((result: { name: string }) => ({
+        ...result,
+        name: result.name[0].toUpperCase() + result.name.substr(1),
+      }));
 
-      setPokemonSpeciesList(results);
-      setSelectedSpeciesDataURL(results[0]?.url);
+      setPokemonSpeciesList(speciesList);
+
+      handleSetSelectedSpecies(speciesList[0].url);
     };
 
     fetchData();
-  }, []);
+  }, [handleSetSelectedSpecies]);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: handleImport,
@@ -308,7 +359,7 @@ const ExperienceRoute: NextPage = () => {
   const experienceRoute = useMemo(() => (
     buildExperienceRoute(generation, state.initialLevel, state.growthRate, state.experienceEvents)
   ), [state, generation]);
-
+  
   return (
     <Container>
       <LeftColumn>
@@ -348,16 +399,31 @@ const ExperienceRoute: NextPage = () => {
           </InputRow>
         </InputSection>
 
-        <InputSubheader>Experience Events</InputSubheader>
+        <ExperienceEventSubheader>
+          Experience Events
+          <div>
+            <Button onClick={handleAddSpeciesExperienceEvent}>Add</Button>
+            <Button onClick={handleAddRareCandyExperienceEvent}>Add Rare Candy</Button>
+          </div>
+        </ExperienceEventSubheader>
         <ExperienceEventActions>
           <InputSection>
             <InputRow>
               <label htmlFor="speciesSelect">Species</label>
-              <select id="speciesSelect" onChange={handleSetSelectedSpeciesDataURL}>
+              <select id="speciesSelect" onChange={event => handleSetSelectedSpecies(event.target.value)}>
                 {pokemonSpeciesList.map(({ name, url }) => (
                   <option key={name} value={url}>{name}</option>
                 ))}
               </select>
+            </InputRow>
+            <InputRow>
+              <label htmlFor="speciesLabel">Label</label>
+              <input id="speciesLabel" value={speciesNameValue} onChange={event => setSpeciesNameValue(event.target.value)} />
+              <HelpText>You can set the label to anything, but it&apos;s best to pick a label that makes it clear how you got the experience.</HelpText>
+            </InputRow>
+            <InputRow>
+              <label htmlFor="speciesBaseExperience">Base Experience</label>
+              <input id="speciesBaseExperience" type="number" value={speciesBaseExperienceValue} onChange={event => setSpeciesBaseExperienceValue(Number(event.target.value))} />
             </InputRow>
             <InputRow>
               <label htmlFor="speciesLevel">Level</label>
@@ -423,23 +489,81 @@ const ExperienceRoute: NextPage = () => {
                 <HelpText>Is this Pokémon past the level where it would normally evolve, but has not</HelpText>
               </InputRow>
             )}
-            <Button onClick={handleAddSpeciesExperienceEvent}>Add</Button>
+            <EVLabel>Effort Values</EVLabel>
+            <InputRow>
+              <EVGrid>
+                <label htmlFor="speciesHPEV">HP</label>
+                <label htmlFor="speciesAttackEV">Atk.</label>
+                <label htmlFor="speciesDefenseEV">Def.</label>
+                <label htmlFor="speciesSpAttackEV">Sp. Atk.</label>
+                <label htmlFor="speciesSpDefenseEV">Sp. Def.</label>
+                <label htmlFor="speciesSpeedEV">Spe.</label>
+                <div>
+                  <input id="speciesHPEV" type="number" value={hpEVValue} onChange={event => setHpEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="speciesAttackEV" type="number" value={attackEVValue} onChange={event => setAttackEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="speciesDefenseEV" type="number" value={defenseEVValue} onChange={event => setDefenseEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="speciesSpAttackEV" type="number" value={spAttackEVValue} onChange={event => setSpAttackEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="speciesSpDefenseEV" type="number" value={spDefenseEVValue} onChange={event => setSpDefenseEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="speciesSpeedEV" type="number" value={speedEVValue} onChange={event => setSpeedEVValue(Number(event.target.value))} />
+                </div>
+              </EVGrid>
+            </InputRow>
           </InputSection>
-          <ActionInputSubheader>Manual Experience</ActionInputSubheader>
-          <ExperienceActionInputRow>
+          <ActionInputSubheader>
+            Manual Experience
             <div>
+              <Button onClick={handleAddManualExperienceEvent}>Add</Button>
+            </div>
+          </ActionInputSubheader>
+          <InputSection>
+            <InputRow>
               <label htmlFor="manualName">Source Name</label>
               <input id="manualName" value={manualNameValue} onChange={event => setManualNameValue(event.target.value)} />
-            </div>
-            <div>
+            </InputRow>
+            <InputRow>
               <label htmlFor="manualReward">Exp. Reward</label>
               <input id="manualReward" type="number" value={manualRewardValue} onChange={event => setManualRewardValue(Number(event.target.value))} />
-            </div>
-            <Button onClick={handleAddManualExperienceEvent}>Add</Button>
-          </ExperienceActionInputRow>
-          <ExperienceActionInputRow>
-            <Button onClick={handleAddRareCandyExperienceEvent}>Add Rare Candy</Button>
-          </ExperienceActionInputRow>
+            </InputRow>
+            <EVLabel>Effort Values</EVLabel>
+            <InputRow>
+              <EVGrid>
+                <label htmlFor="manualHPEv">HP</label>
+                <label htmlFor="manualAttackEV">Atk.</label>
+                <label htmlFor="manualDefenseEV">Def.</label>
+                <label htmlFor="manualSpAttackEV">Sp. Atk.</label>
+                <label htmlFor="manualSpDefenseEV">Sp. Def.</label>
+                <label htmlFor="manualSpeedEV">Spe.</label>
+                <div>
+                  <input id="manualHPEV" type="number" value={manualHpEVValue} onChange={event => setManualHpEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="manualAttackEV" type="number" value={manualAttackEVValue} onChange={event => setManualAttackEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="manualDefenseEV" type="number" value={manualDefenseEVValue} onChange={event => setManualDefenseEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="manualSpAttackEV" type="number" value={manualSpAttackEVValue} onChange={event => setManualSpAttackEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="manualSpDefenseEV" type="number" value={manualSpDefenseEVValue} onChange={event => setManualSpDefenseEVValue(Number(event.target.value))} />
+                </div>
+                <div>
+                  <input id="manualSpeedEV" type="number" value={manualSpeedEVValue} onChange={event => setManualSpeedEVValue(Number(event.target.value))} />
+                </div>
+              </EVGrid>
+            </InputRow>
+          </InputSection>
         </ExperienceEventActions>
       </LeftColumn>
       <div {...getRootProps()} tabIndex={-1}>
@@ -500,6 +624,12 @@ const LeftColumn = styled.div`
   overflow-y: hidden;
 `;
 
+const ExperienceEventSubheader = styled(InputSubheader)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const ExperienceEventList = styled.div`
   display: flex;
   min-height: 0;
@@ -529,6 +659,15 @@ const ExperienceEventText = styled.div`
   padding: 0.5rem;
   flex-grow: 1;
   align-self: stretch;
+
+  & .tooltip {
+    position: relative;
+  }
+
+  & .tooltip img {
+    position: relative;
+    top: 2px;
+  }
 `;
 
 const LevelUpRow = styled.div`
@@ -591,9 +730,13 @@ const ExperienceActionInputRow = styled(InputRow)`
   }
 `;
 
-const ActionInputSubheader = styled.div`
+const ActionInputSubheader = styled.h3`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-weight: 700;
   border-top: 1px solid #ccc;
+  font-size: 1.125rem;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
   border-bottom: none;
@@ -624,4 +767,55 @@ const ImportInstructions = styled.div`
   color: #666;
   font-style: italic;
   margin-top: 1rem;
+`;
+
+const EVLabel = styled.h3`
+  grid-column: span 2;
+
+  margin: 0 0 0.25rem 0;
+  padding: 0;
+  font-weight: 700;
+  font-size: 1rem;
+`;
+
+const EVGrid = styled.div`
+  display: grid;
+  width: 100%;
+  grid-column: span 2;
+  grid-template-columns: repeat(6, 1fr);
+
+  & > label {
+    justify-content: flex-start;
+    padding-bottom: 0;
+  }
+
+  & > div,
+  & > label {
+    padding: 0.125rem 0.5rem;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  & > div > input {
+    width: 100%;
+    margin: 0;
+  }
+`;
+
+const ExperienceEVsLabel = styled.div`
+  color: #666;
+  font-weight: 700;
+  font-size: 0.825rem;
+`;
+
+const ExperienceEventEVs = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  padding: 0 1rem;
+
+  & > div {
+    font-size: 0.825rem;
+  }
 `;

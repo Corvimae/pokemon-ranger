@@ -319,12 +319,24 @@ interface SpeciesExperienceEvent extends BaseExperienceEvent {
   hasAffectionBoost: boolean;
   isWild: boolean;
   isPastEvolutionPoint: boolean;
+  hpEVValue: number;
+  attackEVValue: number;
+  defenseEVValue: number;
+  spAttackEVValue: number;
+  spDefenseEVValue: number;
+  speedEVValue: number;
 }
 
 interface ManualExperienceEvent extends BaseExperienceEvent {
   type: 'manual';
   name: string;
   value: number;
+  hpEVValue: number;
+  attackEVValue: number;
+  defenseEVValue: number;
+  spAttackEVValue: number;
+  spDefenseEVValue: number;
+  speedEVValue: number;
 }
 
 export type ExperienceEvent = RareCandyExperienceEvent | SpeciesExperienceEvent | ManualExperienceEvent;
@@ -486,16 +498,32 @@ function calculateExperienceGainedFromEvent(event: ExperienceEvent, generation: 
   }
 }
 
+type EVSet = [number, number, number, number, number, number];
+
 export type ExperienceEventWithMetadata = ExperienceEvent & {
   experienceGained: number;
   isLevelUp: boolean;
   levelAfterExperience: number;
+  evs: EVSet;
 }
 
 export function buildExperienceRoute(generation: Generation, initialLevel: number, growthRate: GrowthRate, events: ExperienceEvent[]): ExperienceEventWithMetadata[] {
   const startingExperience = calculateExperienceRequiredForLevel(initialLevel, growthRate);
 
-  const [updatedEvents] = events.reduce<[ExperienceEvent[], number, number]>(([eventAcc, level, expTotal], event) => {
+  const [updatedEvents] = events.reduce<[ExperienceEvent[], number, number, EVSet]>(([eventAcc, level, expTotal, evTotal], event) => {
+    let updatedEVs = evTotal;
+    
+    if (event.type === 'species' || event.type === 'manual') {
+      updatedEVs = [
+        evTotal[0] + event.hpEVValue,
+        evTotal[1] + event.attackEVValue,
+        evTotal[2] + event.defenseEVValue,
+        evTotal[3] + event.spAttackEVValue,
+        evTotal[4] + event.spDefenseEVValue,
+        evTotal[5] + event.speedEVValue,
+      ];
+    }
+   
     if (level >= 100) {
       return [
         [
@@ -505,10 +533,12 @@ export function buildExperienceRoute(generation: Generation, initialLevel: numbe
             experienceGained: 0,
             isLevelUp: false,
             levelAfterExperience: 100,
+            evs: updatedEVs,
           },
         ],
         level,
         expTotal,
+        updatedEVs,
       ];
     }
 
@@ -528,11 +558,13 @@ export function buildExperienceRoute(generation: Generation, initialLevel: numbe
         experienceGained,
         isLevelUp,
         levelAfterExperience,
+        evs: updatedEVs,
       }],
       levelAfterExperience,
       expTotal + experienceGained,
+      updatedEVs,
     ];
-  }, [[], initialLevel, startingExperience]);
+  }, [[], initialLevel, startingExperience, [0, 0, 0, 0, 0, 0]]);
 
   return updatedEvents as ExperienceEventWithMetadata[];
 }

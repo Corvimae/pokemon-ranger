@@ -53,6 +53,12 @@ type AddSpeciesExperienceEventAction = {
     hasAffectionBoost: boolean;
     isWild: boolean;
     isPastEvolutionPoint: boolean;
+    hpEVValue: number;
+    attackEVValue: number;
+    defenseEVValue: number;
+    spAttackEVValue: number;
+    spDefenseEVValue: number;
+    speedEVValue: number;
   };
 };
 
@@ -61,6 +67,12 @@ type AddManualExperienceEventAction = {
   payload: {
     name: string;
     value: number;
+    hpEVValue: number;
+    attackEVValue: number;
+    defenseEVValue: number;
+    spAttackEVValue: number;
+    spDefenseEVValue: number;
+    speedEVValue: number;
   };
 };
 

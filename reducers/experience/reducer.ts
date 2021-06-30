@@ -52,6 +52,12 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
           hasAffectionBoost: action.payload.hasAffectionBoost,
           isWild: action.payload.isWild,
           isPastEvolutionPoint: action.payload.isPastEvolutionPoint,
+          hpEVValue: action.payload.hpEVValue,
+          attackEVValue: action.payload.attackEVValue,
+          defenseEVValue: action.payload.defenseEVValue,
+          spAttackEVValue: action.payload.spAttackEVValue,
+          spDefenseEVValue: action.payload.spDefenseEVValue,
+          speedEVValue: action.payload.speedEVValue,
         }],
       };
 
@@ -63,6 +69,12 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
           type: 'manual',
           name: action.payload.name,
           value: action.payload.value,
+          hpEVValue: action.payload.hpEVValue,
+          attackEVValue: action.payload.attackEVValue,
+          defenseEVValue: action.payload.defenseEVValue,
+          spAttackEVValue: action.payload.spAttackEVValue,
+          spDefenseEVValue: action.payload.spDefenseEVValue,
+          speedEVValue: action.payload.speedEVValue,
         }],
       };
 
@@ -140,6 +152,12 @@ export function addSpeciesExperienceEvent(
   hasAffectionBoost: boolean,
   isWild: boolean,
   isPastEvolutionPoint: boolean,
+  hpEVValue: number,
+  attackEVValue: number,
+  defenseEVValue: number,
+  spAttackEVValue: number,
+  spDefenseEVValue: number,
+  speedEVValue: number,
 ): ExperienceReducerAction {
   return {
     type: ADD_SPECIES_EXPERIENCE_EVENT,
@@ -158,16 +176,37 @@ export function addSpeciesExperienceEvent(
       hasAffectionBoost,
       isWild,
       isPastEvolutionPoint,
+      hpEVValue,
+      attackEVValue,
+      defenseEVValue,
+      spAttackEVValue,
+      spDefenseEVValue,
+      speedEVValue,
     },
   };
 }
 
-export function addManualExperienceEvent(name: string, value: number): ExperienceReducerAction {
+export function addManualExperienceEvent(
+  name: string,
+  value: number,
+  hpEVValue: number,
+  attackEVValue: number,
+  defenseEVValue: number,
+  spAttackEVValue: number,
+  spDefenseEVValue: number,
+  speedEVValue: number,
+): ExperienceReducerAction {
   return {
     type: ADD_MANUAL_EXPERIENCE_EVENT,
     payload: {
       name,
       value,
+      hpEVValue,
+      attackEVValue,
+      defenseEVValue,
+      spAttackEVValue,
+      spDefenseEVValue,
+      speedEVValue,
     },
   };
 }
