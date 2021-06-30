@@ -155,7 +155,7 @@ const ExperienceRoute: NextPage = () => {
   const [state, dispatch] = useExperienceReducer();
   const [importError, setImportError] = useState<string | null>(null);
 
-  const [generation, setGeneration] = useState(4);
+  const [generation, setGeneration] = useState<Generation>(4);
   const [manualNameValue, setManualNameValue] = useState('');
   const [manualRewardValue, setManualRewardValue] = useState(0);
   const [speciesNameValue, setSpeciesNameValue] = useState('');
@@ -282,7 +282,10 @@ const ExperienceRoute: NextPage = () => {
   const handleExport = useCallback(() => {
     const a = document.createElement('a');
 
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], {
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({
+      ...state,
+      generation,
+    }, null, 2)], {
       type: 'text/plain',
     }));
 
@@ -293,7 +296,7 @@ const ExperienceRoute: NextPage = () => {
     a.click();
 
     document.body.removeChild(a);
-  }, [state]);
+  }, [state, generation]);
 
   const handleImport = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 1) {
@@ -327,8 +330,15 @@ const ExperienceRoute: NextPage = () => {
     };
 
     reader.onload = () => {
-      dispatch(importExperienceRoute(JSON.parse(reader.result?.toString() ?? '')));
-      setImportError(null);
+      try {
+        const importedJSON = JSON.parse(reader.result?.toString() ?? '');
+
+        dispatch(importExperienceRoute(importedJSON));
+        setGeneration(importedJSON.generation);
+        setImportError(null);
+      } catch (error) {
+        setImportError(`The experience route could not be read: ${error}.`);
+      }
     };
 
     reader.readAsBinaryString(acceptedFile);
@@ -402,8 +412,8 @@ const ExperienceRoute: NextPage = () => {
         <ExperienceEventSubheader>
           Experience Events
           <div>
-            <Button onClick={handleAddSpeciesExperienceEvent}>Add</Button>
             <Button onClick={handleAddRareCandyExperienceEvent}>Add Rare Candy</Button>
+            <Button onClick={handleAddSpeciesExperienceEvent}>Add</Button>
           </div>
         </ExperienceEventSubheader>
         <ExperienceEventActions>
@@ -686,47 +696,6 @@ const ExperienceEventActions = styled.div`
 
   & > div + div {
     margin-top: 0.5rem;
-  }
-`;
-
-const ExperienceActionInputRow = styled(InputRow)`
-  display: flex;
-
-  & + &,
-  ${InputSection} + & {
-    border-top: 1px solid #ccc;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-bottom: none;
-  }
-
-  & > div {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    align-self: stretch;
-    flex-grow: 1;
-  }
-
-  & > div + div {
-    margin-left: 0.5rem;
-  }
-
-
-  & label {
-    align-self: flex-start;
-  }
-
-  & label,
-  & input,
-  & select {
-    margin-bottom: 0;
-  }
-
-  & > div + button {
-    margin-left: 0.5rem;
-    height: 2rem;
-    align-self: flex-end;
   }
 `;
 
