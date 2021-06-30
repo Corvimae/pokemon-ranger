@@ -4,10 +4,11 @@ import { NextPage } from 'next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useDropzone } from 'react-dropzone';
 import { Tooltip } from 'react-tippy';
 import { Header, InputSection, InputRow, InputSubheader, Checkbox, HelpText } from '../../components/Layout';
 import { Button } from '../../components/Button';
-import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, useExperienceReducer } from '../../reducers/experience/reducer';
+import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, useExperienceReducer } from '../../reducers/experience/reducer';
 import { buildExperienceRoute, ExperienceEventWithMetadata, GrowthRate } from '../../utils/calculations';
 
 const GROWTH_RATE_NAMES: Record<GrowthRate, string> = {
@@ -139,6 +140,8 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
 
 const ExperienceRoute: NextPage = () => {
   const [state, dispatch] = useExperienceReducer();
+  const [importError, setImportError] = useState<string | null>(null);
+
   const [generation, setGeneration] = useState(4);
   const [manualNameValue, setManualNameValue] = useState('');
   const [manualRewardValue, setManualRewardValue] = useState(0);
@@ -228,7 +231,62 @@ const ExperienceRoute: NextPage = () => {
 
     dispatch(reorderExperienceEvents(updatedList));
   }, [state.experienceEvents, dispatch]);
-  
+
+  const handleExport = useCallback(() => {
+    const a = document.createElement('a');
+
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], {
+      type: 'text/plain',
+    }));
+
+    a.setAttribute('download', 'experience-route.json');
+
+    document.body.appendChild(a);
+    
+    a.click();
+
+    document.body.removeChild(a);
+  }, [state]);
+
+  const handleImport = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 1) {
+      setImportError('Only one route file may be selected at a time.');
+
+      return;
+    }
+
+    if (acceptedFiles.length === 0) {
+      setImportError('An unknown issue occurred trying to load the file.');
+
+      return;
+    }
+
+    const [acceptedFile] = acceptedFiles;
+
+    if (!acceptedFile.name.endsWith('.json')) {
+      setImportError('Experience route files must end in .json');
+
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onabort = () => {
+      setImportError('The file read process was aborted.');
+    };
+
+    reader.onerror = () => {
+      setImportError('An unknown issue occurred trying to load the file. The file may be corrupted.');
+    };
+
+    reader.onload = () => {
+      dispatch(importExperienceRoute(JSON.parse(reader.result?.toString() ?? '')));
+      setImportError(null);
+    };
+
+    reader.readAsBinaryString(acceptedFile);
+  }, [dispatch]);
+    
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=10000');
@@ -240,6 +298,12 @@ const ExperienceRoute: NextPage = () => {
 
     fetchData();
   }, []);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: handleImport,
+    noClick: true,
+    multiple: false,
+  });
 
   const experienceRoute = useMemo(() => (
     buildExperienceRoute(generation, state.initialLevel, state.growthRate, state.experienceEvents)
@@ -378,8 +442,20 @@ const ExperienceRoute: NextPage = () => {
           </ExperienceActionInputRow>
         </ExperienceEventActions>
       </LeftColumn>
-      <div>
-        <Header>Experience Route</Header>
+      <div {...getRootProps()} tabIndex={-1}>
+        <input {...getInputProps()} />
+        <Header>
+          Experience Route
+          <div>
+            <Button onClick={handleExport}>Export</Button>
+          </div>
+        </Header>
+        {importError && <ImportError>{importError}</ImportError>}
+        {experienceRoute.length === 0 && (
+          <ImportInstructions>
+            Drag an exported experience route JSON file here to import it.
+          </ImportInstructions>
+        )}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="experienceEvents">
             {provided => (
@@ -536,4 +612,16 @@ const ExperienceEventIcon = styled.img`
 
 const Disclaimer = styled(HelpText)`
   grid-column: span 2;
+`;
+
+const ImportError = styled.div`
+  color: #900;
+  font-weight: 700;
+  margin-top: 1rem;
+`;
+
+const ImportInstructions = styled.div`
+  color: #666;
+  font-style: italic;
+  margin-top: 1rem;
 `;

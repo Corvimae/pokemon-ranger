@@ -443,9 +443,13 @@ function calculateExperienceGain(
     return Math.floor((multiplier1 * multiplier2 + 1) * tradeMultiplier * luckyEggMultiplier);
   }
 
-  const numerator = wildMultiplier * tradeMultiplier * baseExperience * luckyEggMultiplier * opponentLevel * affectionMultiplier * evolutionMultiplier;
-
-  return Math.floor(numerator / (7 * expShareMultiplier));
+  return [
+    wildMultiplier,
+    tradeMultiplier,
+    luckyEggMultiplier,
+    affectionMultiplier,
+    evolutionMultiplier,
+  ].reduce((acc, mult) => Math.floor(acc * mult), Math.floor((baseExperience * opponentLevel) / (7 * expShareMultiplier)));
 }
 
 function calculateExperienceGainedFromEvent(event: ExperienceEvent, generation: Generation, currentExperience: number, growthRate: GrowthRate, level: number) {

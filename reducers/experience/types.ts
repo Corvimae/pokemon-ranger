@@ -9,6 +9,7 @@ export const SET_EXPERIENCE_EVENT_REWARD = 'SET_EXPERIENCE_EVENT_REWARD';
 export const REMOVE_EXPERIENCE_EVENT = 'REMOVE_EXPERIENCE_EVENT';
 export const REORDER_EXPERIENCE_EVENTS = 'REORDER_EXPERIENCE_EVENTS';
 
+export const IMPORT_EXPERIENCE_ROUTE = 'IMPORT_EXPERIENCE_ROUTE';
 export const RESET_STATE = 'RESET_STATE';
 
 export interface ExperienceState {
@@ -85,6 +86,11 @@ type ReorderExperinceEventsAction = {
   };
 };
 
+type ImportExperienceRouteAction = {
+  type: typeof IMPORT_EXPERIENCE_ROUTE;
+  payload: ExperienceState;
+}
+
 type ResetStateAction = {
   type: typeof RESET_STATE;
 };
@@ -98,4 +104,5 @@ export type ExperienceReducerAction =
   SetExperienceEventRewardAction |
   RemoveExperienceEventAction |
   ReorderExperinceEventsAction |
+  ImportExperienceRouteAction |
   ResetStateAction;

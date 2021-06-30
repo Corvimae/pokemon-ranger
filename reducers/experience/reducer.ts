@@ -1,7 +1,7 @@
 import { Dispatch, useReducer } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ExperienceEvent, GrowthRate } from '../../utils/calculations';
-import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL } from './types';
+import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, IMPORT_EXPERIENCE_ROUTE, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL } from './types';
 
 const defaultState: ExperienceState = {
   initialLevel: 5,
@@ -92,6 +92,9 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
         experienceEvents: action.payload.events,
       };
       
+    case IMPORT_EXPERIENCE_ROUTE:
+      return action.payload;
+
     case RESET_STATE:
       return { ...defaultState };
 
@@ -187,6 +190,13 @@ export function reorderExperienceEvents(events: ExperienceEvent[]): ExperienceRe
   return {
     type: REORDER_EXPERIENCE_EVENTS,
     payload: { events },
+  };
+}
+
+export function importExperienceRoute(content: ExperienceState): ExperienceReducerAction {
+  return {
+    type: IMPORT_EXPERIENCE_ROUTE,
+    payload: content,
   };
 }
 
