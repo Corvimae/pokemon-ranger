@@ -10,6 +10,7 @@ import { Header, InputSection, InputRow, InputSubheader, Checkbox, HelpText } fr
 import { Button } from '../../components/Button';
 import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, useExperienceReducer } from '../../reducers/experience/reducer';
 import { buildExperienceRoute, ExperienceEventWithMetadata, GrowthRate } from '../../utils/calculations';
+import { Generation } from '../../utils/rangeTypes';
 
 const GROWTH_RATE_NAMES: Record<GrowthRate, string> = {
   slow: 'Slow',
