@@ -1,7 +1,7 @@
 import { Dispatch, useReducer } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ExperienceEvent, GrowthRate } from '../../utils/calculations';
-import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, IMPORT_EXPERIENCE_ROUTE, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL } from './types';
+import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, IMPORT_EXPERIENCE_ROUTE, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL, TOGGLE_EXPERIENCE_EVENT_ENABLED } from './types';
 
 const defaultState: ExperienceState = {
   initialLevel: 5,
@@ -29,6 +29,7 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
         experienceEvents: [...state.experienceEvents, {
           id: uuid(),
           type: 'rareCandy',
+          enabled: true,
         }],
       };
 
@@ -38,6 +39,7 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
         experienceEvents: [...state.experienceEvents, {
           id: uuid(),
           type: 'species',
+          enabled: true,
           name: action.payload.name,
           baseExperience: action.payload.baseExperience,
           level: action.payload.level,
@@ -67,6 +69,7 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
         experienceEvents: [...state.experienceEvents, {
           id: uuid(),
           type: 'manual',
+          enabled: true,
           name: action.payload.name,
           value: action.payload.value,
           hpEVValue: action.payload.hpEVValue,
@@ -103,9 +106,27 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
         ...state,
         experienceEvents: action.payload.events,
       };
+
+    case TOGGLE_EXPERIENCE_EVENT_ENABLED:
+      return {
+        ...state,
+        experienceEvents: state.experienceEvents.reduce((acc, event) => [
+          ...acc,
+          {
+            ...event,
+            enabled: action.payload.id === event.id ? action.payload.enabled : event.enabled,
+          },
+        ], [] as ExperienceEvent[]),
+      };
       
     case IMPORT_EXPERIENCE_ROUTE:
-      return action.payload;
+      return {
+        ...action.payload,
+        experienceEvents: action.payload.experienceEvents.map(event => ({
+          ...event,
+          enabled: event.enabled === undefined ? true : event.enabled,
+        })),
+      };
 
     case RESET_STATE:
       return { ...defaultState };
@@ -229,6 +250,16 @@ export function reorderExperienceEvents(events: ExperienceEvent[]): ExperienceRe
   return {
     type: REORDER_EXPERIENCE_EVENTS,
     payload: { events },
+  };
+}
+
+export function toggleExperienceEventEnabled(id: string, enabled: boolean): ExperienceReducerAction {
+  return {
+    type: TOGGLE_EXPERIENCE_EVENT_ENABLED,
+    payload: {
+      id,
+      enabled,
+    },
   };
 }
 

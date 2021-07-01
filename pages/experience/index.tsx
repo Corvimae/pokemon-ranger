@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faToggleOff, faToggleOn } from '@fortawesome/free-solid-svg-icons';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useDropzone } from 'react-dropzone';
 import { Tooltip } from 'react-tippy';
 import { Header, InputSection, InputRow, InputSubheader, Checkbox, HelpText } from '../../components/Layout';
-import { Button } from '../../components/Button';
-import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, useExperienceReducer } from '../../reducers/experience/reducer';
+import { Button, IconButton } from '../../components/Button';
+import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, toggleExperienceEventEnabled, useExperienceReducer } from '../../reducers/experience/reducer';
 import { buildExperienceRoute, ExperienceEventWithMetadata, GrowthRate } from '../../utils/calculations';
 import { Generation } from '../../utils/rangeTypes';
 
@@ -30,21 +30,30 @@ interface PokemonSpeciesData {
 
 interface ExperienceEventRowProps {
   event: ExperienceEventWithMetadata;
-  onRemove: () => void;
+  onRemove: (id: string) => void;
+  onToggleEnabled: (id: string, enabled: boolean) => void;
   innerRef: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   draggableProps: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   dragHandleProps: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event, draggableProps, dragHandleProps, onRemove }) => (
+const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event, draggableProps, dragHandleProps, onRemove, onToggleEnabled }) => (
   <>
-    <ExperienceEventContainer ref={innerRef} {...draggableProps}>
-      <div {...dragHandleProps}>
+    <ExperienceEventContainer ref={innerRef} enabled={event.enabled} {...draggableProps}>
+      <ExperienceEventDragHandleContainer {...dragHandleProps}>
         <FontAwesomeIcon icon={faBars} color="#CCC" />
-      </div>
+      </ExperienceEventDragHandleContainer>
+      <IconButton onClick={() => onToggleEnabled(event.id, !event.enabled)}>
+        <FontAwesomeIcon icon={event.enabled ? faToggleOn : faToggleOff} />
+      </IconButton>
       <ExperienceEventText>
         {event.type === 'rareCandy' ? '(Rare Candy)' : event.name}
-        <ExperienceGained>(+{event.experienceGained})</ExperienceGained>
+        {event.type === 'species' && (
+          <ExperienceEventLevel>Lv. {event.level}</ExperienceEventLevel>
+        )}
+        {event.enabled && (
+          <ExperienceGained>(+{event.experienceGained})</ExperienceGained>
+        )}
         {event.type === 'species' && (
           <>
             {(event.expShareEnabled || event.otherPokemonHoldingExperienceShare > 0) && (
@@ -140,11 +149,13 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
           </>
         )}
       </ExperienceEventText>
-      <ExperienceEventEVs>
-        <ExperienceEVsLabel>EVs</ExperienceEVsLabel>
-        <div>{(event.evs ?? BLANK_EV_SET).join('/')}</div>
-      </ExperienceEventEVs>
-      <Button theme="error" onClick={onRemove}>&times;</Button>
+      {event.enabled && (
+        <ExperienceEventEVs>
+          <ExperienceEVsLabel>EVs</ExperienceEVsLabel>
+          <div>{(event.evs ?? BLANK_EV_SET).join('/')}</div>
+        </ExperienceEventEVs>
+      )}
+      <Button theme="error" onClick={() => onRemove(event.id)}>&times;</Button>
     </ExperienceEventContainer>
     {event.isLevelUp && (
       <LevelUpRow>Level up! ({event.levelAfterExperience}) </LevelUpRow>
@@ -267,6 +278,10 @@ const ExperienceRoute: NextPage = () => {
 
   const handleRemoveExperienceEvent = useCallback(id => {
     dispatch(removeExperienceEvent(id));
+  }, [dispatch]);
+
+  const handleToggleExperienceEventEnabled = useCallback((id, enabled) => {
+    dispatch(toggleExperienceEventEnabled(id, enabled));
   }, [dispatch]);
 
   const handleDragEnd = useCallback(dragEvent => {
@@ -601,7 +616,8 @@ const ExperienceRoute: NextPage = () => {
                       <ExperienceEventRow
                         innerRef={draggableProvided.innerRef}
                         event={experienceEvent}
-                        onRemove={() => handleRemoveExperienceEvent(experienceEvent.id)}
+                        onRemove={handleRemoveExperienceEvent}
+                        onToggleEnabled={handleToggleExperienceEventEnabled}
                         draggableProps={draggableProvided.draggableProps}
                         dragHandleProps={draggableProvided.dragHandleProps}
                       />
@@ -651,11 +667,12 @@ const ExperienceEventList = styled.div`
   flex-grow: 1;
 `;
 
-const ExperienceEventContainer = styled.div`
+const ExperienceEventContainer = styled.div<{ enabled: boolean }>`
   display: flex;
   height: 3.25rem;
   align-items: center;
   padding: 0.5rem 0;
+  opacity: ${({ enabled }) => !enabled && 0.5};
   
   & + & {
     border-top: 1px solid #e0e0e0;
@@ -773,6 +790,10 @@ const EVGrid = styled.div`
   }
 `;
 
+const ExperienceEventDragHandleContainer = styled.div`
+  margin-right: 0.25rem;
+`;
+
 const ExperienceEVsLabel = styled.div`
   color: #666;
   font-weight: 700;
@@ -788,4 +809,12 @@ const ExperienceEventEVs = styled.div`
   & > div {
     font-size: 0.825rem;
   }
+`;
+
+const ExperienceEventLevel = styled.div`
+  font-size: 0.825rem;
+  color: #666;
+  font-weight: 700;
+  margin: 0 0.5rem;
+  align-self: flex-end;
 `;

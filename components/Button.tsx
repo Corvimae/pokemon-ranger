@@ -25,3 +25,14 @@ export const Button = styled.button`
     margin-left: 1rem;
   }
 `;
+
+export const IconButton = styled(Button)`
+  color: #333;
+  background-color: transparent;
+  
+  &:not(:disabled):hover,
+  &:not(:disabled):active {
+    background-color: transparent;
+    color: #000;
+  }
+`;

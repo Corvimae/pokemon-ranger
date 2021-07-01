@@ -8,6 +8,7 @@ export const ADD_MANUAL_EXPERIENCE_EVENT = 'ADD_MANUAL_EXPERIENCE_EVENT';
 export const SET_EXPERIENCE_EVENT_REWARD = 'SET_EXPERIENCE_EVENT_REWARD';
 export const REMOVE_EXPERIENCE_EVENT = 'REMOVE_EXPERIENCE_EVENT';
 export const REORDER_EXPERIENCE_EVENTS = 'REORDER_EXPERIENCE_EVENTS';
+export const TOGGLE_EXPERIENCE_EVENT_ENABLED = 'TOGGLE_EXPERIENCE_EVENT_ENABLED';
 
 export const IMPORT_EXPERIENCE_ROUTE = 'IMPORT_EXPERIENCE_ROUTE';
 export const RESET_STATE = 'RESET_STATE';
@@ -98,6 +99,14 @@ type ReorderExperinceEventsAction = {
   };
 };
 
+type ToggleExperienceEventEnabledAction = {
+  type: typeof TOGGLE_EXPERIENCE_EVENT_ENABLED;
+  payload: {
+    id: string;
+    enabled: boolean;
+  };
+};
+
 type ImportExperienceRouteAction = {
   type: typeof IMPORT_EXPERIENCE_ROUTE;
   payload: ExperienceState;
@@ -116,5 +125,6 @@ export type ExperienceReducerAction =
   SetExperienceEventRewardAction |
   RemoveExperienceEventAction |
   ReorderExperinceEventsAction |
+  ToggleExperienceEventEnabledAction |
   ImportExperienceRouteAction |
   ResetStateAction;

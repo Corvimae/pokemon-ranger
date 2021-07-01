@@ -297,6 +297,7 @@ export type GrowthRate = 'fast' | 'medium-fast' | 'medium-slow' | 'slow' | 'erra
 
 interface BaseExperienceEvent {
   id: string;
+  enabled: boolean;
 }
 
 interface RareCandyExperienceEvent extends BaseExperienceEvent {
@@ -511,6 +512,8 @@ export function buildExperienceRoute(generation: Generation, initialLevel: numbe
   const startingExperience = calculateExperienceRequiredForLevel(initialLevel, growthRate);
 
   const [updatedEvents] = events.reduce<[ExperienceEvent[], number, number, EVSet]>(([eventAcc, level, expTotal, evTotal], event) => {
+    if (!event.enabled) return [[...eventAcc, event], level, expTotal, evTotal];
+
     let updatedEVs = evTotal;
     
     if (event.type === 'species' || event.type === 'manual') {
