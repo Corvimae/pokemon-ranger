@@ -158,7 +158,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
         <RangeGrid>
           <RangeGridHeader>
             <div>IVs</div>
-            <div>Stat</div>
+            <div>{formatStatName(relevantStat)}</div>
             <div>{isAgainstThreshold ? 'Chance to Kill' : 'Damage'}</div>
           </RangeGridHeader>
           {Object.entries(rangeResults).map(([key, value], index) => (
