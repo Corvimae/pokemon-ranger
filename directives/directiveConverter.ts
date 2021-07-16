@@ -6,7 +6,8 @@ import h from 'hastscript';
 import visit from 'unist-util-visit';
 
 function childrenToText(node: Node): string {
-  if (node.value) return node.value as string ?? '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((node as any).value) return (node as any).value as string ?? '';
 
   return (node?.children as Node[])?.map(childrenToText).join('\n') ?? '';
 }
