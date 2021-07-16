@@ -180,7 +180,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
   });
 
   return (
-    <Container>
+    <Container ivHorizontalLayout={state.options.ivHorizontalLayout}>
       <MainContent>
         {content && !content?.error ? (
           <Guide showOptions={state.showOptions} ref={guideContentElement}>
@@ -188,7 +188,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
               <Button onClick={handleShowOptions}>Options</Button>
               <Button onClick={handleCloseRoute}>Close</Button>
             </RouteActions>
-            <RouteContent>
+            <RouteContent hideMedia={state.options.hideMedia}>
               {content.content}
             </RouteContent>
             {state.showOptions && <RouteOptionsModal />}
@@ -218,7 +218,11 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
           <FontAwesomeIcon icon={faChevronUp} />
         </ReturnToTopButton>
       </MainContent>
-      <Sidebar backgroundColor={state.options.ivBackgroundColor} fontFamily={state.options.ivFontFamily}>
+      <Sidebar
+        backgroundColor={state.options.ivBackgroundColor}
+        fontFamily={state.options.ivFontFamily}
+        ivHorizontalLayout={state.options.ivHorizontalLayout}
+      >
         <TrackerInputContainer>
           {Object.values(state.trackers).map(tracker => (
             <IVTracker key={tracker.name} tracker={tracker} />
@@ -242,11 +246,12 @@ export const getServerSideProps: GetServerSideProps = async context => ({
 
 export default RouteContext.connect(RouteView);
 
-const Container = styled.div`
+const Container = styled.div<{ ivHorizontalLayout: boolean }>`
   position: relative;
   display: grid;
   height: 100%;
-  grid-template-columns: 1fr minmax(28rem, max-content);
+  grid-template-columns: ${({ ivHorizontalLayout }) => !ivHorizontalLayout && '1fr minmax(28rem, max-content)'};
+  grid-template-rows: ${({ ivHorizontalLayout }) => ivHorizontalLayout && '1fr 20rem'};
   overflow: hidden;
 `;
 
@@ -263,9 +268,9 @@ const Guide = styled.div<{ showOptions: boolean }>`
   overflow-y: ${props => props.showOptions ? 'none' : 'auto'};
 `;
 
-const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; }>`
+const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; ivHorizontalLayout: boolean }>`
   display: flex;
-  flex-direction: column;
+  flex-direction: ${({ ivHorizontalLayout }) => ivHorizontalLayout ? 'row' : 'column'};
   padding: 0.5rem;
   font-family: ${props => props.fontFamily ?? undefined};
   background-color: ${props => props.backgroundColor ?? '#222'};
@@ -280,7 +285,7 @@ const TrackerInputContainer = styled.div`
   align-self: stretch;
 `;
 
-const RouteContent = styled.div`
+const RouteContent = styled.div<{ hideMedia: boolean }>`
   & > div {
     line-height: 1.52;
 
@@ -312,6 +317,11 @@ const RouteContent = styled.div`
 
     & ul + ul {
       margin-top: -1rem;
+    }
+
+    & img,
+    & video {
+      display: ${({ hideMedia }) => hideMedia && 'none'};
     }
   }
 `;

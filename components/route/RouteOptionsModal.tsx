@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { RouteContext, setOptionCompactIVs, setOptionIVBackgroundColor, setOptionIVFontFamily, setShowOptions } from '../../reducers/route/reducer';
+import { RouteContext, setOptionCompactIVs, setOptionHideMedia, setOptionIVBackgroundColor, setOptionIVFontFamily, setOptionIVHorizontalLayout, setShowOptions } from '../../reducers/route/reducer';
 import { OptionKeys } from '../../utils/options';
 import { dispatchAndPersist } from '../../utils/utils';
 import { Button } from '../Button';
@@ -17,6 +17,10 @@ export const RouteOptionsModal: React.FC = () => {
   const handleToggleCompactIVs = useCallback(() => {
     dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_COMPACT_IVS, !state.options.compactIVs, setOptionCompactIVs, dispatch);
   }, [dispatch, state.options.compactIVs]);
+  
+  const handleToggleHideMedia = useCallback(() => {
+    dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_HIDE_MEDIA, !state.options.hideMedia, setOptionHideMedia, dispatch);
+  }, [dispatch, state.options.hideMedia]);
 
   const handleSetIVBackgroundColor = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_IVS_BACKGROUND_COLOR, event.target.value, setOptionIVBackgroundColor, dispatch);
@@ -25,6 +29,10 @@ export const RouteOptionsModal: React.FC = () => {
   const handleSetIVFontFamily = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_IVS_FONT_FAMILY, event.target.value, setOptionIVFontFamily, dispatch);
   }, [dispatch]);
+
+  const handleToggleIVHorizontalLayout = useCallback(() => {
+    dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_IVS_HORIZONTAL_LAYOUT, !state.options.ivHorizontalLayout, setOptionIVHorizontalLayout, dispatch);
+  }, [dispatch, state.options.ivHorizontalLayout]);
 
   return (
     <Backdrop>
@@ -45,6 +53,12 @@ export const RouteOptionsModal: React.FC = () => {
             </InputRow>
 
             <InputRow>
+              <label htmlFor="compactIVs">Hide Media</label>
+              <Checkbox id="compactIVs" data-checked={state.options.hideMedia} onClick={handleToggleHideMedia} />
+              <HelpText>Hides images and videos.</HelpText>
+            </InputRow>
+
+            <InputRow>
               <label htmlFor="ivBackgroundColor">IV Background Color</label>
               <input id="ivBackgroundColor" value={state.options.ivBackgroundColor} onChange={handleSetIVBackgroundColor} />
               <HelpText>
@@ -60,6 +74,13 @@ export const RouteOptionsModal: React.FC = () => {
                 The name of the font family to use for the right-side column. The font must be installed on your system.
               </HelpText>
             </InputRow>
+
+            <InputRow>
+              <label htmlFor="compactIVs">IV Horizontal Layout</label>
+              <Checkbox id="compactIVs" data-checked={state.options.ivHorizontalLayout} onClick={handleToggleIVHorizontalLayout} />
+              <HelpText>Show the IV tracker in a horizontal layout at the bottom of the page.</HelpText>
+            </InputRow>
+
           </InputSection>
         </ModalBody>
       </Modal>

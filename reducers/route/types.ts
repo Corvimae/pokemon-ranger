@@ -27,8 +27,10 @@ export interface Tracker {
 
 export interface RouteOptionsState {
   compactIVs: boolean;
+  hideMedia: boolean;
   ivBackgroundColor: string;
   ivFontFamily: string | undefined;
+  ivHorizontalLayout: boolean;
 }
 
 export interface RouteState {
@@ -47,8 +49,10 @@ export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
 export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
 export const LOAD_OPTIONS = 'LOAD_OPTIONS';
 export const SET_OPTION_COMPACT_IVS = 'SET_OPTION_COMPACT_IVS';
+export const SET_OPTION_HIDE_MEDIA = 'SET_OPTION_HIDE_MEDIA';
 export const SET_OPTION_IV_BACKGROUND_COLOR = 'SET_OPTION_IV_BACKGROUND_COLOR';
 export const SET_OPTION_IV_FONT_FAMILY = 'SET_OPTION_IV_FONT_FAMILY';
+export const SET_OPTION_IV_HORIZONTAL_LAYOUT = 'SET_OPTION_IV_HORIZONTAL_LAYOUT';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
@@ -127,6 +131,13 @@ type SetOptionCompactIVsAction = {
   };
 }
 
+type SetOptionHideMediaAction = {
+  type: typeof SET_OPTION_HIDE_MEDIA;
+  payload: {
+    value: boolean;
+  };
+}
+
 type SetOptionIVBackgroundColorAction = {
   type: typeof SET_OPTION_IV_BACKGROUND_COLOR;
   payload: {
@@ -138,6 +149,13 @@ type SetOptionIVFontFamilyAction = {
   type: typeof SET_OPTION_IV_FONT_FAMILY;
   payload: {
     value: string;
+  };
+}
+
+type SetOptionIVHorizontalLayoutAction = {
+  type: typeof SET_OPTION_IV_HORIZONTAL_LAYOUT;
+  payload: {
+    value: boolean;
   };
 }
 
@@ -177,8 +195,10 @@ export type RouteAction =
   SetManualNeutralNatureAction |
   LoadOptionsAction |
   SetOptionCompactIVsAction |
+  SetOptionHideMediaAction |
   SetOptionIVBackgroundColorAction |
   SetOptionIVFontFamilyAction |
+  SetOptionIVHorizontalLayoutAction |
   TriggerEvolutionAction |
   ResetTrackerAction |
   SetStartingLevelAction |

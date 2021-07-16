@@ -3,19 +3,25 @@ import { loadOptions as loadOptionsAction } from '../reducers/route/reducer';
 import { RouteAction, RouteOptionsState } from '../reducers/route/types';
 
 const ROUTE_OPTIONS_COMPACT_IVS = 'ROUTE_OPTIONS_COMPACT_IVS';
+const ROUTE_OPTIONS_HIDE_MEDIA = 'ROUTE_OPTIONS_HIDE_MEDIA';
 const ROUTE_OPTIONS_IVS_BACKGROUND_COLOR = 'ROUTE_OPTIONS_IVS_BACKGROUND_COLOR';
 const ROUTE_OPTIONS_IVS_FONT_FAMILY = 'ROUTE_OPTIONS_IVS_FONT_FAMILY';
+const ROUTE_OPTIONS_IVS_HORIZONTAL_LAYOUT = 'ROUTE_OPTIONS_VERTICAL_LAYOUT';
 
 export const OptionKeys = {
   ROUTE_OPTIONS_COMPACT_IVS,
+  ROUTE_OPTIONS_HIDE_MEDIA,
   ROUTE_OPTIONS_IVS_BACKGROUND_COLOR,
   ROUTE_OPTIONS_IVS_FONT_FAMILY,
+  ROUTE_OPTIONS_IVS_HORIZONTAL_LAYOUT,
 };
 
 const ReducerKeys: Record<string, keyof RouteOptionsState> = {
   [ROUTE_OPTIONS_COMPACT_IVS]: 'compactIVs',
+  [ROUTE_OPTIONS_HIDE_MEDIA]: 'hideMedia',
   [ROUTE_OPTIONS_IVS_BACKGROUND_COLOR]: 'ivBackgroundColor',
   [ROUTE_OPTIONS_IVS_FONT_FAMILY]: 'ivFontFamily',
+  [ROUTE_OPTIONS_IVS_HORIZONTAL_LAYOUT]: 'ivHorizontalLayout',
 };
 
 export function loadOptions(dispatch: Dispatch<RouteAction>): void {
