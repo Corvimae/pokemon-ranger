@@ -1,29 +1,29 @@
 /* eslint-disable no-param-reassign */
 // eslint-disable-next-line import/no-unresolved
-import { Node as UNode } from 'unist';
+import { Node } from 'unist';
 import { Transformer } from 'unified/types/ts3.4/index';
 import h from 'hastscript';
 import visit from 'unist-util-visit';
 
-function childrenToText(node: UNode): string {
+function childrenToText(node: Node): string {
   if (node.value) return node.value as string ?? '';
 
-  return (node?.children as UNode[])?.map(childrenToText).join('\n') ?? '';
+  return (node?.children as Node[])?.map(childrenToText).join('\n') ?? '';
 }
 
 export function directiveConverter(): Transformer {
   return transform;
 
-  function transform(tree: UNode): void {
+  function transform(tree: Node): void {
     visit(tree, ['textDirective', 'leafDirective', 'containerDirective'], onDirective);
   }
 
-  function onDirective(node: UNode) {
+  function onDirective(node: Node) {
     const data = node.data || (node.data = {});
-    const hast = h(node.name as string, node.attributes as string | UNode | (string | UNode)[]);
+    const hast = h(node.name as string, node.attributes as string | Node | (string | Node)[]);
 
     if (node.type === 'containerDirective') {
-      node.children = ((node.children as UNode[]) || []).map(child => {
+      node.children = ((node.children as Node[]) || []).map(child => {
         if (child.data?.directiveLabel) {
           child.type = 'paragraph';
           child.data.hName = 'containerLabel';
