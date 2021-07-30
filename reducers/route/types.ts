@@ -163,6 +163,7 @@ type TriggerEvolutionAction = {
   type: typeof TRIGGER_EVOLUTION;
   payload: {
     name: string;
+    deevolve: boolean;
   };
 };
 

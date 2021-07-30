@@ -165,7 +165,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
       return set(
         cloneDeep(state),
         ['trackers', action.payload.name, 'evolution'],
-        state.trackers[action.payload.name].evolution + 1,
+        Math.max(0, state.trackers[action.payload.name].evolution + (action.payload.deevolve ? -1 : 1)),
       );
 
     case RESET_TRACKER:
@@ -318,10 +318,13 @@ export function setOptionIVHorizontalLayout(value: boolean): RouteAction {
   };
 }
 
-export function triggerEvolution(name: string): RouteAction {
+export function triggerEvolution(name: string, deevolve: boolean): RouteAction {
   return {
     type: TRIGGER_EVOLUTION,
-    payload: { name },
+    payload: {
+      name,
+      deevolve,
+    },
   };
 }
 

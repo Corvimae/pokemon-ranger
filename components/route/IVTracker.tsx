@@ -10,6 +10,8 @@ import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, 
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, StatValuePossibilitySet } from '../../utils/trackerCalculations';
 import { ConfirmedNature, Generation } from '../../utils/rangeTypes';
 
+const RESET_CONFIRM_DURATION = 2000;
+
 interface IVTrackerProps {
   tracker: Tracker;
 }
@@ -17,6 +19,7 @@ interface IVTrackerProps {
 export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
   const dispatch = RouteContext.useDispatch();
   const [currentLevel, setCurrentLevel] = useState(Number(Object.keys(tracker.evSegments)[0] || 5));
+  const [resetConfirmActive, setResetConfirmActive] = useState(false);
 
   const handleSetStat = useCallback((stat: Stat, value: number) => {
     dispatch(setStat(tracker.name, stat, currentLevel, value));
@@ -30,14 +33,27 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
     setCurrentLevel(Math.min(100, currentLevel + 1));
   }, [currentLevel]);
 
-  const handleEvolution = useCallback(() => {
-    dispatch(triggerEvolution(tracker.name));
-  }, [tracker.name, dispatch]);
+  const handleEvolution = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+    if (event.shiftKey) {
+      if (tracker.evolution > 0) dispatch(triggerEvolution(tracker.name, true));
+    } else if (tracker.evolution < tracker.baseStats.length - 1) {
+      dispatch(triggerEvolution(tracker.name, false));
+    }
+  }, [tracker.name, tracker.evolution, tracker.baseStats, dispatch]);
 
   const handleReset = useCallback(() => {
-    dispatch(resetTracker(tracker.name));
-    setCurrentLevel(tracker.startingLevel);
-  }, [tracker.name, tracker.startingLevel, dispatch]);
+    if (resetConfirmActive) {
+      dispatch(resetTracker(tracker.name));
+      setCurrentLevel(tracker.startingLevel);
+      setResetConfirmActive(false);
+    } else {
+      setResetConfirmActive(true);
+
+      setTimeout(() => {
+        setResetConfirmActive(false);
+      }, RESET_CONFIRM_DURATION);
+    }
+  }, [tracker.name, tracker.startingLevel, resetConfirmActive, dispatch]);
 
   const handleSetStartingLevel = useCallback((level: number) => {
     dispatch(setStartingLevel(tracker.name, level));
@@ -105,10 +121,10 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
               <FontAwesomeIcon icon={faPlus} size="sm" />
             </Button>
           </LevelSelector>
-          <Button onClick={handleEvolution} disabled={tracker.evolution === tracker.baseStats.length - 1}>
+          <EvolveButton onClick={handleEvolution} displayAsDisabled={tracker.evolution === tracker.baseStats.length - 1}>
             Evolve
-          </Button>
-          <Button onClick={handleReset}>Reset</Button>
+          </EvolveButton>
+          <Button onClick={handleReset}>{resetConfirmActive ? 'Are you sure?' : 'Reset'}</Button>
         </ActionButtons>
       </ActionRow>
       <IVGrid generation={tracker.generation}>
@@ -267,4 +283,8 @@ const IVGridHeaderCell = styled.button<{ uninteractable?: boolean; isPositive?: 
   &:disabled {
     opacity: 0.5;
   }
+`;
+
+const EvolveButton = styled(Button)<{ displayAsDisabled: boolean }>`
+  opacity: ${props => props.displayAsDisabled ? 0.5 : 1};
 `;
