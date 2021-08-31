@@ -1,6 +1,10 @@
 import { Stat } from '../../utils/constants';
 import { Generation } from '../../utils/rangeTypes';
 
+export const VALID_VARIABLE_TYPES = ['text', 'number', 'boolean', 'select'] as const;
+
+export type RouteVariableType = typeof VALID_VARIABLE_TYPES[number];
+
 export interface StatLine {
   hp: number;
   attack: number;
@@ -25,6 +29,12 @@ export interface Tracker {
   manualNegativeNature: Stat | undefined;
 }
 
+export interface VariableState {
+  value: string | undefined;
+  type: RouteVariableType;
+  defaultValue: string | undefined;
+}
+
 export interface RouteOptionsState {
   compactIVs: boolean;
   hideMedia: boolean;
@@ -37,6 +47,7 @@ export interface RouteState {
   repoPath: string | undefined;
   showOptions: boolean;
   trackers: Record<string, Tracker>;
+  variables: Record<string, VariableState>;
   options: RouteOptionsState
 }
 
@@ -56,6 +67,8 @@ export const SET_OPTION_IV_HORIZONTAL_LAYOUT = 'SET_OPTION_IV_HORIZONTAL_LAYOUT'
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
+export const REGISTER_VARIABLE = 'REGISTER_VARIABLE';
+export const SET_VARIABLE_VALUE = 'SET_VARIABLE_VALUE';
 export const LOAD_FILE = 'LOAD_FILE';
 
 type SetRepoPathAction = {
@@ -182,6 +195,23 @@ type SetStartingLevelAction = {
   };
 };
 
+type RegisterVariableAction = {
+  type: typeof REGISTER_VARIABLE;
+  payload: {
+    name: string;
+    type: RouteVariableType;
+    defaultValue?: string;
+  };
+};
+
+type SetVariableValueAction = {
+  type: typeof SET_VARIABLE_VALUE;
+  payload: {
+    name: string;
+    value: string;
+  };
+};
+
 type LoadFileAction = {
   type: typeof LOAD_FILE;
 }
@@ -203,4 +233,6 @@ export type RouteAction =
   TriggerEvolutionAction |
   ResetTrackerAction |
   SetStartingLevelAction |
+  RegisterVariableAction |
+  SetVariableValueAction |
   LoadFileAction;

@@ -2,6 +2,7 @@ export namespace Terms {
   export type Type =
     'statExpression' |
     'logicalExpression' |
+    'variableExpression' |
     'ivRange' |
     'unboundedRange' |
     'boundedRange';
@@ -23,7 +24,14 @@ export namespace Terms {
     right: Expression;
   }
 
-  export type Expression = StatExpression | LogicalExpression;
+  export interface VariableExpression extends ComplexTerm {
+    type: 'variableExpression';
+    variable: string;
+    operator: '==' | '!=' | '<' | '<=' | '>' | '>=';
+    expression: string | number | boolean;
+  }
+
+  export type Expression = StatExpression | LogicalExpression | VariableExpression;
 
   export type IVRangeSegment = RangeSegment | '#' | 'x' | 'X';
   

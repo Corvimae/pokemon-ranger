@@ -8,10 +8,17 @@ Term 'term'
 
 Literal
   = IntegerLiteral
+  / StringLiteral
 
 Factor
   = "(" _ term: Term _ ")" { return term; }
   / StatExpression
+  / VariableExpression
+  
+Variable 'variable'
+  = '$' firstChar: [a-zA-Z_] rest: [0-9a-zA-Z_]* {
+    return firstChar + rest.join('');
+  }
 
 Stat 'stat'
   = 'hp'
@@ -32,7 +39,49 @@ Stat 'stat'
   / 'spe'
   / 'startingLevel'
   / 'caughtLevel'
+  
+Operator 'operator'
+  = '=='
+  / '!='
+  / '<'
+  / '<='
+  / '>'
+  / '>='
+  
+VariableExpression 'variableExpression'
+  = _ variable: Variable _ operator: Operator _ expression: Literal {
+    return {
+      type: 'variableExpression',
+      variable,
+      operator,
+      expression
+    };
+  } / BooleanVariableExpression
 
+BooleanVariableExpression
+  = TrueVariableExpression
+  / FalseVariableExpression
+  
+TrueVariableExpression 'trueVariableExpression'
+  = variable: Variable {
+    return {
+      type: 'variableExpression',
+      variable,
+      operator: '==',
+      expression: true,
+    };
+  }
+
+FalseVariableExpression 'falseVariableExpression'
+  = '!' _ variable: Variable {
+    return {
+      type: 'variableExpression',
+      variable,
+      operator: '==',
+      expression: false,
+    };
+  }
+  
 StatExpression 'statExpression'
   = _ stat: Stat _ '=' _ expression: Range {
     return {
@@ -68,8 +117,18 @@ IntegerLiteral 'integer'
   = _ [0-9]+ {
     return parseInt(text(), 10);
   }
-
-
+  
+LineTerminator
+  = [\n\r\u2028\u2029]
+  
+StringLiteral "string"
+  = "'" chars:SingleStringCharacter* "'" {
+      return chars.join('');
+    }
+    
+SingleStringCharacter
+  = !("'" / "\\" / LineTerminator) . { return text(); }
+  
 Range
   = IVRange
   / RangeSegment

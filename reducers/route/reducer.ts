@@ -3,13 +3,14 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
   repoPath: undefined,
   showOptions: false,
   trackers: {},
+  variables: {},
   options: {
     compactIVs: false,
     hideMedia: false,
@@ -197,6 +198,26 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
+    case REGISTER_VARIABLE:
+      return {
+        ...state,
+        variables: {
+          ...state.variables,
+          [action.payload.name]: {
+            type: action.payload.type,
+            value: action.payload.defaultValue,
+            defaultValue: action.payload.defaultValue,
+          },
+        },
+      };
+
+    case SET_VARIABLE_VALUE:
+      return set(
+        cloneDeep(state),
+        ['variables', action.payload.name, 'value'],
+        action.payload.value,
+      );
+
     case LOAD_FILE:
       return { ...defaultState };
 
@@ -341,6 +362,27 @@ export function setStartingLevel(name: string, startingLevel: number): RouteActi
     payload: {
       name,
       startingLevel,
+    },
+  };
+}
+
+export function registerVariable(name: string, type: RouteVariableType, defaultValue?: string): RouteAction {
+  return {
+    type: REGISTER_VARIABLE,
+    payload: {
+      name,
+      type,
+      defaultValue,
+    },
+  };
+}
+
+export function setVariableValue(name: string, value: string): RouteAction {
+  return {
+    type: SET_VARIABLE_VALUE,
+    payload: {
+      name,
+      value,
     },
   };
 }

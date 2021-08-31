@@ -197,6 +197,7 @@ export function evaluateCondition(
   confirmedNatures: ConfirmedNature,
   tracker: Tracker,
   evolution: number,
+  variables: Record<string, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
 ): boolean {
   switch (term.type) {
     case 'statExpression': {
@@ -209,14 +210,49 @@ export function evaluateCondition(
     }
 
     case 'logicalExpression': {
-      const left = evaluateCondition(term.left, level, ivRanges, confirmedNatures, tracker, evolution);
-      const right = evaluateCondition(term.right, level, ivRanges, confirmedNatures, tracker, evolution);
+      const left = evaluateCondition(term.left, level, ivRanges, confirmedNatures, tracker, evolution, variables);
+      const right = evaluateCondition(term.right, level, ivRanges, confirmedNatures, tracker, evolution, variables);
 
       if (term.operator === '&&') {
         return left && right;
       }
 
       return left || right;
+    }
+
+    case 'variableExpression': {
+      if (!Object.keys(variables).includes(term.variable)) {
+        throw new Error(`Variable ${term.variable} is not registered.`);
+      }
+
+      const variableValue = variables[term.variable];
+      
+      if (variableValue === undefined) return false;
+
+      if (term.operator === '==') return term.expression === variableValue;
+      if (term.operator === '!=') return term.expression !== variableValue;
+      
+      // Rest are numerical operations.
+
+      if (typeof term.expression !== 'number' || typeof variableValue !== 'number') {
+        throw new Error('Inequality expressions are only allowed for numerical values.');
+      }
+      switch (term.operator) {
+        case '<':
+          return variableValue < term.expression;
+        
+        case '<=':
+          return variableValue <= term.expression;
+
+        case '>':
+          return variableValue > term.expression;
+        
+        case '>=':
+          return variableValue > term.expression;
+
+        default:
+          throw new Error('Unexpected operator type.');
+      }
     }
 
     default:
@@ -261,6 +297,9 @@ export function formatCondition(expression: Terms.Expression): string {
 
       return `(${formatCondition(expression.left)} ${conjunction} ${formatCondition(expression.right)})`;
     }
+
+    case 'variableExpression':
+      return `$${expression.variable} ${expression.operator} ${typeof expression.expression === 'string' ? `'${expression.expression}'` : expression.expression}`;
 
     default:
       return '<invalid condition>';

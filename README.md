@@ -173,6 +173,41 @@ It's recommended you format the fight instructions as an unordered list. Bullets
 `info` (string) - Text to display next to the Pokémon's name.
 `infoColor` (string) - The color of the info text. Any color accepted by `:info` is accepted here (see below).
 
+
+### Variables
+
+Variables allow for more arbitrary conditions than what can be achieved through just IVs. Variable directives can appear
+at any point in the route, and display a card that allows the user to enter a value. 
+
+For examples of how to use variables in conditional expressions, see _Using Variables in Conditions_.
+
+#### Syntax
+```
+::variable{name="didUmbreonDie" type="boolean" title="Did Umbreon die in the last fight?"}
+
+:::variable{name="rareCandyCount" type="number" title="How many rare candies do you have?" defaultValue=0}
+  Remember that the Coach Trainer gives five candies!
+:::
+
+::variable{name="route1Catch" type="select" title="What did you catch on Route 1?" options='["Ratata", "Pidgey", "Oddish"]'}
+```
+
+**Attributes**
+
+`name` (string, required) - The unique identifier for this variable. Variable names can only contain alphanumeric characters and underscores, and cannot start with a number.
+
+`type` (string, required) - The type of input to display for the variable. Valid options are `text`, `number`, `boolean`, and `select`.
+
+`defaultValue` (string | number | boolean) - The default value of the variable.
+
+`options` (string) - A JSON-formatted array of string options to display in the typeahead for a `select`-type variable. Not used for other types.
+
+`title` (string) - The header text to display above the input. 
+
+`theme` (string) - The color theme to apply to the card surrounding the input. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `info` is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
+
+If child content is specified for the directive, it is displayed inside the card beneath the input field.
+
 ### Conditional Cards
 
 Conditional cards are displayed only if the stats of the runner's Pokémon meet a criteria. Conditional cards are useful for displaying variant strategies in the route; for example, a Pokémon with low Attack may need to get an additional Rare Candy. With a conditional card, those instructions are only shown if the Pokémon's Attack is low enough to justify the detour.
@@ -227,6 +262,52 @@ IV ranges are evaluated in the same manner as stat ranges, except that they are 
 `#` - Matches any value (e.g. `x/x/#` matches any positive nature IV)
 
 `x` or `X` - Matches no values (e.g. `x/x/#` matches no negative or neutral nature IVs)
+
+**Using Variables in Conditions**
+
+Variables can be used in conditions by prefacing the variable name with a dollar sign (`$myVariable`). 
+
+If just the variable is specified, the condition will only be met if it is a boolean variable set to true.
+
+```
+::variable{name="myVariable" type="boolean"}
+
+:::if{source="Mudkip" condition="$myVariable"}
+This will only appear if the user selects "Yes".
+:::
+```
+
+The inverse is possible with `!`:
+
+```
+::variable{name="myVariable" type="boolean"}
+
+:::if{source="Mudkip" condition="!$myVariable"}
+This will only appear if the user selects "No". (Note that unless defaultValue="false" is specified in the
+variable directive, this will not appear until the user actively selects No.)
+:::
+```
+
+For all other variable types, the `==` and `!=` operators are available:
+
+```
+::variable{name="route1Catch" type="text" title="What did you catch on Route 1?"}
+
+:::if{source="Mudkip" condition="$route1Catch == 'Ratata'"}
+You caught a Ratata on Route 1!
+:::
+```
+
+Numeric variables can also compare using the `<`, `<=`, `>`, and `>=` operators:
+
+```
+::variable{name="quickBallCount" type="number" title="How many Quick Balls did you buy?"}
+
+:::if{source="Mudkip" condition="$quickBallCount >= 3"}
+Nice, that's enough!
+:::
+```
+
 
 **Warning: Defining Conditional Fights**
 

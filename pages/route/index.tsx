@@ -32,6 +32,7 @@ import { RouteImage } from '../../components/route/RouteImage';
 import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
 import { useOnMount } from '../../utils/hooks';
 import { loadOptions } from '../../utils/options';
+import { VariableBlock } from '../../components/route/VariableBlock';
 
 const schema = merge(gh, {
   tagNames: [
@@ -44,6 +45,7 @@ const schema = merge(gh, {
     'trainer',
     'pokemon',
     'containerlabel',
+    'variable',
   ],
   attributes: {
     tracker: ['species', 'contents', 'baseStats', 'hiddenPower', 'generation'],
@@ -78,6 +80,7 @@ const schema = merge(gh, {
       'otherPowerModifier',
       'theme',
     ],
+    variable: ['theme', 'type', 'name', 'title', 'options', 'defaultValue'],
   },
 });
 
@@ -100,6 +103,7 @@ const processor = unified()
       trainer: TrainerBlock,
       pokemon: PokemonBlock,
       containerlabel: ContainerLabel,
+      variable: VariableBlock,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 

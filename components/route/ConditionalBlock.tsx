@@ -6,8 +6,25 @@ import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../uti
 import { BorderlessCard, Card, CardVariant, ContainerLabel, variantIsBorderless } from '../Layout';
 import { parse, Terms } from '../../directives/conditional-grammar';
 import { evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
+import { RouteVariableType } from '../../reducers/route/types';
 
 type ParsedCondition = { error: false; condition: Terms.Expression } | { error: true; message: string };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function castRouteVariableAsType(type: RouteVariableType, value: string | undefined): any {
+  if (value === undefined) return undefined;
+
+  switch (type) {
+    case 'number':
+      return parseInt(value, 10);
+    
+    case 'boolean':
+      return value === 'true';
+    
+    default:
+      return value;
+  }
+}
 
 interface ConditionalBlockProps {
   source?: string;
@@ -32,6 +49,13 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
     tracker && calculateAllPossibleIVRanges(tracker)
   ), [tracker]);
   const confirmedNatures = useMemo(() => tracker && ivRanges && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
+  
+  const variableValues = useMemo(() => (
+    Object.entries(state.variables).reduce((acc, [key, { type, value }]) => ({
+      ...acc,
+      [key]: castRouteVariableAsType(type, value),
+    }), {})
+  ), [state.variables]);
 
   const parsedCondition: ParsedCondition | null = useMemo(() => {
     if (!condition) return null;
@@ -72,6 +96,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
           confirmedNatures,
           state.trackers[source],
           evolution,
+          variableValues,
         ),
       };
     } catch (e) {
@@ -80,7 +105,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
         message: `${condition} is not a valid conditional statement: ${e.message}`,
       };
     }
-  }, [condition, parsedCondition, rawLevel, rawEvolution, ivRanges, confirmedNatures, state.trackers, source]);
+  }, [condition, parsedCondition, rawLevel, rawEvolution, ivRanges, confirmedNatures, state.trackers, source, variableValues]);
 
   if (!source) return <ErrorCard>The source attribute must be specified.</ErrorCard>;
   if (!condition || !parsedCondition) return <ErrorCard>The condition attribute must be specified.</ErrorCard>;
