@@ -76,11 +76,13 @@ const VariableInputField: React.FC<VariableInputFieldProps> = ({ type, options, 
       const optionItems = parsedOptions.map(item => ({ label: item, value: item }));
 
       return (
-        <Select
-          options={optionItems}
-          defaultValue={optionItems.find(({ value: itemValue }) => itemValue === defaultValue) ?? undefined}
-          onChange={option => onChange(option?.value ?? undefined)}
-        />
+        <VariableSelectWrapper>
+          <Select
+            options={optionItems}
+            defaultValue={optionItems.find(({ value: itemValue }) => itemValue === defaultValue) ?? undefined}
+            onChange={option => onChange(option?.value ?? undefined)}
+          />
+        </VariableSelectWrapper>
       );
     }
     default:
@@ -141,19 +143,21 @@ export const VariableBlock: React.FC<VariableBlockProps> = ({ name, title, defau
   }
 
   return (
-    <CardComponent theme={theme}>
-      {title && <Title>{title}</Title>}
+    <Container>
+      <CardComponent theme={theme}>
+        {title && <Title>{title}</Title>}
 
-      <VariableInputField
-        type={type}
-        options={options}
-        onChange={handleInputValueChange}
-        value={currentValue}
-        defaultValue={defaultValue}
-      />
+        <VariableInputField
+          type={type}
+          options={options}
+          onChange={handleInputValueChange}
+          value={currentValue}
+          defaultValue={defaultValue}
+        />
 
-      {children}
-    </CardComponent>
+        {children}
+      </CardComponent>
+    </Container>
   );
 };
 
@@ -191,5 +195,21 @@ const BooleanToggleOption = styled(Button)<{active: boolean}>`
   &:not(:disabled):hover,
   &:not(:disabled):active {
     background-color: ${({ active }) => active ? '#4ecf92' : '#ddd'};
+  }
+`;
+
+const VariableSelectWrapper = styled.div``;
+
+const Container = styled.div`
+  & ${BooleanToggleOptionRow}:last-child {
+    margin-bottom: 1rem;
+  }
+
+  & ${VariableSelectWrapper}:last-child {
+    margin-bottom: 1rem;
+  }
+
+  & input:last-child {
+    margin-bottom: 1rem;
   }
 `;
