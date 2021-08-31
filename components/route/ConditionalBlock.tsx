@@ -102,7 +102,8 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
     } catch (e) {
       return {
         error: true,
-        message: `${condition} is not a valid conditional statement: ${e.message}`,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        message: `${condition} is not a valid conditional statement: ${(e as any).message}`,
       };
     }
   }, [condition, parsedCondition, rawLevel, rawEvolution, ivRanges, confirmedNatures, state.trackers, source, variableValues]);
