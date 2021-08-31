@@ -61,7 +61,7 @@ const VariableInputField: React.FC<VariableInputFieldProps> = ({ type, options, 
       } catch (error) {
         return (
           <div>
-            Unable to render select field: could not parse options JSON (<code>{error.message}</code>).
+            Unable to render select field: could not parse options JSON (<code>{(error as { message: string }).message}</code>).
           </div>
         );
       }
