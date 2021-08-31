@@ -50,7 +50,7 @@ const BallCenter = styled.div`
   width: 100%;
   height: 1rem;
   border-radius: 50%;
-  background-color: #f0f0f0;
+  background-color: #fff;
 `;
 
 const BallButton = styled.div`
@@ -60,7 +60,7 @@ const BallButton = styled.div`
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background-color: #f0f0f0;
+  background-color: #fff;
   transform: translate(-50%, -50%);
 `;
 
