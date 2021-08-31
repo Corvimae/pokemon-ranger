@@ -15,12 +15,12 @@ interface VariableInputFieldProps {
   defaultValue?: string,
 }
 
-const VariableInputField: React.FC<VariableInputFieldProps> = ({ type, options, value, defaultValue, onChange }) => {
+const VariableInputField: React.FC<VariableInputFieldProps> = ({ type, options, value, onChange }) => {
   switch (type) {
     case 'text':
       return (
         <Input
-          defaultValue={defaultValue}
+          value={value}
           onChange={event => onChange(event.target.value)}
         />
       );
@@ -29,7 +29,7 @@ const VariableInputField: React.FC<VariableInputFieldProps> = ({ type, options, 
       return (
         <Input
           type="number"
-          defaultValue={defaultValue}
+          value={value}
           onChange={event => onChange(event.target.value)}
         />
       );
@@ -79,7 +79,7 @@ const VariableInputField: React.FC<VariableInputFieldProps> = ({ type, options, 
         <VariableSelectWrapper>
           <Select
             options={optionItems}
-            defaultValue={optionItems.find(({ value: itemValue }) => itemValue === defaultValue) ?? undefined}
+            value={optionItems.find(({ value: itemValue }) => itemValue === value) ?? null}
             onChange={option => onChange(option?.value ?? undefined)}
           />
         </VariableSelectWrapper>
@@ -152,7 +152,6 @@ export const VariableBlock: React.FC<VariableBlockProps> = ({ name, title, defau
           options={options}
           onChange={handleInputValueChange}
           value={currentValue}
-          defaultValue={defaultValue}
         />
 
         {children}

@@ -69,6 +69,7 @@ export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
 export const REGISTER_VARIABLE = 'REGISTER_VARIABLE';
 export const SET_VARIABLE_VALUE = 'SET_VARIABLE_VALUE';
+export const RESET_ROUTE = 'RESET_ROUTE';
 export const LOAD_FILE = 'LOAD_FILE';
 
 type SetRepoPathAction = {
@@ -212,6 +213,10 @@ type SetVariableValueAction = {
   };
 };
 
+type ResetRouteAction = {
+  type: typeof RESET_ROUTE;
+};
+
 type LoadFileAction = {
   type: typeof LOAD_FILE;
 }
@@ -235,4 +240,5 @@ export type RouteAction =
   SetStartingLevelAction |
   RegisterVariableAction |
   SetVariableValueAction |
+  ResetRouteAction |
   LoadFileAction;

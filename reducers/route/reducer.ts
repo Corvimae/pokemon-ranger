@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
@@ -217,6 +217,28 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         ['variables', action.payload.name, 'value'],
         action.payload.value,
       );
+    
+    case RESET_ROUTE:
+      return {
+        ...state,
+        variables: Object.entries(state.variables).reduce((acc, [key, item]) => ({
+          ...acc,
+          [key]: {
+            ...item,
+            value: item.defaultValue,
+          },
+        }), {}),
+        trackers: Object.keys(state.trackers).reduce((acc, key) => ({
+          ...acc,
+          [key]: {
+            ...state.trackers[key],
+            evolution: 0,
+            recordedStats: {},
+            manualPositiveNature: undefined,
+            manualNegativeNature: undefined,
+          },
+        }), {}),
+      };
 
     case LOAD_FILE:
       return { ...defaultState };
@@ -384,6 +406,12 @@ export function setVariableValue(name: string, value: string): RouteAction {
       name,
       value,
     },
+  };
+}
+
+export function resetRoute(): RouteAction {
+  return {
+    type: RESET_ROUTE,
   };
 }
 

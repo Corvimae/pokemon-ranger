@@ -16,7 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { directiveConverter } from '../../directives/directiveConverter';
 import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
-import { loadFile, RouteContext, setShowOptions } from '../../reducers/route/reducer';
+import { loadFile, resetRoute, RouteContext, setShowOptions } from '../../reducers/route/reducer';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
@@ -33,6 +33,8 @@ import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
 import { useOnMount } from '../../utils/hooks';
 import { loadOptions } from '../../utils/options';
 import { VariableBlock } from '../../components/route/VariableBlock';
+
+const RESET_CONFIRM_DURATION = 2000;
 
 const schema = merge(gh, {
   tagNames: [
@@ -116,6 +118,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
   const dispatch = RouteContext.useDispatch();
   const hasAttemptedQueryParamLoad = useRef(false);
   const guideContentElement = useRef<HTMLDivElement>(null);
+  const [resetConfirmActive, setResetConfirmActive] = useState(false);
 
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [fileContent, setFileContent] = useState<string | null>(null);
@@ -166,6 +169,19 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
 
   const state = RouteContext.useState();
 
+  const handleReset = useCallback(() => {
+    if (resetConfirmActive) {
+      dispatch(resetRoute());
+      setResetConfirmActive(false);
+    } else {
+      setResetConfirmActive(true);
+
+      setTimeout(() => {
+        setResetConfirmActive(false);
+      }, RESET_CONFIRM_DURATION);
+    }
+  }, [dispatch, resetConfirmActive]);
+
   useOnMount(() => loadOptions(dispatch));
 
   useEffect(() => {
@@ -190,6 +206,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
           <Guide showOptions={state.showOptions} ref={guideContentElement}>
             <RouteActions>
               <Button onClick={handleShowOptions}>Options</Button>
+              <Button onClick={handleReset}>{resetConfirmActive ? 'Are you sure?' : 'Reset All'}</Button>
               <Button onClick={handleCloseRoute}>Close</Button>
             </RouteActions>
             <RouteContent hideMedia={state.options.hideMedia}>
