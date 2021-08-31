@@ -308,6 +308,7 @@ Nice, that's enough!
 :::
 ```
 
+**Note: Even if a conditional expression only contains variables, the `source` property is still required. You can set it to any of your IV trackers.**
 
 **Warning: Defining Conditional Fights**
 
