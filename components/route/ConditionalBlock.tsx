@@ -68,7 +68,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
     } catch (e) {
       return {
         error: true,
-        message: e.message,
+        message: (e as any).message, // eslint-disable-line @typescript-eslint/no-explicit-any
       };
     }
   }, [condition]);
