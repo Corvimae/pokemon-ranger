@@ -433,9 +433,7 @@ function calculateExperienceGain(
   isWild: boolean,
   isPastEvolutionPoint: boolean,
 ): number {
-  const useScaledExperienceFormula = generation === 5 || generation >= 7;
-
-  const wildMultiplier = generation <= 6 ? (isWild ? 1 : 1.5) : 1;
+  const wildMultiplier = isWild ? 1 : 1.5;
   const luckyEggMultiplier = hasLuckyEgg ? 1.5 : 1;
   const affectionMultiplier = hasAffectionBoost ? 1.2 : 1;
   const expShareMultiplier = calculateExperienceShareMultiplier(
@@ -449,20 +447,28 @@ function calculateExperienceGain(
   const tradeMultiplier = isInternationalTrade ? getInternationalTradeMultiplier(generation) : (isTrade ? 1.5 : 1);
   const evolutionMultiplier = generation >= 6 && isPastEvolutionPoint ? 1.2 : 1;
   
-  if (useScaledExperienceFormula) {
-    const multiplier1 = ((wildMultiplier * baseExperience * opponentLevel) / (5 * expShareMultiplier));
-    const multiplier2 = ((2 * opponentLevel + 10) / (opponentLevel + level + 10)) ** 2.5;
+  if (generation === 5) {
+    const multiplier1 = (multiplyForGeneration(baseExperience * opponentLevel, wildMultiplier, generation) / (Math.fround(5.0) * expShareMultiplier));
+    const multiplier2 = gamefreakPowerOfTwoPointFive((Math.fround(2.0) * opponentLevel + Math.fround(10.0)) / (opponentLevel + level + Math.fround(10.0)));
 
-    return Math.floor((multiplier1 * multiplier2 + 1) * tradeMultiplier * luckyEggMultiplier);
+    return multiplyAllForGeneration(Math.floor(multiplier1 * multiplier2) + Math.fround(1.0), [tradeMultiplier, luckyEggMultiplier], generation);
   }
 
-  return [
+  if (generation >= 7) {
+    // I'm not sure if Gen 8 actually uses this formula...
+    const multiplier1 = multiplyAllForGeneration(baseExperience * opponentLevel, [evolutionMultiplier], generation) / (Math.fround(5.0) * expShareMultiplier);
+    const multiplier2 = gamefreakPowerOfTwoPointFive((Math.fround(2.0) * opponentLevel + Math.fround(10.0)) / (opponentLevel + level + Math.fround(10.0)));
+
+    return multiplyAllForGeneration(Math.floor(multiplier1 * multiplier2) + Math.fround(1.0), [tradeMultiplier, luckyEggMultiplier, affectionMultiplier], generation);
+  }
+
+  return integerMultiply(
     wildMultiplier,
     tradeMultiplier,
     luckyEggMultiplier,
     affectionMultiplier,
     evolutionMultiplier,
-  ].reduce((acc, mult) => Math.floor(acc * mult), Math.floor((baseExperience * opponentLevel) / (7 * expShareMultiplier)));
+  ) * Math.floor((baseExperience * opponentLevel) / (7 * expShareMultiplier));
 }
 
 function calculateExperienceGainedFromEvent(event: ExperienceEvent, generation: Generation, currentExperience: number, growthRate: GrowthRate, level: number) {
@@ -570,4 +576,34 @@ export function buildExperienceRoute(generation: Generation, initialLevel: numbe
   }, [[], initialLevel, startingExperience, [0, 0, 0, 0, 0, 0]]);
 
   return updatedEvents as ExperienceEventWithMetadata[];
+}
+
+function integerMultiply(...values: number[]): number {
+  return values.reduce((acc, mult) => Math.floor(acc * mult), 1);
+}
+
+function multiplyForGeneration(value: number, multiplier: number, generation: Generation) {
+  if (generation === 5 || generation >= 7 || generation === 'lgpe') {
+    let preliminaryValue = value * to4096Numerator(multiplier);
+    const requiresAdjustment = (preliminaryValue & 4095) > 2048;
+
+    preliminaryValue >>= 12;
+    return Math.fround(requiresAdjustment ? preliminaryValue + 1 : preliminaryValue);
+  }
+
+  return Math.fround(Math.floor(value * multiplier));
+}
+
+function multiplyAllForGeneration(value: number, multipliers: number[], generation: Generation) {
+  return multipliers.reduce((acc, multiplier) => multiplyForGeneration(acc, multiplier, generation), value);
+}
+
+function to4096Numerator(value: number): number {
+  return Math.floor(value * 4096 + 0.5);
+}
+
+function gamefreakPowerOfTwoPointFive(value: number): number {
+  const rounded = Math.fround(value);
+
+  return Math.fround(Math.fround(rounded * rounded) * Math.fround(Math.sqrt(rounded)));
 }
