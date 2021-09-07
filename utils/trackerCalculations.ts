@@ -1,7 +1,7 @@
 import { CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 import { Tracker } from '../reducers/route/types';
 import { calculateGen1Stat, calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
-import { Stat, STATS } from './constants';
+import { NATURES, Stat, STATS } from './constants';
 import { CombinedIVResult, ConfirmedNature, Generation, NatureType, StatRange } from './rangeTypes';
 import { range, rangesOverlap } from './utils';
 
@@ -114,6 +114,22 @@ export function calculatePossibleStats(
 }
 
 export function calculatePossibleIVRange(stat: Stat, tracker: Tracker): IVRangeSet {
+  const staticIV = tracker.staticIVs[stat];
+  const staticNatureDefinition = tracker.staticNature && NATURES[tracker.staticNature];
+  
+  if (staticIV !== -1) {
+    const clampNegative = !staticNatureDefinition || (staticNatureDefinition.minus === stat && staticNatureDefinition.plus !== stat);
+    const clampPositive = !staticNatureDefinition || (staticNatureDefinition.minus !== stat && staticNatureDefinition.plus === stat);
+    const clampNeutral = !staticNatureDefinition || (staticNatureDefinition.minus === stat && staticNatureDefinition.plus === stat) || (staticNatureDefinition.minus !== stat && staticNatureDefinition.plus !== stat);
+
+    return {
+      positive: clampPositive ? [staticIV, staticIV] : [-1, -1],
+      neutral: clampNeutral ? [staticIV, staticIV] : [-1, -1],
+      negative: clampNegative ? [staticIV, staticIV] : [-1, -1],
+      combined: [staticIV, staticIV],
+    };
+  }
+
   const { negative, neutral, positive } = NATURE_MODIFIERS.reduce((modifierSet, { modifier, key }) => ({
     ...modifierSet,
     [key]: Object.entries(tracker.recordedStats).reduce((acc, [rawEvo, statSegments]) => {
@@ -187,6 +203,10 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
 }
 
 export function calculatePossibleNature(ivRanges: Record<Stat, IVRangeSet>, tracker: Tracker): ConfirmedNature {
+  const staticNatureDefinition = tracker.staticNature && NATURES[tracker.staticNature];
+
+  if (staticNatureDefinition) return [staticNatureDefinition.minus, staticNatureDefinition.plus];
+  
   const confirmedNegative = tracker?.manualNegativeNature ? [tracker.manualNegativeNature] : (
     Object.entries(ivRanges).find(([stat, value]) => stat !== 'hp' && value.positive[0] === -1 && value.neutral[0] === -1)
   );

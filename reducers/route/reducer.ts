@@ -1,7 +1,7 @@
 import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import { Stat } from '../../utils/constants';
+import { Nature, Stat } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
 import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE } from './types';
 import { Generation } from '../../utils/rangeTypes';
@@ -42,6 +42,8 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             baseStats: action.payload.baseStats,
             recordedStats: {},
             evSegments: action.payload.evSegments,
+            staticIVs: action.payload.staticIVs,
+            staticNature: action.payload.staticNature,
           },
         },
       };
@@ -257,7 +259,7 @@ export function setRepoPath(repoPath: string | undefined): RouteAction {
   };
 }
 
-export function registerTracker(name: string, baseStats: StatLine[], generation: Generation, calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>): RouteAction {
+export function registerTracker(name: string, baseStats: StatLine[], generation: Generation, calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>, staticIVs: StatLine, staticNature: Nature | undefined): RouteAction {
   return {
     type: REGISTER_TRACKER,
     payload: {
@@ -266,6 +268,8 @@ export function registerTracker(name: string, baseStats: StatLine[], generation:
       generation,
       calculateHiddenPower,
       evSegments,
+      staticIVs,
+      staticNature,
     },
   };
 }

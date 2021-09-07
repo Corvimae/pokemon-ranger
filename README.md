@@ -35,13 +35,27 @@ A route file can contain any number of IV trackers, but in order to take advanta
 
 **Attributes**
 
-`species` - The name of the Pokemon. This is used as a unique identifier for the tracker and is displayed in the sidebar.
+`species` (string, required) - The name of the Pokemon. This is used as a unique identifier for the tracker and is displayed in the sidebar.
 
-`baseStats` - A JSON-formatted array of base stats for each of the Pokémon's evolutions. If the Pokémon has no evolutions, you should still provide an array-of-arrays (e.g. `[[50, 50, 50, 50, 50, 50]]`).
+`baseStats` (string, required) - A JSON-formatted array of base stats for each of the Pokémon's evolutions. If the Pokémon has no evolutions, you should still provide an array-of-arrays (e.g. `[[50, 50, 50, 50, 50, 50]]`).
 
-`hiddenPower` (default: false) - If true, hidden power type will be calculated and displayed.
+`hiddenPower` (boolean, default: false) - If true, hidden power type will be calculated and displayed.
 
-`generation` (default: 4) - Which generation's formulas to use. Gen 1-2 are not supported, and specifying `lgpe` will change results.
+`generation` (number | 'lgpe', default: 4) - Which generation's formulas to use. Gen 1-2 are not supported, and specifying `lgpe` will change results.
+
+`hpIV` (number) - A static value for the HP IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
+
+`attackIV` (number)  - A static value for the attack IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
+
+`defenseIV` (number)  - A static value for the defense IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
+
+`spAttackIV` (number)  - A static value for the special attack IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
+
+`spDefenseIV` (number)  - A static value for the special defense IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
+
+`speedIV` (number)  - A static value for the HP IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
+
+`nature` (string)  - A static value for the nature. Unless you know the nature will always be set (for example, from a trade Pokémon), ignore this attribute.
 
 **Content**
 
@@ -309,6 +323,8 @@ Numeric variables can also compare using the `<`, `<=`, `>`, and `>=` operators:
 Nice, that's enough!
 :::
 ```
+
+The default value of a variable is `undefined` unless the `defaultValue` attribute is set in the variable declaration directive. Be aware that `undefined` is _not_ the same as `false`.
 
 **Note: Even if a conditional expression only contains variables, the `source` property is still required. You can set it to any of your IV trackers.**
 

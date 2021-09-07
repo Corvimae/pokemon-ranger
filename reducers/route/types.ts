@@ -1,4 +1,4 @@
-import { Stat } from '../../utils/constants';
+import { Nature, Stat } from '../../utils/constants';
 import { Generation } from '../../utils/rangeTypes';
 
 export const VALID_VARIABLE_TYPES = ['text', 'number', 'boolean', 'select'] as const;
@@ -27,6 +27,8 @@ export interface Tracker {
   evSegments: Record<number, EVsByLevel>;
   manualPositiveNature: Stat | undefined;
   manualNegativeNature: Stat | undefined;
+  staticIVs: StatLine;
+  staticNature: Nature | undefined;
 }
 
 export interface VariableState {
@@ -87,6 +89,8 @@ type RegisterTrackerAction = {
     calculateHiddenPower: boolean;
     baseStats: StatLine[];
     evSegments: Record<number, EVsByLevel>;
+    staticIVs: StatLine;
+    staticNature: Nature | undefined;
   };
 }
 

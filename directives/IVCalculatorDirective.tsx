@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { registerTracker, RouteContext } from '../reducers/route/reducer';
 import { EVsByLevel, StatLine } from '../reducers/route/types';
+import { Nature } from '../utils/constants';
 import { splitOnLastElement } from '../utils/utils';
 
 export interface EVSegment {
@@ -16,6 +17,13 @@ interface IVCalculatorDirectiveProps {
   generation?: string;
   contents?: string;
   hiddenPower?: string;
+  hpIV?: string;
+  attackIV?: string;
+  defenseIV?: string;
+  spAttackIV?: string;
+  spDefenseIV?: string;
+  speedIV?: string;
+  nature: string;
 }
 
 function arrayToStatRow([hp, attack, defense, spAttack, spDefense, speed]: number[]): StatLine {
@@ -28,6 +36,13 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
   generation,
   hiddenPower,
   contents,
+  hpIV,
+  attackIV,
+  defenseIV,
+  spAttackIV,
+  spDefenseIV,
+  speedIV,
+  nature,
 }) => {
   const dispatch = RouteContext.useDispatch();
 
@@ -42,6 +57,14 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
       return arrayToStatRow([0, 0, 0, 0, 0, 0]);
     }
   }, [rawBaseStats]);
+
+  const staticIVs = useMemo(() => {
+    const ivArray = [hpIV, attackIV, defenseIV, spAttackIV, spDefenseIV, speedIV]
+      .map(iv => iv ? parseInt(iv, 10) : -1)
+      .map(iv => Number.isNaN(iv) ? -1 : iv);
+
+    return arrayToStatRow(ivArray);
+  }, [hpIV, attackIV, defenseIV, spAttackIV, spDefenseIV, speedIV]);
 
   const evSegments = useMemo(() => {
     const lines = (contents ?? '').split('\n').map(line => line.trim()).filter(line => line.length > 0);
@@ -91,10 +114,12 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
         generation === 'lgpe' ? 'lgpe' : Number(generation || 4),
         hiddenPower === 'true',
         evSegments,
+        staticIVs,
+        nature?.toLowerCase() as Nature,
       ));
       hasRegistered.current = true;
     }
-  }, [dispatch, species, baseStats, hiddenPower, evSegments, generation]);
+  }, [dispatch, species, baseStats, hiddenPower, evSegments, generation, staticIVs, nature]);
   
   return null;
 };
