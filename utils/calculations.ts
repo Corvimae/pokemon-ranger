@@ -456,7 +456,7 @@ function calculateExperienceGain(
 
   if (generation >= 7) {
     // I'm not sure if Gen 8 actually uses this formula...
-    const multiplier1 = multiplyAllForGeneration(baseExperience * opponentLevel, [evolutionMultiplier], generation) / (Math.fround(5.0) * expShareMultiplier);
+    const multiplier1 = Math.floor(multiplyAllForGeneration(baseExperience * opponentLevel, [evolutionMultiplier], generation) / (Math.fround(5.0) * expShareMultiplier));
     const multiplier2 = gamefreakPowerOfTwoPointFive((Math.fround(2.0) * opponentLevel + Math.fround(10.0)) / (opponentLevel + level + Math.fround(10.0)));
 
     return multiplyAllForGeneration(Math.floor(multiplier1 * multiplier2) + Math.fround(1.0), [tradeMultiplier, luckyEggMultiplier, affectionMultiplier], generation);
