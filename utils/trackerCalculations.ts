@@ -130,6 +130,25 @@ export function calculatePossibleIVRange(stat: Stat, tracker: Tracker): IVRangeS
     };
   }
 
+  if (tracker.directInput) {
+    const directInputIV = tracker.directInputIVs[stat];
+
+    const clampNegative = !staticNatureDefinition || (staticNatureDefinition.minus === stat && staticNatureDefinition.plus !== stat);
+    const clampPositive = !staticNatureDefinition || (staticNatureDefinition.minus !== stat && staticNatureDefinition.plus === stat);
+    const clampNeutral = !staticNatureDefinition || (staticNatureDefinition.minus === stat && staticNatureDefinition.plus === stat) || (staticNatureDefinition.minus !== stat && staticNatureDefinition.plus !== stat);
+
+    const restrictPositive = tracker.manualPositiveNature !== null && (tracker.manualPositiveNature !== stat || tracker.manualNegativeNature === stat);
+    const restrictNeutral = (tracker.manualPositiveNature === stat || tracker.manualNegativeNature === stat) && !(tracker.manualPositiveNature === stat && tracker.manualNegativeNature === stat);
+    const restrictNegative = tracker.manualNegativeNature !== null && (tracker.manualNegativeNature !== stat || tracker.manualPositiveNature === stat);
+
+    return {
+      positive: clampPositive || !restrictPositive ? [directInputIV, directInputIV] : [-1, -1],
+      neutral: clampNeutral || !restrictNeutral ? [directInputIV, directInputIV] : [-1, -1],
+      negative: clampNegative || !restrictNegative ? [directInputIV, directInputIV] : [-1, -1],
+      combined: [directInputIV, directInputIV],
+    };
+  }
+
   const { negative, neutral, positive } = NATURE_MODIFIERS.reduce((modifierSet, { modifier, key }) => ({
     ...modifierSet,
     [key]: Object.entries(tracker.recordedStats).reduce((acc, [rawEvo, statSegments]) => {

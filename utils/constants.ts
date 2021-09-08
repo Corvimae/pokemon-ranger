@@ -4,6 +4,15 @@ export const STATS = ['hp', 'attack', 'defense', 'spAttack', 'spDefense', 'speed
 
 export type Stat = typeof STATS[number];
 
+export interface StatLine {
+  hp: number;
+  attack: number;
+  defense: number;
+  spAttack: number;
+  spDefense: number;
+  speed: number;
+}
+
 export interface NatureDefinition {
   name: string;
   plus: Stat;
@@ -122,3 +131,7 @@ export const NATURES: Record<Nature, NatureDefinition> = Object.entries(RAW_NATU
     name: capitalize(key),
   },
 }), {} as Record<Nature, NatureDefinition>);
+
+export function createStatLine(hp: number, attack: number, defense: number, spAttack: number, spDefense: number, speed: number): StatLine {
+  return { hp, attack, defense, spAttack, spDefense, speed };
+}

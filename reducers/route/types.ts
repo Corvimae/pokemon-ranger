@@ -1,18 +1,9 @@
-import { Nature, Stat } from '../../utils/constants';
+import { Nature, Stat, StatLine } from '../../utils/constants';
 import { Generation } from '../../utils/rangeTypes';
 
 export const VALID_VARIABLE_TYPES = ['text', 'number', 'boolean', 'select'] as const;
 
 export type RouteVariableType = typeof VALID_VARIABLE_TYPES[number];
-
-export interface StatLine {
-  hp: number;
-  attack: number;
-  defense: number;
-  spAttack: number;
-  spDefense: number;
-  speed: number;
-}
 
 export type EVsByLevel = Record<number, StatLine>;
 
@@ -29,6 +20,9 @@ export interface Tracker {
   manualNegativeNature: Stat | undefined;
   staticIVs: StatLine;
   staticNature: Nature | undefined;
+  directInput: boolean;
+  directInputNatures: Nature[];
+  directInputIVs: StatLine;
 }
 
 export interface VariableState {
@@ -57,6 +51,7 @@ export const SET_REPO_PATH = 'SET_REPO_PATH';
 export const REGISTER_TRACKER = 'REGISTER_TRACKER';
 export const SET_SHOW_OPTIONS = 'SET_SHOW_OPTIONS';
 export const SET_STAT = 'SET_STAT';
+export const SET_MANUAL_NATURE = 'SET_MANUAL_NATURE';
 export const SET_MANUAL_POSITIVE_NATURE = 'SET_MANUAL_POSITIVE_NATURE';
 export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
 export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
@@ -66,6 +61,7 @@ export const SET_OPTION_HIDE_MEDIA = 'SET_OPTION_HIDE_MEDIA';
 export const SET_OPTION_IV_BACKGROUND_COLOR = 'SET_OPTION_IV_BACKGROUND_COLOR';
 export const SET_OPTION_IV_FONT_FAMILY = 'SET_OPTION_IV_FONT_FAMILY';
 export const SET_OPTION_IV_HORIZONTAL_LAYOUT = 'SET_OPTION_IV_HORIZONTAL_LAYOUT';
+export const SET_DIRECT_INPUT_IV = 'SET_DIRECT_INPUT_IV';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
@@ -91,6 +87,8 @@ type RegisterTrackerAction = {
     evSegments: Record<number, EVsByLevel>;
     staticIVs: StatLine;
     staticNature: Nature | undefined;
+    directInput: boolean;
+    directInputNatures: Nature[] | undefined;
   };
 }
 
@@ -108,6 +106,15 @@ type SetStatAction = {
     stat: Stat;
     value: number;
     level: number;
+  };
+}
+
+type SetManualNatureAction = {
+  type: typeof SET_MANUAL_NATURE;
+  payload: {
+    name: string;
+    positive: Stat | undefined;
+    negative: Stat | undefined;
   };
 }
 
@@ -177,6 +184,15 @@ type SetOptionIVHorizontalLayoutAction = {
   };
 }
 
+type SetDirectInputIVAction = {
+  type: typeof SET_DIRECT_INPUT_IV;
+  payload: {
+    name: string;
+    stat: Stat;
+    value: number;
+  };
+}
+
 type TriggerEvolutionAction = {
   type: typeof TRIGGER_EVOLUTION;
   payload: {
@@ -230,6 +246,7 @@ export type RouteAction =
   RegisterTrackerAction |
   SetShowOptionsAction |
   SetStatAction |
+  SetManualNatureAction |
   SetManualPositiveNatureAction |
   SetManualNegativeNatureAction |
   SetManualNeutralNatureAction |
@@ -239,6 +256,7 @@ export type RouteAction =
   SetOptionIVBackgroundColorAction |
   SetOptionIVFontFamilyAction |
   SetOptionIVHorizontalLayoutAction |
+  SetDirectInputIVAction |
   TriggerEvolutionAction |
   ResetTrackerAction |
   SetStartingLevelAction |

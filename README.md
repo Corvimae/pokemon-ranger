@@ -6,7 +6,7 @@ Any likeness in naming to any DS series of videogames is purely coincidental. Ra
 
 ## Tips and Tricks
 
-- You can click the name of a stat in the IV tracker to force it to be a positive nature, or shift-click will force it to be a negative nature. Alt-clicking on any stat (option-click on Mac) will force a neutral nature.
+- You can click the name of a stat in the IV tracker to force it to be a positive nature, or shift-click it to force it to be a negative nature. Alt-clicking on any stat (option-click on Mac) will force a neutral nature.
 
 ## Writing Routefiles
 
@@ -56,6 +56,10 @@ A route file can contain any number of IV trackers, but in order to take advanta
 `speedIV` (number)  - A static value for the HP IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
 
 `nature` (string)  - A static value for the nature. Unless you know the nature will always be set (for example, from a trade Pokémon), ignore this attribute.
+
+`directInput` (boolean) - If true, the stat tracker will be replaced with a set of input fields that allow the runner to provide exact IVs. This mode is intended for manipped runs with varying stats, like FireRed/LeafGreen.
+
+`directInputNatures` (string) - A JSON-formatted array of natures. If `directInput` is true, a row of buttons will be shown with the specified natures, allowing the runner to quickly select a nature from the pre-specified list. If `directInputNatures` is not specified but `directInput` is true, a nature can still be chosen by clicking on the stat names (see Tips and Tricks).
 
 **Content**
 

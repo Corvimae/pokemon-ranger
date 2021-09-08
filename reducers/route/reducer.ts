@@ -1,9 +1,9 @@
 import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import { Nature, Stat } from '../../utils/constants';
+import { createStatLine, Nature, Stat, StatLine } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, StatLine, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
@@ -44,6 +44,9 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             evSegments: action.payload.evSegments,
             staticIVs: action.payload.staticIVs,
             staticNature: action.payload.staticNature,
+            directInput: action.payload.directInput,
+            directInputIVs: createStatLine(0, 0, 0, 0, 0, 0),
+            directInputNatures: action.payload.directInputNatures ?? [],
           },
         },
       };
@@ -70,6 +73,19 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         get(state, path) === action.payload.value ? undefined : action.payload.value,
       );
     }
+
+    case SET_MANUAL_NATURE:
+      return {
+        ...state,
+        trackers: {
+          ...state.trackers,
+          [action.payload.name]: {
+            ...state.trackers[action.payload.name],
+            manualPositiveNature: action.payload.positive,
+            manualNegativeNature: action.payload.negative,
+          },
+        },
+      };
 
     case SET_MANUAL_POSITIVE_NATURE:
       return {
@@ -164,6 +180,13 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
+    case SET_DIRECT_INPUT_IV:
+      return set(
+        cloneDeep(state),
+        ['trackers', action.payload.name, 'directInputIVs', action.payload.stat],
+        action.payload.value,
+      );
+
     case TRIGGER_EVOLUTION:
       return set(
         cloneDeep(state),
@@ -182,6 +205,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             recordedStats: {},
             manualPositiveNature: undefined,
             manualNegativeNature: undefined,
+            directInputIVs: createStatLine(0, 0, 0, 0, 0, 0),
           },
         },
       };
@@ -259,7 +283,7 @@ export function setRepoPath(repoPath: string | undefined): RouteAction {
   };
 }
 
-export function registerTracker(name: string, baseStats: StatLine[], generation: Generation, calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>, staticIVs: StatLine, staticNature: Nature | undefined): RouteAction {
+export function registerTracker(name: string, baseStats: StatLine[], generation: Generation, calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>, staticIVs: StatLine, staticNature: Nature | undefined, directInput: boolean, directInputNatures: Nature[] | undefined): RouteAction {
   return {
     type: REGISTER_TRACKER,
     payload: {
@@ -270,6 +294,8 @@ export function registerTracker(name: string, baseStats: StatLine[], generation:
       evSegments,
       staticIVs,
       staticNature,
+      directInput,
+      directInputNatures,
     },
   };
 }
@@ -289,6 +315,17 @@ export function setStat(name: string, stat: Stat, level: number, value: number):
       stat,
       level,
       value,
+    },
+  };
+}
+
+export function setManualNature(name: string, positive?: Stat, negative?: Stat): RouteAction {
+  return {
+    type: SET_MANUAL_NATURE,
+    payload: {
+      name,
+      positive,
+      negative,
     },
   };
 }
@@ -362,6 +399,17 @@ export function setOptionIVHorizontalLayout(value: boolean): RouteAction {
   return {
     type: SET_OPTION_IV_HORIZONTAL_LAYOUT,
     payload: { value },
+  };
+}
+
+export function setDirectInputIV(name: string, stat: Stat, value: number): RouteAction {
+  return {
+    type: SET_DIRECT_INPUT_IV,
+    payload: {
+      name,
+      stat,
+      value,
+    },
   };
 }
 

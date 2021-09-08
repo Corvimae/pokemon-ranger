@@ -63,6 +63,8 @@ const schema = merge(gh, {
       'spDefenseIV',
       'speedIV',
       'nature',
+      'directInput',
+      'directInputNatures',
     ],
     if: ['condition', 'level', 'evolution', 'source', 'theme'],
     card: ['theme'],
