@@ -88,6 +88,7 @@ export function calculatePossibleStats(
   }
 
   if (confirmedPositive === stat && confirmedNegative !== stat) relevantModifiers = [NATURE_MODIFIERS[2]];
+  if (confirmedNegative === stat && confirmedPositive === stat) relevantModifiers = [NATURE_MODIFIERS[1]];
   if (confirmedNegative === stat && confirmedPositive !== stat) relevantModifiers = [NATURE_MODIFIERS[0]];
 
   return relevantModifiers.reduce<StatValuePossibilitySet>((combinedSet, { key, modifier }) => {
@@ -271,8 +272,8 @@ export function getPossibleNatureAdjustmentsForStat(
   const isNeutralValid = rangeSet.neutral[0] !== -1;
   const isPositiveValid = rangeSet.positive[0] !== -1;
 
-  if (confirmedPositive === stat) return [false, false, true];
-  if (confirmedNegative === stat) return [true, false, false];
+  if (confirmedPositive === stat && confirmedNegative !== stat) return [false, false, true];
+  if (confirmedNegative === stat && confirmedPositive !== stat) return [true, false, false];
   
   return [
     isNegativeValid && confirmedNegative === null,
@@ -293,16 +294,16 @@ export function isIVWithinRange(
   stat: Stat,
   ivRanges: IVRangeSet,
 ): boolean {
-  if (confirmedNegative === stat) {
+  if (confirmedNegative === stat && confirmedPositive !== stat) {
     return isIVWithinValues(damageResult.negative, ivRanges.negative);
   }
   
-  if (confirmedPositive === stat) {
+  if (confirmedPositive === stat && confirmedNegative !== stat) {
     return isIVWithinValues(damageResult.positive, ivRanges.positive);
   }
 
   const [negative, neutral, positive] = getPossibleNatureAdjustmentsForStat(ivRanges, stat, [confirmedNegative, confirmedPositive]);
-
+  
   return Object.entries({
     negative,
     neutral,

@@ -123,7 +123,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
 
     const threshold = Number(healthThreshold);
     const natureSet = confirmedNature || [null, null];
-
+        
     if (!ivRanges) return {};
 
     if (threshold !== -1) {
