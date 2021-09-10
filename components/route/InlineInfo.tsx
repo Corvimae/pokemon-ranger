@@ -10,7 +10,7 @@ export const COLORS = {
   pink: '#af32a5',
 } as const;
 
-type InfoColor = keyof typeof COLORS;
+export type InfoColor = keyof typeof COLORS;
 
 interface InlineInfoProps {
   color?: InfoColor;

@@ -6,7 +6,7 @@ import { range } from '../utils/utils';
 import { Terms } from './conditional-grammar';
 import { calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../utils/trackerCalculations';
 import { ConfirmedNature } from '../utils/rangeTypes';
-import { Tracker } from '../reducers/route/types';
+import { RouteVariableType, Tracker } from '../reducers/route/types';
 
 type ConditionalStat = Stat | 'startingLevel';
 
@@ -82,7 +82,7 @@ function calculatePossiblyInvertedIVRangeSegments(rangeTerm: Terms.IVRange): [Te
   return [rangeTerm.negative, rangeTerm.neutral, rangeTerm.positive];
 }
 
-function getMatchingStat(stat: string): ConditionalStat {
+export function getMatchingStat(stat: string): ConditionalStat {
   const lowerCaseStat = stat.toLowerCase();
 
   const match = Object.entries(VALID_STATS).find(([, value]) => value.indexOf(lowerCaseStat) !== -1);
@@ -105,7 +105,7 @@ function formatConditionalStatName(stat: ConditionalStat): string {
   return '<unknown stat>';
 }
 
-function calculatePossibleStatsAtLevel(
+export function calculatePossibleStatsAtLevel(
   stat: ConditionalStat,
   level: number,
   ivRanges: Record<Stat, IVRangeSet>,
@@ -188,6 +188,22 @@ function evaluateStatExpression(
   const possibleValues = calculatePossibleStatsAtLevel(matchingStat, level, ivRanges, confirmedNatures, tracker, evolution);
 
   return evaluateRange(possibleValues, expression);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function castRouteVariableAsType(type: RouteVariableType, value: string | undefined): any {
+  if (value === undefined) return undefined;
+
+  switch (type) {
+    case 'number':
+      return parseInt(value, 10);
+    
+    case 'boolean':
+      return value === 'true';
+    
+    default:
+      return value;
+  }
 }
 
 export function evaluateCondition(

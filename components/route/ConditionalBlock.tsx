@@ -5,26 +5,8 @@ import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
 import { BorderlessCard, Card, CardVariant, ContainerLabel, variantIsBorderless } from '../Layout';
 import { parse, Terms } from '../../directives/conditional-grammar';
-import { evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
-import { RouteVariableType } from '../../reducers/route/types';
-
-type ParsedCondition = { error: false; condition: Terms.Expression } | { error: true; message: string };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function castRouteVariableAsType(type: RouteVariableType, value: string | undefined): any {
-  if (value === undefined) return undefined;
-
-  switch (type) {
-    case 'number':
-      return parseInt(value, 10);
-    
-    case 'boolean':
-      return value === 'true';
-    
-    default:
-      return value;
-  }
-}
+import { castRouteVariableAsType, evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
+import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
 
 interface ConditionalBlockProps {
   source?: string;
@@ -57,20 +39,10 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
     }), {})
   ), [state.variables]);
 
-  const parsedCondition: ParsedCondition | null = useMemo(() => {
+  const parsedCondition: ErrorableResult<Terms.Expression> | null = useMemo(() => {
     if (!condition) return null;
 
-    try {
-      return {
-        error: false,
-        condition: parse(condition),
-      };
-    } catch (e) {
-      return {
-        error: true,
-        message: (e as any).message, // eslint-disable-line @typescript-eslint/no-explicit-any
-      };
-    }
+    return evaluateAsThrowableOptional<Terms.Expression>(() => parse(condition));
   }, [condition]);
 
   const result = useMemo(() => {
@@ -90,7 +62,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
       return {
         error: false,
         result: evaluateCondition(
-          parsedCondition.condition,
+          parsedCondition.value,
           level,
           ivRanges,
           confirmedNatures,
@@ -122,7 +94,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
     <CardComponent variant={variant}>
       <Condition>
         Condition met:
-        <b>&nbsp;{formatCondition(parsedCondition.condition)}{rawLevel && ` at Lv. ${rawLevel}`}</b>
+        <b>&nbsp;{formatCondition(parsedCondition.value)}{rawLevel && ` at Lv. ${rawLevel}`}</b>
       </Condition>
       {children}
     </CardComponent>

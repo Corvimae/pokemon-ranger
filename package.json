@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.d.ts .",
-    "build-conditional-parser": "pegjs -o directives/conditional-grammar.js conditional-grammar.pegjs"
+    "build-calc-parser": "pegjs -o directives/calc-grammar.js grammars/calc-grammar.pegjs",
+    "build-conditional-parser": "pegjs -o directives/conditional-grammar.js grammars/conditional-grammar.pegjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",

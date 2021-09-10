@@ -33,6 +33,7 @@ import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
 import { useOnMount } from '../../utils/hooks';
 import { loadOptions } from '../../utils/options';
 import { VariableBlock } from '../../components/route/VariableBlock';
+import { CalculationDirective } from '../../components/route/CalculationDirective';
 
 const RESET_CONFIRM_DURATION = 2000;
 
@@ -48,6 +49,7 @@ const schema = merge(gh, {
     'pokemon',
     'containerlabel',
     'variable',
+    'calc',
   ],
   attributes: {
     tracker: [
@@ -98,6 +100,7 @@ const schema = merge(gh, {
       'theme',
     ],
     variable: ['theme', 'type', 'name', 'title', 'options', 'defaultValue'],
+    calc: ['color', 'contents', 'source', 'level', 'evolution', 'format'],
   },
 });
 
@@ -121,6 +124,7 @@ const processor = unified()
       pokemon: PokemonBlock,
       containerlabel: ContainerLabel,
       variable: VariableBlock,
+      calc: CalculationDirective,
     } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 

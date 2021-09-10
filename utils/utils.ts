@@ -29,3 +29,19 @@ export function dispatchAndPersist<T, U>(key: string, value: T, action: (val: T)
   window.localStorage.setItem(key, JSON.stringify(value));
   dispatch(action(value));
 }
+
+export type ErrorableResult<T> = { error: false, value: T } | { error: true, message: string };
+
+export function evaluateAsThrowableOptional<T>(callback: () => T): ErrorableResult<T> {
+  try {
+    return {
+      error: false,
+      value: callback(),
+    };
+  } catch (e) {
+    return {
+      error: true,
+      message: (e as any).message, // eslint-disable-line @typescript-eslint/no-explicit-any
+    };
+  }
+}

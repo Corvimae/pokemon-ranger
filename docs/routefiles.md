@@ -30,9 +30,9 @@ A route file can contain any number of IV trackers, but in order to take advanta
 
 `baseStats` (string, required) - A JSON-formatted array of base stats for each of the Pokémon's evolutions. If the Pokémon has no evolutions, you should still provide an array-of-arrays (e.g. `[[50, 50, 50, 50, 50, 50]]`).
 
-`hiddenPower` (boolean, default: false) - If true, hidden power type will be calculated and displayed.
+`hiddenPower` (boolean, default: `false`) - If true, hidden power type will be calculated and displayed.
 
-`generation` (number | 'lgpe', default: 4) - Which generation's formulas to use. Gen 1-2 are not supported, and specifying `lgpe` will change results.
+`generation` (number | 'lgpe', default: `4`) - Which generation's formulas to use. Gen 1-2 are not supported, and specifying `lgpe` will change results.
 
 `hpIV` (number) - A static value for the HP IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
 
@@ -131,7 +131,7 @@ The content within the square brackets is displayed as a header above the table,
 
 ## Trainer Blocks
 
-Trainer blocks are useful for organizing content by fight and ensure child Pokémon blocks (see below) are rendered correctly.
+Trainer blocks are useful for organizing content by fight and ensure child Pokémon blocks (see [below](#pokémon-blocks)) are rendered correctly.
 The value in square brackets (`[]`) should be the trainer's name and will be rendered as a subheader. All attributes are optional; if you don't need to specify any attributes, you can omit the curly braces (`{}`).
 
 ### Syntax
@@ -145,7 +145,7 @@ The value in square brackets (`[]`) should be the trainer's name and will be ren
 ### Attributes
 
 `info` (string) - Text to display next to the trainer's name.
-`infoColor` (string) - The color of the info text. Any color accepted by `:info` is accepted here (see below).
+`infoColor` (string) - The color of the info text. Any color accepted by `:info` is accepted here (see [below](#inline-info)).
 
 ## Pokémon Blocks
 
@@ -182,8 +182,7 @@ It's recommended you format the fight instructions as an unordered list. Bullets
 ### Attributes
 
 `info` (string) - Text to display next to the Pokémon's name.
-`infoColor` (string) - The color of the info text. Any color accepted by `:info` is accepted here (see below).
-
+`infoColor` (string) - The color of the info text. Any color accepted by `:info` is accepted here (see [below](#inline-info)).
 
 ## Variables
 
@@ -349,6 +348,69 @@ When defining conditional fights ("do this strategy if your stats are lower than
 ```
 
 This will render both fights with a divider, allowing the runner to better decide which strategy they want to use.
+
+## Calculations
+
+Calculation directives evaluate simple mathematical expressions using Pokémon stats and variables. The expression
+in the contents (either in `[]` or within the opening andclosing tags) will be evaluated and formatted using
+the specified formatter.
+
+### Syntax
+```
+Torrent at level 10 is less than :calc[floor(hp / 3)]{source="Squirtle" level=10} HP
+```
+
+### Attributes
+
+`source` (string) - The unique identifier for the IV tracker associated with this calculation. The value must match the `species` value of an IV tracker. If you are using a stat in your calculation, you must specify this attribute.
+
+`level` (number) - The level of the Pokémon at the time the calculation is relevant. If you are using a stat in this calculation, you must specify this attribute (unless you are only using the `startingLevel` stat).
+
+`evolution` (number, default: `0`) - The evolution of the runner's Pokémon at the time the calculation is relevant, zero-indexed. If
+no stats are used in the calculation, this value is ignored.
+
+`infoColor` (string, default: `black`) - The color of the info text. Any color accepted by `:info` is accepted here (see [below](#inline-info)).
+
+`format`: (string, default: `range`) - One of `range`, `min`, `max`, or `list` (see [below](#formatters))
+
+### Calculation Expressions
+
+The calculation parser allows the following binary operations as formatted in the examples below:
+- Addition (`a + b`)
+- Subtraction (`a - b`)
+- Multiplication (`a * b`)
+- Division (`a / b`)
+- Modulo (`a % b`)
+- Exponent (`a ** b`)
+
+Additionally, the following one-argument functions are available, and work identically to those in the [Javascript Math object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math):
+- Floor (rounding down) (`floor(a)`)
+- Ceiling (rounding up) (`ceil(a)`)
+- Rounding (`round(a)`)
+- Square Root (`sqrt(a)`)
+- Natural Log (`log(a)`)
+- Base-2 Log (`log2(a)`)
+- Base-10 Log (`log10(a)`)
+- Truncation of decimals (`trunc(a)`)
+- Sign (`sign(a)`) (_Returns `1` if positive, `-1` if negative, `0` if zero_)
+- Absolute Value (`abs(a)`)
+
+The following terms are accepted by any binary operation or function:
+
+- An integer or decimal (e.g. `1`, `1.5`, `0.25`)
+- The name of a numeric variable, prefixed by `$` (e.g. `$myVariable`). If a non-numeric variable is specified, an error will be thrown. Variables that do not have a default value and have not had a value assigned to them by the runner evaluate to `0`.
+- The name of a stat: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`, or `startingLevel`. Using stats requires the `source` and `level` attributes, unless using the `startingLevel` stat.
+
+### Formatters
+
+If there is more than one possible value for the calculation, the displayed result depends on the formatter specified:
+
+- `range`: `[min] - [max]`
+- `min`: `[min]`
+- `max`: `[max]`
+- `list`: `[value1], [value2], value[3], (...), [value4]`. Note that each unique value is only shown once.
+
+Be aware that calculation directives do not always display one value; unless a different formatter is specified, the minimum-maximum range will be displayed if the calculation is done using a stat and more than one value is possible.
 
 ## Cards
 
