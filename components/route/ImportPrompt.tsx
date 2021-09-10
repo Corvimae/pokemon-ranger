@@ -208,7 +208,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
         </RepoSourceContainer>
       </UploadMessage>
       <DocsLink
-        href="https://github.com/Corvimae/pokemon-ranger/blob/main/README.md"
+        href="https://docs.ranger.maybreak.com/#/routefiles"
         target="_blank"
         rel="noreferrer"
       >

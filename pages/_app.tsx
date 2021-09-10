@@ -50,11 +50,18 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           <li>
             <Link href="/experience">Exp. Route Builder (BETA)</Link>
           </li>
-          <DarkModeToggle active={darkMode} onClick={handleToggleDarkMode}>
-            <button type="button">
-              <FontAwesomeIcon icon={faMoon} />
-            </button>
-          </DarkModeToggle>
+          <RightAlignedActions>
+            <ActionSet>
+              <li>
+                <a href="https://docs.ranger.maybreak.com/" target="_blank" rel="noopener noreferrer">Docs</a>
+              </li>
+              <DarkModeToggle active={darkMode}>
+                <button type="button" onClick={handleToggleDarkMode}>
+                  <FontAwesomeIcon icon={faMoon} />
+                </button>
+              </DarkModeToggle>
+            </ActionSet>
+          </RightAlignedActions>
         </Header>
         <Content>
           <Component {...pageProps} />
@@ -79,14 +86,12 @@ const Layout = styled.div`
   color: ${({ theme }) => theme.foreground};
 `;
 
-const Header = styled.ul`
+const ActionSet = styled.ul`
   display: flex;
   flex-direction: row;
+  height: 100%;
   padding: 0;
   margin: 0;
-  padding: 0 0.5rem;
-  color: #fff;
-  background-color: ${({ theme }) => theme.primary};
   list-style: none;
 
   & > li > a,
@@ -108,9 +113,18 @@ const Header = styled.ul`
   }
 `;
 
-const DarkModeToggle = styled.li<{ active: boolean }>`
+const Header = styled(ActionSet)`
+  padding: 0 0 0 0.5rem;
+  color: #fff;
+  background-color: ${({ theme }) => theme.primary};
+`;
+
+const RightAlignedActions = styled.li`
   margin-left: auto;
-  
+  height: 100%;
+`;
+
+const DarkModeToggle = styled.li<{ active: boolean }>`
   && > button {
     background-color: ${({ active }) => active ? 'rgba(0, 0, 0, 0.25)' : 'transparent'};
     color: ${({ active }) => active ? 'rgba(255, 255, 255, 0.75)' : 'rgba(0, 0, 0, 0.75)'};
