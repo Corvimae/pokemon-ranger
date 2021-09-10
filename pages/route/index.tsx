@@ -2,131 +2,19 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import merge from 'deepmerge';
-import unified from 'unified';
-import remark from 'remark-parse';
-import remarkToRehype from 'remark-rehype';
-import rehypeToReact from 'rehype-react';
-import directive from 'remark-directive';
-import raw from 'rehype-raw';
-import sanitize from 'rehype-sanitize';
-import gh from 'hast-util-sanitize/lib/github.json';
-import { Schema } from 'hast-util-sanitize';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { directiveConverter } from '../../directives/directiveConverter';
-import { IVCalculatorDirective } from '../../directives/IVCalculatorDirective';
 import { loadFile, resetRoute, RouteContext, setShowOptions } from '../../reducers/route/reducer';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
-import { DamageTable } from '../../components/route/DamageTable';
-import { ConditionalBlock } from '../../components/route/ConditionalBlock';
-import { ContainerLabel } from '../../components/Layout';
 import { Button } from '../../components/Button';
-import { RouteCard } from '../../components/route/RouteCard';
-import { InlineInfo } from '../../components/route/InlineInfo';
-import { TrainerBlock } from '../../components/route/TrainerBlock';
-import { PokemonBlock } from '../../components/route/PokemonBlock';
 import { ImportPrompt } from '../../components/route/ImportPrompt';
-import { RouteImage } from '../../components/route/RouteImage';
 import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
 import { useOnMount } from '../../utils/hooks';
 import { loadOptions } from '../../utils/options';
-import { VariableBlock } from '../../components/route/VariableBlock';
-import { CalculationDirective } from '../../components/route/CalculationDirective';
+import { buildRouteProcessor } from '../../utils/routeProcessor';
 
 const RESET_CONFIRM_DURATION = 2000;
-
-const schema = merge(gh, {
-  tagNames: [
-    'tracker',
-    'if',
-    'damage',
-    'level',
-    'card',
-    'info',
-    'trainer',
-    'pokemon',
-    'containerlabel',
-    'variable',
-    'calc',
-  ],
-  attributes: {
-    tracker: [
-      'species',
-      'contents',
-      'baseStats',
-      'hiddenPower',
-      'generation',
-      'hpIV',
-      'attackIV',
-      'defenseIV',
-      'spAttackIV',
-      'spDefenseIV',
-      'speedIV',
-      'nature',
-      'directInput',
-      'directInputNatures',
-    ],
-    if: ['condition', 'level', 'evolution', 'source', 'theme'],
-    card: ['theme'],
-    info: ['color'],
-    trainer: ['info', 'infoColor'],
-    pokemon: ['info', 'infoColor'],
-    damage: [
-      'source',
-      'contents',
-      'level',
-      'evolution',
-      'evs',
-      'combatStages',
-      'movePower',
-      'effectiveness',
-      'stab',
-      'opponentStat',
-      'opponentCombatStages',
-      'opponentLevel',
-      'torrent',
-      'weatherBoosted',
-      'weatherReduced',
-      'multiTarget',
-      'otherModifier',
-      'friendship',
-      'offensive',
-      'special',
-      'healthThreshold',
-      'screen',
-      'otherPowerModifier',
-      'theme',
-    ],
-    variable: ['theme', 'type', 'name', 'title', 'options', 'defaultValue'],
-    calc: ['color', 'contents', 'source', 'level', 'evolution', 'format'],
-  },
-});
-
-const processor = unified()
-  .use(remark)
-  .use(directive)
-  .use(directiveConverter)
-  .use(remarkToRehype, { allowDangerousHtml: true })
-  .use(raw)
-  .use(sanitize, (schema as unknown) as Schema)
-  .use(rehypeToReact, {
-    createElement: React.createElement,
-    components: ({
-      img: RouteImage,
-      tracker: IVCalculatorDirective,
-      if: ConditionalBlock,
-      damage: DamageTable,
-      card: RouteCard,
-      info: InlineInfo,
-      trainer: TrainerBlock,
-      pokemon: PokemonBlock,
-      containerlabel: ContainerLabel,
-      variable: VariableBlock,
-      calc: CalculationDirective,
-    } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
-  });
 
 interface RouteViewParams {
   repo?: string;
@@ -141,6 +29,8 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
 
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [fileContent, setFileContent] = useState<string | null>(null);
+
+  const state = RouteContext.useState();
 
   const handleOnInitialImport = useCallback(() => {
     hasAttemptedQueryParamLoad.current = true;
@@ -175,7 +65,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
     try {
       return {
         error: false,
-        content: processor.processSync(fileContent).result as React.ReactNode,
+        content: buildRouteProcessor(state.options.renderOnlyTrackers).processSync(fileContent).result as React.ReactNode,
       };
     } catch (e) {
       console.error(e);
@@ -184,9 +74,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
         message: 'The route file is not valid.',
       };
     }
-  }, [fileContent]);
-
-  const state = RouteContext.useState();
+  }, [fileContent, state.options.renderOnlyTrackers]);
 
   const handleReset = useCallback(() => {
     if (resetConfirmActive) {
@@ -230,6 +118,12 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
             </RouteActions>
             <RouteContent hideMedia={state.options.hideMedia}>
               {content.content}
+              {state.options.renderOnlyTrackers && (
+                <NoRenderWarning>
+                  Route rendering is disabled. Disable the &ldquo;Render Only IV Trackers&rdquo; option
+                  to re-enable it.
+                </NoRenderWarning>
+              )}
             </RouteContent>
             {state.showOptions && <RouteOptionsModal />}
           </Guide>
@@ -393,4 +287,9 @@ const ReturnToTopButton = styled.button`
     opacity: 0;
     pointer-events: none;
   }
+`;
+
+const NoRenderWarning = styled.div`
+  font-style: italic;
+  color: ${({ theme }) => theme.label};
 `;

@@ -1,10 +1,40 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { RouteContext, setOptionCompactIVs, setOptionHideMedia, setOptionIVBackgroundColor, setOptionIVFontFamily, setOptionIVHorizontalLayout, setShowOptions } from '../../reducers/route/reducer';
+import { RouteContext, setBooleanOption, setOptionIVBackgroundColor, setOptionIVFontFamily, setShowOptions } from '../../reducers/route/reducer';
+import { BooleanRouteOptionStateKey } from '../../reducers/route/types';
 import { OptionKeys } from '../../utils/options';
 import { dispatchAndPersist } from '../../utils/utils';
 import { Button } from '../Button';
 import { Checkbox, HelpText, InputRow, InputSection } from '../Layout';
+
+interface RouteOptionCheckboxProps {
+  label: string;
+  stateKey: BooleanRouteOptionStateKey
+  storageKey: string;
+}
+
+const RouteOptionCheckbox: React.FC<RouteOptionCheckboxProps> = ({ label, stateKey, storageKey, children }) => {
+  const state = RouteContext.useState();
+  const dispatch = RouteContext.useDispatch();
+
+  const handleToggle = useCallback(() => {
+    dispatchAndPersist(storageKey, !state.options[stateKey], value => setBooleanOption(stateKey, value), dispatch);
+  }, [dispatch, state.options, stateKey, storageKey]);
+
+  return (
+    <InputRow>
+      <label htmlFor="stateKey">{label}</label>
+      <Checkbox
+        id={stateKey}
+        data-checked={state.options[stateKey]}
+        onClick={handleToggle}
+      />
+      {children && (
+        <HelpText>{children}</HelpText>
+      )}
+    </InputRow>
+  );
+};
 
 export const RouteOptionsModal: React.FC = () => {
   const state = RouteContext.useState();
@@ -14,14 +44,6 @@ export const RouteOptionsModal: React.FC = () => {
     dispatch(setShowOptions(false));
   }, [dispatch]);
 
-  const handleToggleCompactIVs = useCallback(() => {
-    dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_COMPACT_IVS, !state.options.compactIVs, setOptionCompactIVs, dispatch);
-  }, [dispatch, state.options.compactIVs]);
-  
-  const handleToggleHideMedia = useCallback(() => {
-    dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_HIDE_MEDIA, !state.options.hideMedia, setOptionHideMedia, dispatch);
-  }, [dispatch, state.options.hideMedia]);
-
   const handleSetIVBackgroundColor = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_IVS_BACKGROUND_COLOR, event.target.value, setOptionIVBackgroundColor, dispatch);
   }, [dispatch]);
@@ -29,10 +51,6 @@ export const RouteOptionsModal: React.FC = () => {
   const handleSetIVFontFamily = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_IVS_FONT_FAMILY, event.target.value, setOptionIVFontFamily, dispatch);
   }, [dispatch]);
-
-  const handleToggleIVHorizontalLayout = useCallback(() => {
-    dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_IVS_HORIZONTAL_LAYOUT, !state.options.ivHorizontalLayout, setOptionIVHorizontalLayout, dispatch);
-  }, [dispatch, state.options.ivHorizontalLayout]);
 
   return (
     <Backdrop>
@@ -46,17 +64,21 @@ export const RouteOptionsModal: React.FC = () => {
 
         <ModalBody>
           <InputSection>
-            <InputRow>
-              <label htmlFor="compactIVs">Compact IV Display</label>
-              <Checkbox id="compactIVs" data-checked={state.options.compactIVs} onClick={handleToggleCompactIVs} />
-              <HelpText>Hide the Pokémon&apos;s name above the IV display.</HelpText>
-            </InputRow>
+            <RouteOptionCheckbox
+              label="Compact IV Display"
+              stateKey="compactIVs"
+              storageKey={OptionKeys.ROUTE_OPTIONS_COMPACT_IVS}
+            >
+              Hide the Pokémon&apos;s name above the IV display.
+            </RouteOptionCheckbox>
 
-            <InputRow>
-              <label htmlFor="compactIVs">Hide Media</label>
-              <Checkbox id="compactIVs" data-checked={state.options.hideMedia} onClick={handleToggleHideMedia} />
-              <HelpText>Hides images and videos.</HelpText>
-            </InputRow>
+            <RouteOptionCheckbox
+              label="Hide Media"
+              stateKey="hideMedia"
+              storageKey={OptionKeys.ROUTE_OPTIONS_HIDE_MEDIA}
+            >
+              Hides images and videos.
+            </RouteOptionCheckbox>
 
             <InputRow>
               <label htmlFor="ivBackgroundColor">IV Background Color</label>
@@ -75,12 +97,30 @@ export const RouteOptionsModal: React.FC = () => {
               </HelpText>
             </InputRow>
 
-            <InputRow>
-              <label htmlFor="compactIVs">IV Horizontal Layout</label>
-              <Checkbox id="compactIVs" data-checked={state.options.ivHorizontalLayout} onClick={handleToggleIVHorizontalLayout} />
-              <HelpText>Show the IV tracker in a horizontal layout at the bottom of the page.</HelpText>
-            </InputRow>
+            <RouteOptionCheckbox
+              label="IV Horizontal Layout"
+              stateKey="ivHorizontalLayout"
+              storageKey={OptionKeys.ROUTE_OPTIONS_IVS_HORIZONTAL_LAYOUT}
+            >
+              Show the IV tracker in a horizontal layout at the bottom of the page.
+            </RouteOptionCheckbox>
 
+            <RouteOptionCheckbox
+              label="High Condition Visibility"
+              stateKey="expandConditions"
+              storageKey={OptionKeys.ROUTE_OPTIONS_EXPAND_CONDITIONS}
+            >
+              Display the conditional expression as its own line in conditional blocks.
+            </RouteOptionCheckbox>
+
+            <RouteOptionCheckbox
+              label="Render Only IV Trackers"
+              stateKey="renderOnlyTrackers"
+              storageKey={OptionKeys.ROUTE_OPTIONS_RENDER_ONLY_TRACKERS}
+            >
+              Render only the IV trackers, not the route. Do not enable this option unless
+              you are only using Ranger&apos;s IV tracker feature and need to improve performance.
+            </RouteOptionCheckbox>
           </InputSection>
         </ModalBody>
       </Modal>

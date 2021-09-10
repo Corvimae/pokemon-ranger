@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { createStatLine, Nature, Stat, StatLine } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, SET_OPTION_COMPACT_IVS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, SET_OPTION_HIDE_MEDIA, SET_OPTION_IV_HORIZONTAL_LAYOUT, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
@@ -17,6 +17,8 @@ const defaultState: RouteState = {
     ivBackgroundColor: '#222',
     ivFontFamily: undefined,
     ivHorizontalLayout: false,
+    expandConditions: false,
+    renderOnlyTrackers: false,
   },
 };
 
@@ -135,24 +137,15 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
-    case SET_OPTION_COMPACT_IVS:
+    case SET_BOOLEAN_OPTION:
       return {
         ...state,
         options: {
           ...state.options,
-          compactIVs: action.payload.value,
+          [action.payload.key]: action.payload.value,
         },
       };
 
-    case SET_OPTION_HIDE_MEDIA:
-      return {
-        ...state,
-        options: {
-          ...state.options,
-          hideMedia: action.payload.value,
-        },
-      };
-  
     case SET_OPTION_IV_BACKGROUND_COLOR:
       return {
         ...state,
@@ -168,15 +161,6 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         options: {
           ...state.options,
           ivFontFamily: action.payload.value,
-        },
-      };
-
-    case SET_OPTION_IV_HORIZONTAL_LAYOUT:
-      return {
-        ...state,
-        options: {
-          ...state.options,
-          ivHorizontalLayout: action.payload.value,
         },
       };
 
@@ -367,20 +351,6 @@ export function loadOptions(values: Partial<RouteOptionsState>): RouteAction {
   };
 }
 
-export function setOptionCompactIVs(value: boolean): RouteAction {
-  return {
-    type: SET_OPTION_COMPACT_IVS,
-    payload: { value },
-  };
-}
-
-export function setOptionHideMedia(value: boolean): RouteAction {
-  return {
-    type: SET_OPTION_HIDE_MEDIA,
-    payload: { value },
-  };
-}
-
 export function setOptionIVBackgroundColor(value: string): RouteAction {
   return {
     type: SET_OPTION_IV_BACKGROUND_COLOR,
@@ -395,10 +365,10 @@ export function setOptionIVFontFamily(value: string): RouteAction {
   };
 }
 
-export function setOptionIVHorizontalLayout(value: boolean): RouteAction {
+export function setBooleanOption(key: BooleanRouteOptionStateKey, value: boolean): RouteAction {
   return {
-    type: SET_OPTION_IV_HORIZONTAL_LAYOUT,
-    payload: { value },
+    type: SET_BOOLEAN_OPTION,
+    payload: { key, value },
   };
 }
 

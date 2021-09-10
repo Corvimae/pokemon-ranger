@@ -265,7 +265,7 @@ export const HelpText = styled.div`
   margin: -0.5rem 0 0.5rem;
 
   & a {
-    color: #317c99;
+    color: ${({ theme }) => theme.anchor};
   }
 `;
 

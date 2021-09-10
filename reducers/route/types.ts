@@ -5,6 +5,8 @@ export const VALID_VARIABLE_TYPES = ['text', 'number', 'boolean', 'select'] as c
 
 export type RouteVariableType = typeof VALID_VARIABLE_TYPES[number];
 
+export type BooleanRouteOptionStateKey = keyof Omit<RouteOptionsState, 'ivBackgroundColor' | 'ivFontFamily'>
+
 export type EVsByLevel = Record<number, StatLine>;
 
 export interface Tracker {
@@ -37,6 +39,8 @@ export interface RouteOptionsState {
   ivBackgroundColor: string;
   ivFontFamily: string | undefined;
   ivHorizontalLayout: boolean;
+  expandConditions: boolean;
+  renderOnlyTrackers: boolean;
 }
 
 export interface RouteState {
@@ -56,11 +60,9 @@ export const SET_MANUAL_POSITIVE_NATURE = 'SET_MANUAL_POSITIVE_NATURE';
 export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
 export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
 export const LOAD_OPTIONS = 'LOAD_OPTIONS';
-export const SET_OPTION_COMPACT_IVS = 'SET_OPTION_COMPACT_IVS';
-export const SET_OPTION_HIDE_MEDIA = 'SET_OPTION_HIDE_MEDIA';
 export const SET_OPTION_IV_BACKGROUND_COLOR = 'SET_OPTION_IV_BACKGROUND_COLOR';
 export const SET_OPTION_IV_FONT_FAMILY = 'SET_OPTION_IV_FONT_FAMILY';
-export const SET_OPTION_IV_HORIZONTAL_LAYOUT = 'SET_OPTION_IV_HORIZONTAL_LAYOUT';
+export const SET_BOOLEAN_OPTION = 'SET_BOOLEAN_OPTION';
 export const SET_DIRECT_INPUT_IV = 'SET_DIRECT_INPUT_IV';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
 export const RESET_TRACKER = 'RESET_TRACKER';
@@ -149,20 +151,6 @@ type LoadOptionsAction = {
   };
 }
 
-type SetOptionCompactIVsAction = {
-  type: typeof SET_OPTION_COMPACT_IVS;
-  payload: {
-    value: boolean;
-  };
-}
-
-type SetOptionHideMediaAction = {
-  type: typeof SET_OPTION_HIDE_MEDIA;
-  payload: {
-    value: boolean;
-  };
-}
-
 type SetOptionIVBackgroundColorAction = {
   type: typeof SET_OPTION_IV_BACKGROUND_COLOR;
   payload: {
@@ -177,9 +165,10 @@ type SetOptionIVFontFamilyAction = {
   };
 }
 
-type SetOptionIVHorizontalLayoutAction = {
-  type: typeof SET_OPTION_IV_HORIZONTAL_LAYOUT;
+type SetBooleanOptionAction = {
+  type: typeof SET_BOOLEAN_OPTION;
   payload: {
+    key: BooleanRouteOptionStateKey;
     value: boolean;
   };
 }
@@ -251,11 +240,9 @@ export type RouteAction =
   SetManualNegativeNatureAction |
   SetManualNeutralNatureAction |
   LoadOptionsAction |
-  SetOptionCompactIVsAction |
-  SetOptionHideMediaAction |
   SetOptionIVBackgroundColorAction |
   SetOptionIVFontFamilyAction |
-  SetOptionIVHorizontalLayoutAction |
+  SetBooleanOptionAction |
   SetDirectInputIVAction |
   TriggerEvolutionAction |
   ResetTrackerAction |

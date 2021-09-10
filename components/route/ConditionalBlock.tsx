@@ -92,7 +92,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   const CardComponent = variantIsBorderless(themeContext, variant) ? BorderlessConditionalCard : ConditionalCard;
 
   return result?.result ? (
-    <CardComponent variant={variant}>
+    <CardComponent variant={variant} expandConditions={state.options.expandConditions}>
       <Condition>
         Condition met:
         <b>&nbsp;{formatCondition(parsedCondition.value)}{rawLevel && ` at Lv. ${rawLevel}`}</b>
@@ -103,12 +103,13 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
 };
 
 const Condition = styled.div`
+  display: block;
   width: 100%;
   text-align: right;
   font-size: 0.875rem;
 `;
 
-const ConditionalCard = styled(Card)`
+const ConditionalCard = styled(Card)<{ expandConditions: boolean }>`
   padding-top: 0.25rem;
 
   & > ${Condition} + p {
@@ -116,7 +117,7 @@ const ConditionalCard = styled(Card)`
   }
 `;
 
-const BorderlessConditionalCard = styled(BorderlessCard)`
+const BorderlessConditionalCard = styled(BorderlessCard)<{ expandConditions: boolean }>`
   position: relative;
 
   h4 + & ${Condition},
@@ -133,19 +134,19 @@ const BorderlessConditionalCard = styled(BorderlessCard)`
   }
 
   & ${Condition} {
-    position: absolute;
+    position: ${({ expandConditions }) => !expandConditions && 'absolute'};
     width: max-content;
     top: 0;
     right: 0;
-    max-width: 40%;
+    max-width: ${({ expandConditions }) => !expandConditions && '40%'};
     overflow-x: auto;
     white-space: nowrap;
-    padding: 0.5rem;
+    padding: ${({ expandConditions }) => expandConditions ? '0.25rem' : '0.5rem'};
     border-radius: 0.25rem;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: ${({ theme }) => theme.gridHeader.cardFade};
 
     & + ul {
-      margin-top: -1rem;
+      margin-top: ${({ expandConditions }) => expandConditions ? '0rem' : '-1rem'};
     }
   }
 
