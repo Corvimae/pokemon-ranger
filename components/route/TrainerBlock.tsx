@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ContainerLabel } from '../Layout';
-import { COLORS } from './InlineInfo';
 
 interface TrainerBlockProps {
   info?: string;
@@ -28,7 +27,7 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
     top: -0.5rem;
     width: 100%;
     padding: 0.5rem;
-    background-color: #badfff;;
+    background-color: ${({ theme }) => theme.trainerBackground};
     margin-left: -2rem;
     font-size: 1.25rem;
     font-weight: 700;
@@ -40,7 +39,7 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
 
     &:after {
       content: ${props => props.info && `"${props.info}"`};
-      color: ${props => COLORS[props.infoColor as keyof typeof COLORS] || COLORS.black};
+      color: ${props => props.theme.info[props.infoColor ?? 'black']};
       margin-left: 1rem;
       font-weight: 400;
       font-size: 1rem;

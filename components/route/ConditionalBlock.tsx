@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useContext, useMemo } from 'react';
+import styled, { ThemeContext } from 'styled-components';
 import { ErrorCard } from './ErrorCard';
 import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
-import { BorderlessCard, Card, CardVariant, ContainerLabel, variantIsBorderless } from '../Layout';
+import { BorderlessCard, Card, ContainerLabel, variantIsBorderless } from '../Layout';
 import { parse, Terms } from '../../directives/conditional-grammar';
 import { castRouteVariableAsType, evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
@@ -21,9 +21,11 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   condition,
   level: rawLevel,
   evolution: rawEvolution = '0',
-  theme = 'borderless',
+  theme: variant = 'borderless',
   children,
 }) => {
+  const themeContext = useContext(ThemeContext);
+
   const state = RouteContext.useState();
   const tracker = source && state.trackers[source];
 
@@ -87,8 +89,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   if (result?.error) return <ErrorCard>{result.message}</ErrorCard>;
   if (parsedCondition?.error) return <ErrorCard>{parsedCondition.error}</ErrorCard>;
 
-  const variant = theme as CardVariant;
-  const CardComponent = variantIsBorderless(theme) ? BorderlessConditionalCard : ConditionalCard;
+  const CardComponent = variantIsBorderless(themeContext, variant) ? BorderlessConditionalCard : ConditionalCard;
 
   return result?.result ? (
     <CardComponent variant={variant}>

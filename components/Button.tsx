@@ -6,7 +6,7 @@ export const Button = styled.button`
   border-radius: 0.5rem;
   padding: 0.25rem 0.5rem;
   margin: 0;
-  background-color: #30b878;
+  background-color: ${({ theme }) => theme.primary};
   font-family: inherit;
   font-size: 1rem;
   font-weight: 700;
@@ -14,7 +14,7 @@ export const Button = styled.button`
 
   &:not(:disabled):hover,
   &:not(:disabled):active {
-    background-color: #4ecf92;
+    background-color: ${({ theme }) => theme.primaryHover};
   }
 
   &:disabled {
@@ -27,12 +27,12 @@ export const Button = styled.button`
 `;
 
 export const IconButton = styled(Button)`
-  color: #333;
+  color: ${({ theme }) => theme.foreground};
   background-color: transparent;
   
   &:not(:disabled):hover,
   &:not(:disabled):active {
     background-color: transparent;
-    color: #000;
+    color: ${({ theme }) => theme.foregroundHover};
   }
 `;

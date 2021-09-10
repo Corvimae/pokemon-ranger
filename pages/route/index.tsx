@@ -21,7 +21,7 @@ import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
 import { DamageTable } from '../../components/route/DamageTable';
 import { ConditionalBlock } from '../../components/route/ConditionalBlock';
-import { ContainerLabel, Link } from '../../components/Layout';
+import { ContainerLabel } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { RouteCard } from '../../components/route/RouteCard';
 import { InlineInfo } from '../../components/route/InlineInfo';
@@ -234,7 +234,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
             {state.showOptions && <RouteOptionsModal />}
           </Guide>
         ) : (
-          <>
+          <ImportContainer>
             <ImportPrompt
               repoQueryParam={repo}
               error={content?.error ? content.message : undefined}
@@ -242,14 +242,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
               hasAttemptedQueryParamLoad={hasAttemptedQueryParamLoad.current}
               onInitialLoad={handleOnInitialImport}
             />
-            <DocsLink
-              href="https://github.com/Corvimae/pokemon-ranger/blob/main/README.md"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Learn to write your own route!
-            </DocsLink>
-          </>
+          </ImportContainer>
         )}
         <ReturnToTopButton
           disabled={!showScrollToTop || !content || content.error}
@@ -299,6 +292,12 @@ const MainContent = styled.div`
   position: relative;
   height: 100%;
   overflow-y: hidden;
+`;
+
+const ImportContainer = styled.div`
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
 `;
 
 const Guide = styled.div<{ showOptions: boolean }>`
@@ -394,12 +393,4 @@ const ReturnToTopButton = styled.button`
     opacity: 0;
     pointer-events: none;
   }
-`;
-
-const DocsLink = styled(Link)`
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  font-weight: 700;
-  transform: translate(-50%, 0);
 `;

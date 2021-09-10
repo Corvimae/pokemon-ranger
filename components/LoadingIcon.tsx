@@ -40,7 +40,7 @@ const BallTop = styled.div`
   width: 16rem;
   height: 8rem;
   border-radius: 8rem 8rem 0 0;
-  background: linear-gradient(0deg, #ccc 0%, #ccc 50%, #e7040f 50.1%, #e7040f 100%);
+  background: ${({ theme }) => `linear-gradient(0deg, ${theme.backgroundSelected} 0%, ${theme.backgroundSelected} 50%, ${theme.error} 50.1%, ${theme.error} 100%)`};
   background-size: 200% 200%;
   animation: 2.5s infinite linear ${TopAnimation};
 `;
@@ -50,7 +50,7 @@ const BallCenter = styled.div`
   width: 100%;
   height: 1rem;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.background};
 `;
 
 const BallButton = styled.div`
@@ -60,7 +60,7 @@ const BallButton = styled.div`
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.background};
   transform: translate(-50%, -50%);
 `;
 
@@ -68,8 +68,8 @@ const BallBottom = styled.div`
   width: 16rem;
   height: 8rem;
   border-radius: 0 0 8rem 8rem;
-  background-color: #ccc;
-  background: linear-gradient(0deg, #ccc 0%, #ccc 50%, #fff 50.1%, #fff 100%);
+  background-color: ${({ theme }) => theme.backgroundSelected};
+  background: ${({ theme }) => `linear-gradient(0deg, ${theme.backgroundSelected} 0%, ${theme.backgroundSelected} 50%, ${theme.backgroundDarkened} 50.1%, ${theme.backgroundDarkened} 100%)`};
   background-size: 200% 200%;
   animation: 2.5s infinite linear ${BottomAnimation};
 `;

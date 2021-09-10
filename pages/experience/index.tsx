@@ -155,7 +155,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
           <div>{(event.evs ?? BLANK_EV_SET).join('/')}</div>
         </ExperienceEventEVs>
       )}
-      <Button theme="error" onClick={() => onRemove(event.id)}>&times;</Button>
+      <Button onClick={() => onRemove(event.id)}>&times;</Button>
     </ExperienceEventContainer>
     {event.isLevelUp && (
       <LevelUpRow>Level up! ({event.levelAfterExperience}) </LevelUpRow>
@@ -675,7 +675,7 @@ const ExperienceEventContainer = styled.div<{ enabled: boolean }>`
   opacity: ${({ enabled }) => !enabled && 0.5};
   
   & + & {
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid ${({ theme }) => theme.input.border};
   }
 `;
 
@@ -700,8 +700,8 @@ const ExperienceEventText = styled.div`
 
 const LevelUpRow = styled.div`
   width: 100%;
-  background-color: #aaddff;
-  color: #0d2f46;
+  background-color: ${({ theme }) => theme.cards.info.background};
+  color: ${({ theme }) => theme.cards.info.foreground};
   font-size: 0.825rem;
   text-align: center;
   font-style: italic;
@@ -722,7 +722,7 @@ const ActionInputSubheader = styled.h3`
   justify-content: space-between;
   align-items: center;
   font-weight: 700;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid ${({ theme }) => theme.input.border};
   font-size: 1.125rem;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
@@ -730,7 +730,7 @@ const ActionInputSubheader = styled.h3`
 `;
 
 const ExperienceGained = styled.span`
-  color: #666;
+  color: ${({ theme }) => theme.label};
   margin-left: 0.25rem;
 `;
 
@@ -745,13 +745,13 @@ const Disclaimer = styled(HelpText)`
 `;
 
 const ImportError = styled.div`
-  color: #900;
+  color: ${({ theme }) => theme.error};
   font-weight: 700;
   margin-top: 1rem;
 `;
 
 const ImportInstructions = styled.div`
-  color: #666;
+  color: ${({ theme }) => theme.label};
   font-style: italic;
   margin-top: 1rem;
 `;
@@ -795,7 +795,7 @@ const ExperienceEventDragHandleContainer = styled.div`
 `;
 
 const ExperienceEVsLabel = styled.div`
-  color: #666;
+  color: ${({ theme }) => theme.label};
   font-weight: 700;
   font-size: 0.825rem;
 `;
@@ -813,7 +813,7 @@ const ExperienceEventEVs = styled.div`
 
 const ExperienceEventLevel = styled.div`
   font-size: 0.825rem;
-  color: #666;
+  color: ${({ theme }) => theme.label};
   font-weight: 700;
   margin: 0 0.5rem;
   align-self: flex-end;

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import styled, { ThemeContext } from 'styled-components';
 import Select from 'react-select';
 import { registerVariable, RouteContext, setVariableValue } from '../../reducers/route/reducer';
 import { RouteVariableType, VALID_VARIABLE_TYPES } from '../../reducers/route/types';
@@ -81,6 +81,7 @@ const VariableInputField: React.FC<VariableInputFieldProps> = ({ type, options, 
             options={optionItems}
             value={optionItems.find(({ value: itemValue }) => itemValue === value) ?? null}
             onChange={option => onChange(option?.value ?? undefined)}
+            classNamePrefix="variable-selector"
           />
         </VariableSelectWrapper>
       );
@@ -103,14 +104,16 @@ interface VariableBlockProps {
   options?: string;
 }
 
-export const VariableBlock: React.FC<VariableBlockProps> = ({ name, title, defaultValue, theme = 'info', type = 'text', options, children }) => {
+export const VariableBlock: React.FC<VariableBlockProps> = ({ name, title, defaultValue, theme: variant = 'info', type = 'text', options, children }) => {
+  const themeContext = useContext(ThemeContext);
+
   const hasRegistered = useRef(false);
   const state = RouteContext.useState();
   const dispatch = RouteContext.useDispatch();
 
   const sanitizedName = name?.startsWith('user-content-') ? name.replace('user-content-', '') : name;
 
-  const CardComponent = variantIsBorderless(theme) ? BorderlessCard : Card;
+  const CardComponent = variantIsBorderless(themeContext, variant) ? BorderlessCard : Card;
 
   const handleInputValueChange = useCallback(value => {
     dispatch(setVariableValue(sanitizedName, value));
@@ -144,7 +147,7 @@ export const VariableBlock: React.FC<VariableBlockProps> = ({ name, title, defau
 
   return (
     <Container>
-      <CardComponent theme={theme}>
+      <CardComponent variant={variant}>
         {title && <Title>{title}</Title>}
 
         <VariableInputField
@@ -172,7 +175,9 @@ const Input = styled.input`
   margin: 0 0 0.5rem;
   padding: 0.25rem 0.5rem;
   font-size: 1rem;
-  border: 1px solid #999;
+  color: ${({ theme }) => theme.input.foreground};
+  background-color: ${({ theme }) => theme.input.background};
+  border: 1px solid ${({ theme }) => theme.input.border};
 `;
 
 const BooleanToggleOptionRow = styled.div`
@@ -183,8 +188,8 @@ const BooleanToggleOptionRow = styled.div`
 const BooleanToggleOption = styled(Button)<{active: boolean}>`
   margin: 0;
   border-radius: 0.5rem 0 0 0.5rem;
-  background-color: ${({ active }) => active ? '#4ecf92' : '#ccc'};
-  color: ${({ active }) => active ? '#fff' : '#666'};
+  background-color: ${({ active, theme }) => active ? theme.primary : theme.input.background};
+  color: ${({ active, theme }) => active ? '#fff' : theme.label};
 
   & + & {
     border-radius: 0 0.5rem 0.5rem 0;
@@ -193,11 +198,34 @@ const BooleanToggleOption = styled(Button)<{active: boolean}>`
 
   &:not(:disabled):hover,
   &:not(:disabled):active {
-    background-color: ${({ active }) => active ? '#4ecf92' : '#ddd'};
+    background-color: ${({ active, theme }) => active ? theme.primaryHover : theme.input.hover};
   }
 `;
 
-const VariableSelectWrapper = styled.div``;
+const VariableSelectWrapper = styled.div`
+  & .variable-selector__control {
+    background-color: ${({ theme }) => theme.input.background};
+    color: ${({ theme }) => theme.input.foreground};
+    border-color: ${({ theme }) => theme.input.border};
+  }
+
+  & .variable-selector__value-container div {
+    color: ${({ theme }) => theme.input.foreground};
+  }
+
+  & .variable-selector__indicator-separator {
+    background-color: ${({ theme }) => theme.input.border};
+  }
+
+  & .variable-selector__menu {
+    background-color: ${({ theme }) => theme.input.background};
+    z-index: 99;
+  }
+
+  & .variable-selector__option--is-focused {
+    background-color: ${({ theme }) => theme.backgroundSelected};
+  }
+`;
 
 const Container = styled.div`
   & ${BooleanToggleOptionRow}:last-child {

@@ -162,7 +162,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
     noClick: true,
     multiple: false,
   });
-
+  
   return isLoading ? <LoadingIcon /> : (
     <Container {...getRootProps()} tabIndex={-1}>
       <input {...getInputProps()} />
@@ -183,6 +183,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
             <RouteSelector
               onChange={handleSetPublishedImportPath}
               loadOptions={loadPublishedRoutes}
+              classNamePrefix="route-selector"
               cacheOptions
               defaultOptions
             />
@@ -206,13 +207,22 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
           </RepoInputContainer>
         </RepoSourceContainer>
       </UploadMessage>
+      <DocsLink
+        href="https://github.com/Corvimae/pokemon-ranger/blob/main/README.md"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Learn to write your own route!
+      </DocsLink>
     </Container>
   );
 };
 
 const Container = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
+  min-height: 400px;
 `;
 
 const UploadMessage = styled.div`
@@ -223,14 +233,15 @@ const UploadMessage = styled.div`
   padding: 0 8rem;
   text-align: center;
   font-size: 1.25rem;
-  color: #666;
+  color: ${({ theme }) => theme.label};
   font-weight: 700;
   transform: translate(-50%, -50%);
+  z-index: 2;
 `;
 
 const ErrorMessage = styled.div`
   margin-top: 0.5rem;
-  color: #900;
+  color: ${({ theme }) => theme.error};
   font-size: 1.125rem;
 `;
 
@@ -244,7 +255,7 @@ const OrDivider = styled.div`
     top: 0.825rem;
     left: 25%;
     width: 20%;
-    border-top: 1px solid #999;
+    border-top: 1px solid ${({ theme }) => theme.input.border};
   }
 
   &:after {
@@ -253,7 +264,7 @@ const OrDivider = styled.div`
     top: 0.825rem;
     width: 20%;
     left: 55%;
-    border-top: 1px solid #999;
+    border-top: 1px solid ${({ theme }) => theme.input.border};
   }
 `;
 
@@ -262,7 +273,30 @@ const RepoSourceContainer = styled.div`
   flex-direction: column;
 `;
 
-const RouteSelector = styled(AsyncSelect)``;
+const RouteSelector = styled(AsyncSelect)`
+  & > .route-selector__control {
+    background-color: ${({ theme }) => theme.input.background};
+    color: ${({ theme }) => theme.input.foreground};
+    border-color: ${({ theme }) => theme.input.border};
+  }
+
+  & .route-selector__value-container div {
+    color: ${({ theme }) => theme.input.foreground};
+  }
+
+  & .route-selector__indicator-separator {
+    background-color: ${({ theme }) => theme.input.border};
+  }
+
+  & .route-selector__menu {
+    background-color: ${({ theme }) => theme.input.background};
+    z-index: 99;
+  }
+
+  & .route-selector__option--is-focused {
+    background-color: ${({ theme }) => theme.backgroundSelected};
+  }
+`;
 
 const RepoInputContainer = styled(InputRow)`
   && {
@@ -282,4 +316,13 @@ const RepoInputContainer = styled(InputRow)`
     font-weight: 400;
     font-size: 1rem;
   }
+`;
+
+const DocsLink = styled(Link)`
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  font-weight: 700;
+  transform: translate(-50%, 0);
+  z-index: 0;
 `;

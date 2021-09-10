@@ -7,7 +7,6 @@ import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
 import { ErrorCard } from './ErrorCard';
-import { COLORS, InfoColor } from './InlineInfo';
 
 function formatValueSet(values: number[], format: string): number | string {
   if (values.some(Number.isNaN)) return '(Unable to calculate: invalid value)';
@@ -39,7 +38,7 @@ function formatValueSet(values: number[], format: string): number | string {
 interface CalculationDirectiveProps {
   contents?: string;
   source?: string;
-  color?: InfoColor;
+  color?: string;
   level?: string;
   evolution?: string;
   format?: string;
@@ -98,9 +97,9 @@ export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ colo
   );
 };
 
-const Container = styled.span<{ color: InfoColor }>`
+const Container = styled.span<{ color: string }>`
   margin-left: 1rem;
-  color: ${props => COLORS[props.color]};
+  color: ${props => props.theme.info[props.color ?? 'black']};
 
   p > &:only-child {
     margin-left: 0;

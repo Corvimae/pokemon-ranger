@@ -106,7 +106,7 @@ const DamageRolls = styled.div`
 `;
 
 const DamageRollRange = styled.div`
-  color: #666;
+  color: ${({ theme }) => theme.label};
   font-size: 0.825rem;
   font-weight: 700;
   text-align: right;

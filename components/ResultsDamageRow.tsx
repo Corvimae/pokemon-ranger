@@ -22,7 +22,7 @@ export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values, clas
 
 const Container = styled.div`
   grid-column: 1 / -1;
-  color: #666;
+  color: ${({ theme }) => theme.label};
   font-size: 0.825rem;
   padding: 0.25rem 0.5rem;
 `;

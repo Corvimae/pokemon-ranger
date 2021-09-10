@@ -1,15 +1,17 @@
-import React from 'react';
-import { BorderlessCard, Card, CardVariant, variantIsBorderless } from '../Layout';
+import React, { useContext } from 'react';
+import { ThemeContext } from 'styled-components';
+import { BorderlessCard, Card, variantIsBorderless } from '../Layout';
 
 interface RouteCardProps {
-  theme: CardVariant,
+  theme: string,
 }
 
-export const RouteCard: React.FC<RouteCardProps> = ({ theme, children }) => {
-  const CardComponent = variantIsBorderless(theme) ? BorderlessCard : Card;
+export const RouteCard: React.FC<RouteCardProps> = ({ theme: variant, children }) => {
+  const themeContext = useContext(ThemeContext);
+  const CardComponent = variantIsBorderless(themeContext, variant) ? BorderlessCard : Card;
 
   return (
-    <CardComponent variant={theme}>
+    <CardComponent variant={variant}>
       {children}
     </CardComponent>
   );

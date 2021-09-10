@@ -108,7 +108,7 @@ const Modal = styled.div`
   top: 50%;
   left: 50%;
   flex-direction: column;
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.background};
   transform: translate(-50%, -50%);
 `;
 
@@ -121,8 +121,8 @@ const ModalTitle = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  background-color: #30b878;
-  color: #fff;
+  background-color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.foreground};
 `;
 
 const ModalBody = styled.div`

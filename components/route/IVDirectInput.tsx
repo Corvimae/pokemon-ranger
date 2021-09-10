@@ -105,7 +105,9 @@ const IVInputElement = styled.input`
   margin: 0;
   padding: 0.25rem 0.5rem;
   font-size: 1rem;
-  border: 1px solid #999;
+  color: ${({ theme }) => theme.input.foreground};
+  background-color: ${({ theme }) => theme.input.background};
+  border: 1px solid ${({ theme }) => theme.input.border};
   width: 5.25rem;
 `;
 

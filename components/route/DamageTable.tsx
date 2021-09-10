@@ -192,7 +192,7 @@ const RangeGridHeader = styled.div`
   display: contents;
 
   & > div {
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: ${({ theme }) => theme.gridHeader.cardFade};
     font-weight: 700;
     padding: 0.25rem 1rem;
   }

@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { BorderlessCard, Card, ContainerLabel } from '../Layout';
-import { COLORS } from './InlineInfo';
 
 interface PokemonBlockProps {
   info?: string;
@@ -30,7 +29,7 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
 
     &:after {
       content: ${props => props.info && `"${props.info}"`};
-      color: ${props => COLORS[props.infoColor as keyof typeof COLORS] || COLORS.black};
+      color: ${props => props.theme.info[props.infoColor ?? 'black']};
       margin-left: 1rem;
       font-weight: 400;
       font-size: 1rem;
