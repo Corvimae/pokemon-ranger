@@ -94,7 +94,7 @@ export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ colo
   if (calculatedValueSet.error) return <ErrorCard>{calculatedValueSet.message}</ErrorCard>;
 
   return (
-    <Container color={color}>calc: {formatValueSet(calculatedValueSet.value, format)}</Container>
+    <Container color={color}>{formatValueSet(calculatedValueSet.value, format)}</Container>
   );
 };
 

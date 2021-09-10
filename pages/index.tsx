@@ -119,7 +119,10 @@ const Home: NextPage = () => {
           <InputRow>
             <label htmlFor="otherPowerModifier">Base Power Modifier</label>
             <input id="otherPowerModifier" type="number" value={state.otherPowerModifier} onChange={handleSetOtherPowerModifier} />
-            <HelpText>Any additional modifiers to the base power that aren&apos;t handled by Ranger, such as held items.</HelpText>
+            <HelpText>
+              Any additional modifiers to the base power that aren&apos;t handled by Ranger, such as held items.
+              This value is a multiplier; if you don&apos;t need a miscellaneous power modifier, set it to 1.
+            </HelpText>
           </InputRow>
 
           <InputSubheader>Opponent</InputSubheader>
@@ -181,7 +184,10 @@ const Home: NextPage = () => {
           <InputRow>
             <label htmlFor="otherModifier">Other Modifier</label>
             <input id="otherModifier" type="number" value={state.otherModifier} onChange={handleSetOtherModifier} />
-            <HelpText>Any additional modifiers that aren&apos;t handled by Ranger.</HelpText>
+            <HelpText>
+              Any additional modifiers that aren&apos;t handled by Ranger.
+              This value is a multiplier; if you don&apos;t need a miscellaneous modifier, set it to 1.
+            </HelpText>
           </InputRow>
 
           <InputSubheader>Settings</InputSubheader>
