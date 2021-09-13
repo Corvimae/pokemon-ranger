@@ -41,6 +41,7 @@ export interface RouteOptionsState {
   ivHorizontalLayout: boolean;
   expandConditions: boolean;
   renderOnlyTrackers: boolean;
+  hideIVResults: boolean;
 }
 
 export interface RouteState {

@@ -64,22 +64,17 @@ export const RouteOptionsModal: React.FC = () => {
 
         <ModalBody>
           <InputSection>
+            <OptionSectionTitle>Accessibility</OptionSectionTitle>
+            
             <RouteOptionCheckbox
-              label="Compact IV Display"
-              stateKey="compactIVs"
-              storageKey={OptionKeys.ROUTE_OPTIONS_COMPACT_IVS}
+              label="High Condition Visibility"
+              stateKey="expandConditions"
+              storageKey={OptionKeys.ROUTE_OPTIONS_EXPAND_CONDITIONS}
             >
-              Hide the Pokémon&apos;s name above the IV display.
+              Display the conditional expression as its own line in conditional blocks.
             </RouteOptionCheckbox>
 
-            <RouteOptionCheckbox
-              label="Hide Media"
-              stateKey="hideMedia"
-              storageKey={OptionKeys.ROUTE_OPTIONS_HIDE_MEDIA}
-            >
-              Hides images and videos.
-            </RouteOptionCheckbox>
-
+            <OptionSectionTitle>Theme</OptionSectionTitle>
             <InputRow>
               <label htmlFor="ivBackgroundColor">IV Background Color</label>
               <input id="ivBackgroundColor" value={state.options.ivBackgroundColor} onChange={handleSetIVBackgroundColor} />
@@ -97,6 +92,24 @@ export const RouteOptionsModal: React.FC = () => {
               </HelpText>
             </InputRow>
 
+            <OptionSectionTitle>Layout</OptionSectionTitle>
+
+            <RouteOptionCheckbox
+              label="Compact IV Display"
+              stateKey="compactIVs"
+              storageKey={OptionKeys.ROUTE_OPTIONS_COMPACT_IVS}
+            >
+              Hide the Pokémon&apos;s name above the IV display.
+            </RouteOptionCheckbox>
+
+            <RouteOptionCheckbox
+              label="Hide Media"
+              stateKey="hideMedia"
+              storageKey={OptionKeys.ROUTE_OPTIONS_HIDE_MEDIA}
+            >
+              Hides images and videos.
+            </RouteOptionCheckbox>
+
             <RouteOptionCheckbox
               label="IV Horizontal Layout"
               stateKey="ivHorizontalLayout"
@@ -106,20 +119,21 @@ export const RouteOptionsModal: React.FC = () => {
             </RouteOptionCheckbox>
 
             <RouteOptionCheckbox
-              label="High Condition Visibility"
-              stateKey="expandConditions"
-              storageKey={OptionKeys.ROUTE_OPTIONS_EXPAND_CONDITIONS}
-            >
-              Display the conditional expression as its own line in conditional blocks.
-            </RouteOptionCheckbox>
-
-            <RouteOptionCheckbox
               label="Render Only IV Trackers"
               stateKey="renderOnlyTrackers"
               storageKey={OptionKeys.ROUTE_OPTIONS_RENDER_ONLY_TRACKERS}
             >
               Render only the IV trackers, not the route. Do not enable this option unless
               you are only using Ranger&apos;s IV tracker feature and need to improve performance.
+            </RouteOptionCheckbox>
+
+            <RouteOptionCheckbox
+              label="Hide IV Results"
+              stateKey="hideIVResults"
+              storageKey={OptionKeys.ROUTE_OPTIONS_HIDE_IV_RESULTS}
+            >
+              Hide the IV results. This option is not recommended; having a good understanding of
+              what stats correlate to what IVs will help you make decisions!
             </RouteOptionCheckbox>
           </InputSection>
         </ModalBody>
@@ -173,4 +187,21 @@ const ModalBody = styled.div`
   flex-grow: 1;
   align-self: stretch;
   overflow-y: auto;
+`;
+
+const OptionSectionTitle = styled.h3`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  grid-column: 1 / -1;
+
+  &:after {
+    content: '';
+    position: relative;
+    display: block;
+    width: 100%;
+    margin-left: 1rem;
+    height: 1px;
+    background-color: ${({ theme }) => theme.input.border};
+  }
 `;

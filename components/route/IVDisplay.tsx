@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { RouteContext } from '../../reducers/route/reducer';
 import { Tracker } from '../../reducers/route/types';
 import { NATURES, Stat, STATS } from '../../utils/constants';
 import { formatStatName } from '../../utils/rangeFormat';
@@ -24,6 +25,8 @@ function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: S
 }
 
 export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => {
+  const state = RouteContext.useState();
+
   const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
   const [confirmedNegative, confirmedPositive] = useMemo(() => {
     if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
@@ -40,6 +43,8 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
   const hiddenPowerType = useMemo(() => (
     calculateHiddenPowerType(ivRanges, [confirmedNegative, confirmedPositive])
   ), [ivRanges, confirmedNegative, confirmedPositive]);
+
+  if (state.options.hideIVResults) return null;
 
   return (
     <Container generation={tracker.generation} calculateHiddenPower={tracker.calculateHiddenPower} compactIVs={compactIVs}>
