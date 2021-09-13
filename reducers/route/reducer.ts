@@ -19,6 +19,7 @@ const defaultState: RouteState = {
     ivHorizontalLayout: false,
     expandConditions: false,
     renderOnlyTrackers: false,
+    hideIVResults: false,
   },
 };
 
