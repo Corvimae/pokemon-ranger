@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { RouteContext, setBooleanOption, setOptionIVBackgroundColor, setOptionIVFontFamily, setShowOptions } from '../../reducers/route/reducer';
+import { RouteContext, setBooleanOption, setOptionCustomCSS, setOptionIVBackgroundColor, setOptionIVFontFamily, setShowOptions } from '../../reducers/route/reducer';
 import { BooleanRouteOptionStateKey } from '../../reducers/route/types';
 import { OptionKeys } from '../../utils/options';
 import { dispatchAndPersist } from '../../utils/utils';
@@ -50,6 +50,10 @@ export const RouteOptionsModal: React.FC = () => {
 
   const handleSetIVFontFamily = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_IVS_FONT_FAMILY, event.target.value, setOptionIVFontFamily, dispatch);
+  }, [dispatch]);
+
+  const handleSetCustomCSS = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    dispatchAndPersist(OptionKeys.ROUTE_OPTIONS_CUSTOM_CSS, event.target.value, setOptionCustomCSS, dispatch);
   }, [dispatch]);
 
   return (
@@ -135,6 +139,26 @@ export const RouteOptionsModal: React.FC = () => {
               Hide the IV results. This option is not recommended; having a good understanding of
               what stats correlate to what IVs will help you make decisions!
             </RouteOptionCheckbox>
+
+            <OptionSectionTitle>Advanced</OptionSectionTitle>
+            <SectionTitleHelpText>
+              Don&apos;t touch anything below here unless you know what you&apos;re doing. If you break Ranger using these,
+              that&apos;s not on me.
+            </SectionTitleHelpText>
+
+            <InputRow>
+              <label htmlFor="customCSS">Custom CSS</label>
+              <textarea id="customCSS" value={state.options.customCSS} onChange={handleSetCustomCSS} />
+              <HelpText>
+                Class names may change and break your CSS.
+              </HelpText>
+            </InputRow>
+
+            <RouteOptionCheckbox
+              label="Show Debug Info"
+              stateKey="debugMode"
+              storageKey={OptionKeys.ROUTE_OPTIONS_DEBUG_MODE}
+            />
           </InputSection>
         </ModalBody>
       </Modal>
@@ -204,4 +228,8 @@ const OptionSectionTitle = styled.h3`
     height: 1px;
     background-color: ${({ theme }) => theme.input.border};
   }
+`;
+
+const SectionTitleHelpText = styled(HelpText)`
+  grid-column: 1 / -1;
 `;

@@ -5,7 +5,7 @@ export const VALID_VARIABLE_TYPES = ['text', 'number', 'boolean', 'select'] as c
 
 export type RouteVariableType = typeof VALID_VARIABLE_TYPES[number];
 
-export type BooleanRouteOptionStateKey = keyof Omit<RouteOptionsState, 'ivBackgroundColor' | 'ivFontFamily'>
+export type BooleanRouteOptionStateKey = keyof Omit<RouteOptionsState, 'ivBackgroundColor' | 'ivFontFamily' | 'customCSS'>
 
 export type EVsByLevel = Record<number, StatLine>;
 
@@ -38,10 +38,12 @@ export interface RouteOptionsState {
   hideMedia: boolean;
   ivBackgroundColor: string;
   ivFontFamily: string | undefined;
+  customCSS: string | undefined;
   ivHorizontalLayout: boolean;
   expandConditions: boolean;
   renderOnlyTrackers: boolean;
   hideIVResults: boolean;
+  debugMode: boolean;
 }
 
 export interface RouteState {
@@ -63,6 +65,7 @@ export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
 export const LOAD_OPTIONS = 'LOAD_OPTIONS';
 export const SET_OPTION_IV_BACKGROUND_COLOR = 'SET_OPTION_IV_BACKGROUND_COLOR';
 export const SET_OPTION_IV_FONT_FAMILY = 'SET_OPTION_IV_FONT_FAMILY';
+export const SET_OPTION_CUSTOM_CSS = 'SET_OPTION_CUSTOM_CSS';
 export const SET_BOOLEAN_OPTION = 'SET_BOOLEAN_OPTION';
 export const SET_DIRECT_INPUT_IV = 'SET_DIRECT_INPUT_IV';
 export const TRIGGER_EVOLUTION = 'TRIGGER_EVOLUTION';
@@ -166,6 +169,13 @@ type SetOptionIVFontFamilyAction = {
   };
 }
 
+type SetOptionCustomCSSAction = {
+  type: typeof SET_OPTION_CUSTOM_CSS;
+  payload: {
+    value: string;
+  };
+}
+
 type SetBooleanOptionAction = {
   type: typeof SET_BOOLEAN_OPTION;
   payload: {
@@ -243,6 +253,7 @@ export type RouteAction =
   LoadOptionsAction |
   SetOptionIVBackgroundColorAction |
   SetOptionIVFontFamilyAction |
+  SetOptionCustomCSSAction |
   SetBooleanOptionAction |
   SetDirectInputIVAction |
   TriggerEvolutionAction |

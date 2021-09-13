@@ -6,6 +6,7 @@ import { castRouteVariableAsType } from '../../directives/evaluateCondition';
 import { RouteContext } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
+import { DebugText } from './DebugText';
 import { ErrorCard } from './ErrorCard';
 
 function formatValueSet(values: number[], format: string): number | string {
@@ -93,7 +94,13 @@ export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ colo
   if (calculatedValueSet.error) return <ErrorCard>{calculatedValueSet.message}</ErrorCard>;
 
   return (
-    <Container color={color}>{formatValueSet(calculatedValueSet.value, format)}</Container>
+    <Container color={color}>
+      <DebugText title="IV Ranges" content={ivRanges} />
+      <DebugText title="Natures" content={confirmedNatures} />
+      <DebugText title="Variables" content={variableValues} />
+      <DebugText title="Valueset" content={calculatedValueSet} />
+      {formatValueSet(calculatedValueSet.value, format)}
+    </Container>
   );
 };
 

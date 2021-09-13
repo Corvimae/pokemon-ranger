@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { loadFile, resetRoute, RouteContext, setShowOptions } from '../../reducers/route/reducer';
+import { Button } from '../../components/Button';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
-import { Button } from '../../components/Button';
+import { DebugText } from '../../components/route/DebugText';
 import { ImportPrompt } from '../../components/route/ImportPrompt';
 import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
 import { useOnMount } from '../../utils/hooks';
@@ -107,7 +109,14 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
   });
 
   return (
-    <Container ivHorizontalLayout={state.options.ivHorizontalLayout}>
+    <Container ivHorizontalLayout={state.options.ivHorizontalLayout} debugMode={state.options.debugMode}>
+      <Head>
+        {state.options.customCSS && (
+          <style type="text/css">
+            {state.options.customCSS}
+          </style>
+        )}
+      </Head>
       <MainContent>
         {content && !content?.error ? (
           <Guide showOptions={state.showOptions} ref={guideContentElement}>
@@ -173,13 +182,17 @@ export const getServerSideProps: GetServerSideProps = async context => ({
 
 export default RouteContext.connect(RouteView);
 
-const Container = styled.div<{ ivHorizontalLayout: boolean }>`
+const Container = styled.div<{ ivHorizontalLayout: boolean; debugMode: boolean; }>`
   position: relative;
   display: grid;
   height: 100%;
   grid-template-columns: ${({ ivHorizontalLayout }) => !ivHorizontalLayout && '1fr minmax(28rem, max-content)'};
   grid-template-rows: ${({ ivHorizontalLayout }) => ivHorizontalLayout && '1fr 20rem'};
   overflow: hidden;
+
+  & ${DebugText} {
+    display: ${({ debugMode }) => !debugMode && 'none'};
+  }
 `;
 
 const MainContent = styled.div`

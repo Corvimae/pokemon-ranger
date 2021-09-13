@@ -226,7 +226,8 @@ export const InputRow = styled.div`
     color: ${({ theme }) => theme.label};
   }
 
-  & input {
+  & input,
+  & textarea {
     border-radius: 0.25rem;
     height: 2rem;
     margin: 0 0 0.5rem;
@@ -235,6 +236,11 @@ export const InputRow = styled.div`
     color: ${({ theme }) => theme.input.foreground};
     background-color: ${({ theme }) => theme.input.background};
     border: 1px solid ${({ theme }) => theme.input.border};
+  }
+
+  & textarea {
+    min-height: 200px;
+    resize: vertical;
   }
 
   & select {

@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { createStatLine, Nature, Stat, StatLine } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
@@ -16,10 +16,12 @@ const defaultState: RouteState = {
     hideMedia: false,
     ivBackgroundColor: '#222',
     ivFontFamily: undefined,
+    customCSS: undefined,
     ivHorizontalLayout: false,
     expandConditions: false,
     renderOnlyTrackers: false,
     hideIVResults: false,
+    debugMode: false,
   },
 };
 
@@ -165,6 +167,15 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
+    case SET_OPTION_CUSTOM_CSS:
+      return {
+        ...state,
+        options: {
+          ...state.options,
+          customCSS: action.payload.value,
+        },
+      };
+
     case SET_DIRECT_INPUT_IV:
       return set(
         cloneDeep(state),
@@ -252,7 +263,10 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
       };
 
     case LOAD_FILE:
-      return { ...defaultState };
+      return {
+        ...defaultState,
+        options: state.options,
+      };
 
     default:
       return state;
@@ -362,6 +376,13 @@ export function setOptionIVBackgroundColor(value: string): RouteAction {
 export function setOptionIVFontFamily(value: string): RouteAction {
   return {
     type: SET_OPTION_IV_FONT_FAMILY,
+    payload: { value },
+  };
+}
+
+export function setOptionCustomCSS(value: string): RouteAction {
+  return {
+    type: SET_OPTION_CUSTOM_CSS,
     payload: { value },
   };
 }
