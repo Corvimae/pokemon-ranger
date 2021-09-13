@@ -1,6 +1,10 @@
 # Routefile Cheat Sheet
 
-**Full docs**: https://github.com/Corvimae/pokemon-ranger/blob/main/README.md
+Last updated: Sept. 13, 2021
+
+This cheatsheet may not reflect the latest changes to Ranger; always defer to the full docs if they conflict with what's written here. 
+
+**Full docs**: https://docs.ranger.maybreak.com/#/routefiles
 
 **Publishing docs**: https://github.com/Corvimae/ranger-routes/blob/main/README.md
 
@@ -91,6 +95,28 @@ Formatted as `attribute (default)`.
 :::::
 ```
 
+## Variable Declaration
+
+### Boolean
+
+```
+::variable{name="didUmbreonDie" type="boolean" title="Did Umbreon die in the last fight?" defaultValue="false"}
+```
+
+### Numeric
+
+```
+:::variable{name="rareCandyCount" type="number" title="How many rare candies do you have?" defaultValue=0}
+  Remember that the Coach Trainer gives five candies!
+:::
+```
+
+### Dropdown
+
+```
+::variable{name="route1Catch" type="select" title="What did you catch on Route 1?" options='["Ratata", "Pidgey", "Oddish"]'}
+```
+
 ## Conditional Card
 
 ```
@@ -132,6 +158,30 @@ def=~(x / 28- / 14-) && spatk=(18+ / # / #)
 ```
 
 Valid stats: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`, `startingLevel`.
+
+### Variable Condition
+
+```
+:::if{source="Mudkip" condition="$didUmbreonDie"}
+Oh no, poor Umbreon!
+:::
+```
+
+Note that even if the condition only uses a variable, the `source` attribute is still required (however, it will affect nothing).
+
+## Calculations
+
+```
+Torrent at level 10 is less than :calc[floor(hp / 3)]{source="Squirtle" level=10} HP
+```
+
+Valid binary operators: `+`, `-`, `*`, `/`, `%` ([modulo](https://en.wikipedia.org/wiki/Modulo_operation)), `**` (a to the power of b).
+
+Valid one-argument functions: `floor`, `ceil`, `round`, `sqrt`, `log`, `log2`, `log10`, `trunc`, `sign`, `abs`. All functions operate using their associated [Javascript Math object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math) counterpart.
+
+Valid terms: integers, decimals, variables (prefixed with `$`, e.g. `$myVar`), stat name ([see above](#logical-operators)). If a stat is used, the `source` and `level` attributes are required (unless the stat is `startingLevel`).
+
+Valid formatters: `range`, `min`, `max`, `list`.
 
 ## Cards
 ```
