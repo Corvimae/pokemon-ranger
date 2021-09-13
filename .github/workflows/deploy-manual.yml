@@ -1,12 +1,8 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Deploy
+name: Deploy (Manual)
 
-on: workflow_run
-  workflows: ["Lint"]
-  branches: [main]
-  types:
-    - completed
+on: workflow_dispatch
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
