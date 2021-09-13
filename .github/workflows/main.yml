@@ -2,11 +2,12 @@
 
 name: Deploy
 
-on: workflow_run
-  workflows: ["Lint"]
-  branches: [main]
-  types:
-    - completed
+on:
+  workflow_run:
+    workflows: ["Lint"]
+    branches: [main]
+    types:
+      - completed
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
