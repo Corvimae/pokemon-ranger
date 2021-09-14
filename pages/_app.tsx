@@ -8,7 +8,7 @@ import { config, dom } from '@fortawesome/fontawesome-svg-core';
 import 'react-tippy/dist/tippy.css';
 import '../styles/globals.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faBug, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { ApplicationContext, loadFromStorage, setDarkMode } from '../reducers/application/reducer';
 import { useOnMount } from '../utils/hooks';
 import { THEMES } from '../components/Layout';
@@ -67,8 +67,14 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           <Component {...pageProps} />
         </Content>
         <Footer>
-          Created by <a href="https://twitter.com/Corvimae" target="_blank" rel="noreferrer">@Corvimae</a>.&nbsp;
+          Created by&nbsp;<a href="https://twitter.com/Corvimae" target="_blank" rel="noreferrer">@Corvimae</a>.&nbsp;
           <a href="https://github.com/corvimae/pokemon-ranger" target="_blank" rel="noreferrer">View the source.</a>
+          <RightJustifiedFooterActions>
+            <a href="https://github.com/Corvimae/pokemon-ranger/issues/new" target="_blank" rel="noreferrer">
+              <FontAwesomeIcon icon={faBug} />&nbsp;
+              Report an issue
+            </a>
+          </RightJustifiedFooterActions>
         </Footer>
       </Layout>
     </ThemeProvider>
@@ -142,11 +148,21 @@ const Content = styled.div`
 `;
 
 const Footer = styled.div`
+  display: flex;
+  flex-direction: row;
   padding: 0.5rem 0.75rem;
   color: #fff;
   background-color: ${({ theme }) => theme.primary};
 
-  & > a {
+  & a {
     color: #bceaf5;
+
+    &:hover {
+      color: #98cedd;
+    }
   }
+`;
+
+const RightJustifiedFooterActions = styled.div`
+  margin-left: auto;
 `;

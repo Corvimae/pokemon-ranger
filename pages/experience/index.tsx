@@ -535,7 +535,7 @@ const ExperienceRoute: NextPage = () => {
                   <HelpText>Is this Pokémon past the level where it would normally evolve, but has not</HelpText>
                 </InputRow>
               )}
-              <EVLabel>Effort Values</EVLabel>
+              <SectionSubheader>Effort Values</SectionSubheader>
               <InputRow>
                 <EVGrid>
                   <label htmlFor="speciesHPEV">HP</label>
@@ -581,7 +581,7 @@ const ExperienceRoute: NextPage = () => {
                 <label htmlFor="manualReward">Exp. Reward</label>
                 <input id="manualReward" type="number" value={manualRewardValue} onChange={event => setManualRewardValue(Number(event.target.value))} />
               </InputRow>
-              <EVLabel>Effort Values</EVLabel>
+              <SectionSubheader>Effort Values</SectionSubheader>
               <InputRow>
                 <EVGrid>
                   <label htmlFor="manualHPEv">HP</label>
@@ -796,15 +796,6 @@ const ImportInstructions = styled.div`
   color: ${({ theme }) => theme.label};
   font-style: italic;
   margin-top: 1rem;
-`;
-
-const EVLabel = styled.h3`
-  grid-column: span 2;
-
-  margin: 0 0 0.25rem 0;
-  padding: 0;
-  font-weight: 700;
-  font-size: 1rem;
 `;
 
 const EVGrid = styled.div`

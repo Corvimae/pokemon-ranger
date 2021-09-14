@@ -86,7 +86,7 @@ export const THEMES = {
     foreground: '#fff',
     foregroundHover: '#ced2d6',
     primary: '#248a5a',
-    primaryHover: '#627d98',
+    primaryHover: '#30b878',
     label: '#e5e7ea',
     anchor: '#7ea5d8',
     error: '#de350b',
