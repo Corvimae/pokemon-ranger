@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faToggleOff, faToggleOn } from '@fortawesome/free-solid-svg-icons';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Select from 'react-select';
 import { useDropzone } from 'react-dropzone';
 import { Tooltip } from 'react-tippy';
 import { Header, InputSection, InputRow, InputSubheader, Checkbox, HelpText } from '../../components/Layout';
@@ -165,6 +166,7 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
 
 const ExperienceRoute: NextPage = () => {
   const [state, dispatch] = useExperienceReducer();
+  const pendingDetailsRequestUrl = useRef(undefined);
   const [importError, setImportError] = useState<string | null>(null);
 
   const [generation, setGeneration] = useState<Generation>(4);
@@ -209,8 +211,13 @@ const ExperienceRoute: NextPage = () => {
   const handleSetSelectedSpecies = useCallback(async value => {
     if (!value) return;
 
+    pendingDetailsRequestUrl.current = value;
+
     const speciesDataRequest = await fetch(value);
+    
     const speciesData = await speciesDataRequest.json();
+
+    if (speciesDataRequest.url !== pendingDetailsRequestUrl.current) return;
 
     setSpeciesNameValue(speciesData.name[0].toUpperCase() + speciesData.name.substr(1));
     setSpeciesBaseExperienceValue(speciesData.base_experience);
@@ -220,6 +227,8 @@ const ExperienceRoute: NextPage = () => {
     setSpAttackEVValue(speciesData.stats[3].effort);
     setSpDefenseEVValue(speciesData.stats[4].effort);
     setSpeedEVValue(speciesData.stats[5].effort);
+
+    pendingDetailsRequestUrl.current = undefined;
   }, []);
 
   const handleResetValues = useCallback(() => {
@@ -234,7 +243,7 @@ const ExperienceRoute: NextPage = () => {
     dispatch(setGrowthRate(event.target.value as GrowthRate));
   }, [dispatch]);
 
-  const handleAddManualExperienceEvent = useCallback(() => {
+  const handleAddManualExperienceEvent = useCallback((position: number) => {
     dispatch(addManualExperienceEvent(
       manualNameValue,
       manualRewardValue,
@@ -244,14 +253,15 @@ const ExperienceRoute: NextPage = () => {
       manualSpAttackEVValue,
       manualSpDefenseEVValue,
       manualSpeedEVValue,
+      position,
     ));
   }, [dispatch, manualNameValue, manualRewardValue, manualHpEVValue, manualAttackEVValue, manualDefenseEVValue, manualSpAttackEVValue, manualSpDefenseEVValue, manualSpeedEVValue]);
 
-  const handleAddRareCandyExperienceEvent = useCallback(() => {
-    dispatch(addRareCandyExperienceEvent());
+  const handleAddRareCandyExperienceEvent = useCallback((position: number) => {
+    dispatch(addRareCandyExperienceEvent(position));
   }, [dispatch]);
 
-  const handleAddSpeciesExperienceEvent = useCallback(async () => {
+  const handleAddSpeciesExperienceEvent = useCallback((position: number) => {
     dispatch(addSpeciesExperienceEvent(
       speciesNameValue,
       speciesBaseExperienceValue,
@@ -273,6 +283,7 @@ const ExperienceRoute: NextPage = () => {
       spAttackEVValue,
       spDefenseEVValue,
       speedEVValue,
+      position,
     ));
   }, [dispatch, speciesNameValue, speciesBaseExperienceValue, speciesLevelValue, expShareEnabledValue, didParticipateValue, otherParticipantCountValue, otherPokemonHoldingExperienceShareValue, partySizeValue, tradeExperienceType, hasLuckyEggValue, hasAffectionBoostValue, isWildValue, isPastEvolutionPointValue, hpEVValue, attackEVValue, defenseEVValue, spAttackEVValue, spDefenseEVValue, speedEVValue]);
 
@@ -399,200 +410,211 @@ const ExperienceRoute: NextPage = () => {
           This tool is a work in progress and may contain bugs. If you encounter an issue, please let me know&nbsp;
           <a href="https://github.com/Corvimae/pokemon-ranger/issues" target="_blank" rel="noopener noreferrer">here</a>.
         </Disclaimer>
-        <InputSection>
-          <InputRow>
-            <label htmlFor="generation">Generation</label>
-            <select id="generation" value={generation} onChange={handleSetGeneration}>
-              <option value={3}>3 (Ruby/Sapphire/Emerald)</option>
-              <option value={4}>4 (Diamond/Pearl/Platinum)</option>
-              <option value={5}>5 (Black/White and Black 2/White 2)</option>
-              <option value={6}>6 (X/Y)</option>
-              <option value={7}>7+ (Sun/Moon, Ultra Sun/Ultra Moon, and Sword/Shield)</option>
-              <option value="lgpe">Let&apos;s Go</option>
-            </select>
-          </InputRow>
-          <InputRow>
-            <label htmlFor="baseFriendship">Initial Level</label>
-            <input id="baseFriendship" type="number" value={state.initialLevel} onChange={handleSetInitialLevel} />
-          </InputRow>
-          <InputRow>
-            <label htmlFor="growthRate">Growth Rate</label>
-            <select id="growthRate" value={state.growthRate} onChange={handleSetGrowthRate}>
-              {Object.entries(GROWTH_RATE_NAMES).map(([rate, label]) => (
-                <option key={rate} value={rate}>{label}</option>
-              ))}
-            </select>
-          </InputRow>
-        </InputSection>
-
-        <ExperienceEventSubheader>
-          Experience Events
-          <div>
-            <Button onClick={handleAddRareCandyExperienceEvent}>Add Rare Candy</Button>
-            <Button onClick={handleAddSpeciesExperienceEvent}>Add</Button>
-          </div>
-        </ExperienceEventSubheader>
-        <ExperienceEventActions>
+        <InputSectionContainer>
           <InputSection>
             <InputRow>
-              <label htmlFor="speciesSelect">Species</label>
-              <select id="speciesSelect" onChange={event => handleSetSelectedSpecies(event.target.value)}>
-                {pokemonSpeciesList.map(({ name, url }) => (
-                  <option key={name} value={url}>{name}</option>
+              <label htmlFor="generation">Generation</label>
+              <select id="generation" value={generation} onChange={handleSetGeneration}>
+                <option value={3}>3 (Ruby/Sapphire/Emerald)</option>
+                <option value={4}>4 (Diamond/Pearl/Platinum)</option>
+                <option value={5}>5 (Black/White and Black 2/White 2)</option>
+                <option value={6}>6 (X/Y)</option>
+                <option value={7}>7+ (Sun/Moon, Ultra Sun/Ultra Moon, and Sword/Shield)</option>
+                <option value="lgpe">Let&apos;s Go</option>
+              </select>
+            </InputRow>
+            <InputRow>
+              <label htmlFor="baseFriendship">Initial Level</label>
+              <input id="baseFriendship" type="number" value={state.initialLevel} onChange={handleSetInitialLevel} />
+            </InputRow>
+            <InputRow>
+              <label htmlFor="growthRate">Growth Rate</label>
+              <select id="growthRate" value={state.growthRate} onChange={handleSetGrowthRate}>
+                {Object.entries(GROWTH_RATE_NAMES).map(([rate, label]) => (
+                  <option key={rate} value={rate}>{label}</option>
                 ))}
               </select>
             </InputRow>
-            <InputRow>
-              <label htmlFor="speciesLabel">Label</label>
-              <input id="speciesLabel" value={speciesNameValue} onChange={event => setSpeciesNameValue(event.target.value)} />
-              <HelpText>You can set the label to anything, but it&apos;s best to pick a label that makes it clear how you got the experience.</HelpText>
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesBaseExperience">Base Experience</label>
-              <input id="speciesBaseExperience" type="number" value={speciesBaseExperienceValue} onChange={event => setSpeciesBaseExperienceValue(Number(event.target.value))} />
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesLevel">Level</label>
-              <input id="speciesLevel" type="number" value={speciesLevelValue} onChange={handleSetSpeciesLevelValue} />
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesSource">Source</label>
-              <select id="speciesSource" onChange={event => setTradeExperienceType(event.target.value)}>
-                <option value="owner">Original Trainer</option>
-                <option value="domestic">Domestic Trade</option>
-                <option value="international">International Trade</option>
-              </select>
-              <HelpText>Pokémon obtained via an international trade gain additional experience starting in Gen. 4.</HelpText>
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesParticipated">Participated?</label>
-              <Checkbox id="speciesParticipated" data-checked={didParticipateValue} onClick={() => setDidParticipateValue(!didParticipateValue)} />
-              <HelpText>If a Pokémon is gaining experience via the Exp. Share but did not participate in the fight, uncheck this box.</HelpText>
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesOtherParticipants">Other Participant Count</label>
-              <input id="speciesOtherParticipants" type="number" value={otherParticipantCountValue} onChange={event => setOtherParticipantCountValue(Number(event.target.value))} />
-              <HelpText>The number of unfainted Pokémon that also participated in this fight, not including this Pokémon. In most cases, this will be 0.</HelpText>
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesExpShare">Exp. Share</label>
-              <Checkbox id="speciesExpShare" data-checked={expShareEnabledValue} onClick={() => setExpShareEnabledValue(!expShareEnabledValue)} />
-              <HelpText>Is this Pokémon affected by an Exp. Share?</HelpText>
-            </InputRow>
-            {generation < 6 && (
-              <InputRow>
-                <label htmlFor="speciesOtherExpShare">Other Pokémon w/ Exp. Share</label>
-                <input id="speciesOtherExpShare" type="number" value={otherPokemonHoldingExperienceShareValue} onChange={event => setOtherPokemonHoldingExperienceShareValue(Number(event.target.value))} />
-                <HelpText>The number of Pokémon in the party, not including this Pokémon, that are holding an Exp. Share.</HelpText>
-              </InputRow>
-            )}
-            {generation === 1 && (
-              <InputRow>
-                <label htmlFor="speciesOtherExpShare">Party Size</label>
-                <input id="speciesOtherExpShare" type="number" value={partySizeValue} onChange={event => setPartySizeValue(Number(event.target.value))} />
-                <HelpText>The number of Pokémon in the party, including this Pokémon.</HelpText>
-              </InputRow>
-            )}
-            <InputRow>
-              <label htmlFor="speciesLuckyEgg">Lucky Egg</label>
-              <Checkbox id="speciesLuckyEgg" data-checked={hasLuckyEggValue} onClick={() => setHasLuckyEggValue(!hasLuckyEggValue)} />
-              <HelpText>Is this Pokémon holding a Lucky Egg?</HelpText>
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesAffectionBoost">Affection Boost</label>
-              <Checkbox id="speciesAffectionBoost" data-checked={hasAffectionBoostValue} onClick={() => setHasAffectionBoostValue(!hasAffectionBoostValue)} />
-              <HelpText>Does the Pokémon have an Affection of at least 2?</HelpText>
-            </InputRow>
-            <InputRow>
-              <label htmlFor="speciesWild">Wild Pokémon</label>
-              <Checkbox id="speciesWild" data-checked={isWildValue} onClick={() => setIsWildValue(!isWildValue)} />
-              <HelpText>Is the opposing Pokémon a wild Pokémon?</HelpText>
-            </InputRow>
-            {generation >= 6 && (
-              <InputRow>
-                <label htmlFor="speciesPastEvolution">Past Evolution Level</label>
-                <Checkbox id="speciesPastEvolution" data-checked={isPastEvolutionPointValue} onClick={() => setIsPastEvolutionPointValue(!isPastEvolutionPointValue)} />
-                <HelpText>Is this Pokémon past the level where it would normally evolve, but has not</HelpText>
-              </InputRow>
-            )}
-            <EVLabel>Effort Values</EVLabel>
-            <InputRow>
-              <EVGrid>
-                <label htmlFor="speciesHPEV">HP</label>
-                <label htmlFor="speciesAttackEV">Atk.</label>
-                <label htmlFor="speciesDefenseEV">Def.</label>
-                <label htmlFor="speciesSpAttackEV">Sp. Atk.</label>
-                <label htmlFor="speciesSpDefenseEV">Sp. Def.</label>
-                <label htmlFor="speciesSpeedEV">Spe.</label>
-                <div>
-                  <input id="speciesHPEV" type="number" value={hpEVValue} onChange={event => setHpEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="speciesAttackEV" type="number" value={attackEVValue} onChange={event => setAttackEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="speciesDefenseEV" type="number" value={defenseEVValue} onChange={event => setDefenseEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="speciesSpAttackEV" type="number" value={spAttackEVValue} onChange={event => setSpAttackEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="speciesSpDefenseEV" type="number" value={spDefenseEVValue} onChange={event => setSpDefenseEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="speciesSpeedEV" type="number" value={speedEVValue} onChange={event => setSpeedEVValue(Number(event.target.value))} />
-                </div>
-              </EVGrid>
-            </InputRow>
           </InputSection>
-          <ActionInputSubheader>
-            Manual Experience
+
+          <ExperienceEventSubheader>
+            Experience Events
             <div>
-              <Button onClick={handleAddManualExperienceEvent}>Add</Button>
+              <Button onClick={() => handleAddRareCandyExperienceEvent(-1)}>Add Rare Candy</Button>
+              <Button onClick={() => handleAddSpeciesExperienceEvent(0)}>Add to Start</Button>
+              <Button onClick={() => handleAddSpeciesExperienceEvent(-1)}>Add to End</Button>
             </div>
-          </ActionInputSubheader>
-          <InputSection>
-            <InputRow>
-              <label htmlFor="manualName">Source Name</label>
-              <input id="manualName" value={manualNameValue} onChange={event => setManualNameValue(event.target.value)} />
-            </InputRow>
-            <InputRow>
-              <label htmlFor="manualReward">Exp. Reward</label>
-              <input id="manualReward" type="number" value={manualRewardValue} onChange={event => setManualRewardValue(Number(event.target.value))} />
-            </InputRow>
-            <EVLabel>Effort Values</EVLabel>
-            <InputRow>
-              <EVGrid>
-                <label htmlFor="manualHPEv">HP</label>
-                <label htmlFor="manualAttackEV">Atk.</label>
-                <label htmlFor="manualDefenseEV">Def.</label>
-                <label htmlFor="manualSpAttackEV">Sp. Atk.</label>
-                <label htmlFor="manualSpDefenseEV">Sp. Def.</label>
-                <label htmlFor="manualSpeedEV">Spe.</label>
-                <div>
-                  <input id="manualHPEV" type="number" value={manualHpEVValue} onChange={event => setManualHpEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="manualAttackEV" type="number" value={manualAttackEVValue} onChange={event => setManualAttackEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="manualDefenseEV" type="number" value={manualDefenseEVValue} onChange={event => setManualDefenseEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="manualSpAttackEV" type="number" value={manualSpAttackEVValue} onChange={event => setManualSpAttackEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="manualSpDefenseEV" type="number" value={manualSpDefenseEVValue} onChange={event => setManualSpDefenseEVValue(Number(event.target.value))} />
-                </div>
-                <div>
-                  <input id="manualSpeedEV" type="number" value={manualSpeedEVValue} onChange={event => setManualSpeedEVValue(Number(event.target.value))} />
-                </div>
-              </EVGrid>
-            </InputRow>
-          </InputSection>
-        </ExperienceEventActions>
+          </ExperienceEventSubheader>
+          <ExperienceEventActions>
+            <InputSection>
+              <SectionSubheader>Event Pokémon</SectionSubheader>
+              <InputRow>
+                <label htmlFor="speciesSelect">Species</label>
+                <SpeciesSelector
+                  id="speciesSelect"
+                  classNamePrefix="species-selector"
+                  onChange={(item: PokemonSpeciesData) => item && handleSetSelectedSpecies(item.url)}
+                  options={pokemonSpeciesList}
+                  getOptionLabel={(item: PokemonSpeciesData) => item.name}
+                  getOptionValue={(item: PokemonSpeciesData) => item.url}
+                  isClearable
+                />
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesLabel">Label</label>
+                <input id="speciesLabel" value={speciesNameValue} onChange={event => setSpeciesNameValue(event.target.value)} />
+                <HelpText>You can set the label to anything, but it&apos;s best to pick a label that makes it clear how you got the experience.</HelpText>
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesBaseExperience">Base Experience</label>
+                <input id="speciesBaseExperience" type="number" value={speciesBaseExperienceValue} onChange={event => setSpeciesBaseExperienceValue(Number(event.target.value))} />
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesLevel">Level</label>
+                <input id="speciesLevel" type="number" value={speciesLevelValue} onChange={handleSetSpeciesLevelValue} />
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesWild">Wild Pokémon</label>
+                <Checkbox id="speciesWild" data-checked={isWildValue} onClick={() => setIsWildValue(!isWildValue)} />
+                <HelpText>Is the opposing Pokémon a wild Pokémon?</HelpText>
+              </InputRow>
+
+              <SectionSubheader>Owned Pokémon</SectionSubheader>
+              <InputRow>
+                <label htmlFor="speciesSource">Source</label>
+                <select id="speciesSource" onChange={event => setTradeExperienceType(event.target.value)}>
+                  <option value="owner">Original Trainer</option>
+                  <option value="domestic">Domestic Trade</option>
+                  <option value="international">International Trade</option>
+                </select>
+                <HelpText>Pokémon obtained via an international trade gain additional experience starting in Gen. 4.</HelpText>
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesParticipated">Participated?</label>
+                <Checkbox id="speciesParticipated" data-checked={didParticipateValue} onClick={() => setDidParticipateValue(!didParticipateValue)} />
+                <HelpText>If a Pokémon is gaining experience via the Exp. Share but did not participate in the fight, uncheck this box.</HelpText>
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesOtherParticipants">Other Participant Count</label>
+                <input id="speciesOtherParticipants" type="number" value={otherParticipantCountValue} onChange={event => setOtherParticipantCountValue(Number(event.target.value))} />
+                <HelpText>The number of unfainted Pokémon that also participated in this fight, not including this Pokémon. In most cases, this will be 0.</HelpText>
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesExpShare">Exp. Share</label>
+                <Checkbox id="speciesExpShare" data-checked={expShareEnabledValue} onClick={() => setExpShareEnabledValue(!expShareEnabledValue)} />
+                <HelpText>Is this Pokémon affected by an Exp. Share?</HelpText>
+              </InputRow>
+              {generation < 6 && (
+                <InputRow>
+                  <label htmlFor="speciesOtherExpShare">Other Pokémon w/ Exp. Share</label>
+                  <input id="speciesOtherExpShare" type="number" value={otherPokemonHoldingExperienceShareValue} onChange={event => setOtherPokemonHoldingExperienceShareValue(Number(event.target.value))} />
+                  <HelpText>The number of Pokémon in the party, not including this Pokémon, that are holding an Exp. Share.</HelpText>
+                </InputRow>
+              )}
+              {generation === 1 && (
+                <InputRow>
+                  <label htmlFor="speciesOtherExpShare">Party Size</label>
+                  <input id="speciesOtherExpShare" type="number" value={partySizeValue} onChange={event => setPartySizeValue(Number(event.target.value))} />
+                  <HelpText>The number of Pokémon in the party, including this Pokémon.</HelpText>
+                </InputRow>
+              )}
+              <InputRow>
+                <label htmlFor="speciesLuckyEgg">Lucky Egg</label>
+                <Checkbox id="speciesLuckyEgg" data-checked={hasLuckyEggValue} onClick={() => setHasLuckyEggValue(!hasLuckyEggValue)} />
+                <HelpText>Is this Pokémon holding a Lucky Egg?</HelpText>
+              </InputRow>
+              <InputRow>
+                <label htmlFor="speciesAffectionBoost">Affection Boost</label>
+                <Checkbox id="speciesAffectionBoost" data-checked={hasAffectionBoostValue} onClick={() => setHasAffectionBoostValue(!hasAffectionBoostValue)} />
+                <HelpText>Does the Pokémon have an Affection of at least 2?</HelpText>
+              </InputRow>
+              {generation >= 6 && (
+                <InputRow>
+                  <label htmlFor="speciesPastEvolution">Past Evolution Level</label>
+                  <Checkbox id="speciesPastEvolution" data-checked={isPastEvolutionPointValue} onClick={() => setIsPastEvolutionPointValue(!isPastEvolutionPointValue)} />
+                  <HelpText>Is this Pokémon past the level where it would normally evolve, but has not</HelpText>
+                </InputRow>
+              )}
+              <EVLabel>Effort Values</EVLabel>
+              <InputRow>
+                <EVGrid>
+                  <label htmlFor="speciesHPEV">HP</label>
+                  <label htmlFor="speciesAttackEV">Atk.</label>
+                  <label htmlFor="speciesDefenseEV">Def.</label>
+                  <label htmlFor="speciesSpAttackEV">Sp. Atk.</label>
+                  <label htmlFor="speciesSpDefenseEV">Sp. Def.</label>
+                  <label htmlFor="speciesSpeedEV">Spe.</label>
+                  <div>
+                    <input id="speciesHPEV" type="number" value={hpEVValue} onChange={event => setHpEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="speciesAttackEV" type="number" value={attackEVValue} onChange={event => setAttackEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="speciesDefenseEV" type="number" value={defenseEVValue} onChange={event => setDefenseEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="speciesSpAttackEV" type="number" value={spAttackEVValue} onChange={event => setSpAttackEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="speciesSpDefenseEV" type="number" value={spDefenseEVValue} onChange={event => setSpDefenseEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="speciesSpeedEV" type="number" value={speedEVValue} onChange={event => setSpeedEVValue(Number(event.target.value))} />
+                  </div>
+                </EVGrid>
+              </InputRow>
+            </InputSection>
+            <ActionInputSubheader>
+              Manual Experience
+              <div>
+                <Button onClick={() => handleAddManualExperienceEvent(0)}>Add to Start</Button>
+                <Button onClick={() => handleAddManualExperienceEvent(-1)}>Add to End</Button>
+              </div>
+            </ActionInputSubheader>
+            <InputSection>
+              <InputRow>
+                <label htmlFor="manualName">Source Name</label>
+                <input id="manualName" value={manualNameValue} onChange={event => setManualNameValue(event.target.value)} />
+              </InputRow>
+              <InputRow>
+                <label htmlFor="manualReward">Exp. Reward</label>
+                <input id="manualReward" type="number" value={manualRewardValue} onChange={event => setManualRewardValue(Number(event.target.value))} />
+              </InputRow>
+              <EVLabel>Effort Values</EVLabel>
+              <InputRow>
+                <EVGrid>
+                  <label htmlFor="manualHPEv">HP</label>
+                  <label htmlFor="manualAttackEV">Atk.</label>
+                  <label htmlFor="manualDefenseEV">Def.</label>
+                  <label htmlFor="manualSpAttackEV">Sp. Atk.</label>
+                  <label htmlFor="manualSpDefenseEV">Sp. Def.</label>
+                  <label htmlFor="manualSpeedEV">Spe.</label>
+                  <div>
+                    <input id="manualHPEV" type="number" value={manualHpEVValue} onChange={event => setManualHpEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="manualAttackEV" type="number" value={manualAttackEVValue} onChange={event => setManualAttackEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="manualDefenseEV" type="number" value={manualDefenseEVValue} onChange={event => setManualDefenseEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="manualSpAttackEV" type="number" value={manualSpAttackEVValue} onChange={event => setManualSpAttackEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="manualSpDefenseEV" type="number" value={manualSpDefenseEVValue} onChange={event => setManualSpDefenseEVValue(Number(event.target.value))} />
+                  </div>
+                  <div>
+                    <input id="manualSpeedEV" type="number" value={manualSpeedEVValue} onChange={event => setManualSpeedEVValue(Number(event.target.value))} />
+                  </div>
+                </EVGrid>
+              </InputRow>
+            </InputSection>
+          </ExperienceEventActions>
+        </InputSectionContainer>
       </LeftColumn>
-      <div {...getRootProps()} tabIndex={-1}>
+      <RightColumn {...getRootProps()} tabIndex={-1}>
         <input {...getInputProps()} />
         <Header>
           Experience Route
@@ -629,7 +651,7 @@ const ExperienceRoute: NextPage = () => {
             )}
           </Droppable>
         </DragDropContext>
-      </div>
+      </RightColumn>
     </Container>
   );
 };
@@ -638,13 +660,23 @@ export default ExperienceRoute;
 
 const Container = styled.div`
   display: grid;
+  height: 100%;
   grid-template-columns: 1fr 1fr;  
+  overflow-y: hidden;
+
   & > div {
     padding: 1rem;
   }
 `;
 
 const LeftColumn = styled.div`
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow-y: auto;
+`;
+
+const RightColumn = styled.div`
   display: flex;
   min-height: 0;
   flex-direction: column;
@@ -655,6 +687,16 @@ const ExperienceEventSubheader = styled(InputSubheader)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+const InputSectionContainer = styled.div`
+  display: flex;
+  min-height: 0;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  overflow-y: auto;
+  align-self: stretch;
+  flex-grow: 1;
 `;
 
 const ExperienceEventList = styled.div`
@@ -817,4 +859,40 @@ const ExperienceEventLevel = styled.div`
   font-weight: 700;
   margin: 0 0.5rem;
   align-self: flex-end;
+`;
+
+const SpeciesSelector = styled(Select)`
+  margin-bottom: 0.5rem;
+
+  & > .species-selector__control {
+    background-color: ${({ theme }) => theme.input.background};
+    color: ${({ theme }) => theme.input.foreground};
+    border-color: ${({ theme }) => theme.input.border};
+  }
+
+  & .species-selector__value-container div {
+    color: ${({ theme }) => theme.input.foreground};
+  }
+
+  & .species-selector__indicator-separator {
+    background-color: ${({ theme }) => theme.input.border};
+  }
+
+  & .species-selector__menu {
+    background-color: ${({ theme }) => theme.input.background};
+    z-index: 99;
+  }
+
+  & .species-selector__option--is-focused {
+    background-color: ${({ theme }) => theme.backgroundSelected};
+  }
+`;
+
+const SectionSubheader = styled.h3`
+  grid-column: 1 / -1;
+  font-size: 1rem;
+  font-weight: 700;
+  font-style: italic;
+  color: ${({ theme }) => theme.label};
+  margin: 0.5rem 0;
 `;

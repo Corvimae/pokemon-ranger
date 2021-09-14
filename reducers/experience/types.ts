@@ -35,6 +35,9 @@ type SetGrowthRateAction = {
 
 type AddRareCandyExperienceEventAction = {
   type: typeof ADD_RARE_CANDY_EXPERIENCE_EVENT;
+  payload: {
+    position: number;
+  };
 };
 
 type AddSpeciesExperienceEventAction = {
@@ -60,6 +63,7 @@ type AddSpeciesExperienceEventAction = {
     spAttackEVValue: number;
     spDefenseEVValue: number;
     speedEVValue: number;
+    position: number;
   };
 };
 
@@ -74,6 +78,7 @@ type AddManualExperienceEventAction = {
     spAttackEVValue: number;
     spDefenseEVValue: number;
     speedEVValue: number;
+    position: number;
   };
 };
 

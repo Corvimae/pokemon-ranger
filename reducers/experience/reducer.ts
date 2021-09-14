@@ -3,6 +3,15 @@ import { v4 as uuid } from 'uuid';
 import { ExperienceEvent, GrowthRate } from '../../utils/calculations';
 import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, IMPORT_EXPERIENCE_ROUTE, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL, TOGGLE_EXPERIENCE_EVENT_ENABLED } from './types';
 
+function insertAtPosition<T>(list: T[], item: T, position: number): T[] {
+  const insertPosition = position < 0 ? list.length + position + 1 : position;
+
+  return [
+    ...list.slice(0, insertPosition),
+    item,
+    ...list.slice(insertPosition),
+  ];
+}
 const defaultState: ExperienceState = {
   initialLevel: 5,
   growthRate: 'fast',
@@ -26,59 +35,71 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
     case ADD_RARE_CANDY_EXPERIENCE_EVENT:
       return {
         ...state,
-        experienceEvents: [...state.experienceEvents, {
-          id: uuid(),
-          type: 'rareCandy',
-          enabled: true,
-        }],
+        experienceEvents: insertAtPosition(
+          state.experienceEvents,
+          {
+            id: uuid(),
+            type: 'rareCandy',
+            enabled: true,
+          },
+          action.payload.position,
+        ),
       };
 
     case ADD_SPECIES_EXPERIENCE_EVENT:
       return {
         ...state,
-        experienceEvents: [...state.experienceEvents, {
-          id: uuid(),
-          type: 'species',
-          enabled: true,
-          name: action.payload.name,
-          baseExperience: action.payload.baseExperience,
-          level: action.payload.level,
-          expShareEnabled: action.payload.expShareEnabled,
-          participated: action.payload.participated,
-          otherParticipantCount: action.payload.otherParticipantCount,
-          otherPokemonHoldingExperienceShare: action.payload.otherPokemonHoldingExperienceShare,
-          partySize: action.payload.partySize,
-          isTrade: action.payload.isTrade,
-          isInternationalTrade: action.payload.isInternationalTrade,
-          hasLuckyEgg: action.payload.hasLuckyEgg,
-          hasAffectionBoost: action.payload.hasAffectionBoost,
-          isWild: action.payload.isWild,
-          isPastEvolutionPoint: action.payload.isPastEvolutionPoint,
-          hpEVValue: action.payload.hpEVValue,
-          attackEVValue: action.payload.attackEVValue,
-          defenseEVValue: action.payload.defenseEVValue,
-          spAttackEVValue: action.payload.spAttackEVValue,
-          spDefenseEVValue: action.payload.spDefenseEVValue,
-          speedEVValue: action.payload.speedEVValue,
-        }],
+        experienceEvents: insertAtPosition(
+          state.experienceEvents,
+          {
+            id: uuid(),
+            type: 'species',
+            enabled: true,
+            name: action.payload.name,
+            baseExperience: action.payload.baseExperience,
+            level: action.payload.level,
+            expShareEnabled: action.payload.expShareEnabled,
+            participated: action.payload.participated,
+            otherParticipantCount: action.payload.otherParticipantCount,
+            otherPokemonHoldingExperienceShare: action.payload.otherPokemonHoldingExperienceShare,
+            partySize: action.payload.partySize,
+            isTrade: action.payload.isTrade,
+            isInternationalTrade: action.payload.isInternationalTrade,
+            hasLuckyEgg: action.payload.hasLuckyEgg,
+            hasAffectionBoost: action.payload.hasAffectionBoost,
+            isWild: action.payload.isWild,
+            isPastEvolutionPoint: action.payload.isPastEvolutionPoint,
+            hpEVValue: action.payload.hpEVValue,
+            attackEVValue: action.payload.attackEVValue,
+            defenseEVValue: action.payload.defenseEVValue,
+            spAttackEVValue: action.payload.spAttackEVValue,
+            spDefenseEVValue: action.payload.spDefenseEVValue,
+            speedEVValue: action.payload.speedEVValue,
+          },
+          action.payload.position,
+        ),
       };
 
     case ADD_MANUAL_EXPERIENCE_EVENT:
       return {
         ...state,
-        experienceEvents: [...state.experienceEvents, {
-          id: uuid(),
-          type: 'manual',
-          enabled: true,
-          name: action.payload.name,
-          value: action.payload.value,
-          hpEVValue: action.payload.hpEVValue,
-          attackEVValue: action.payload.attackEVValue,
-          defenseEVValue: action.payload.defenseEVValue,
-          spAttackEVValue: action.payload.spAttackEVValue,
-          spDefenseEVValue: action.payload.spDefenseEVValue,
-          speedEVValue: action.payload.speedEVValue,
-        }],
+        experienceEvents: insertAtPosition(
+          state.experienceEvents,
+          {
+            id: uuid(),
+            type: 'manual',
+            enabled: true,
+            name: action.payload.name,
+            value: action.payload.value,
+            hpEVValue: action.payload.hpEVValue,
+            attackEVValue: action.payload.attackEVValue,
+            defenseEVValue: action.payload.defenseEVValue,
+            spAttackEVValue: action.payload.spAttackEVValue,
+            spDefenseEVValue: action.payload.spDefenseEVValue,
+            speedEVValue: action.payload.speedEVValue,
+          },
+          action.payload.position,
+        ),
       };
 
     case SET_EXPERIENCE_EVENT_REWARD:
@@ -152,9 +173,10 @@ export function setGrowthRate(value: GrowthRate): ExperienceReducerAction {
   };
 }
 
-export function addRareCandyExperienceEvent(): ExperienceReducerAction {
+export function addRareCandyExperienceEvent(position: number): ExperienceReducerAction {
   return {
     type: ADD_RARE_CANDY_EXPERIENCE_EVENT,
+    payload: { position },
   };
 }
 
@@ -179,6 +201,7 @@ export function addSpeciesExperienceEvent(
   spAttackEVValue: number,
   spDefenseEVValue: number,
   speedEVValue: number,
+  position: number,
 ): ExperienceReducerAction {
   return {
     type: ADD_SPECIES_EXPERIENCE_EVENT,
@@ -203,6 +226,7 @@ export function addSpeciesExperienceEvent(
       spAttackEVValue,
       spDefenseEVValue,
       speedEVValue,
+      position,
     },
   };
 }
@@ -216,6 +240,7 @@ export function addManualExperienceEvent(
   spAttackEVValue: number,
   spDefenseEVValue: number,
   speedEVValue: number,
+  position: number,
 ): ExperienceReducerAction {
   return {
     type: ADD_MANUAL_EXPERIENCE_EVENT,
@@ -228,6 +253,7 @@ export function addManualExperienceEvent(
       spAttackEVValue,
       spDefenseEVValue,
       speedEVValue,
+      position,
     },
   };
 }
