@@ -6,7 +6,7 @@ import { Tracker } from '../../reducers/route/types';
 import { capitalize } from '../../utils/utils';
 import { Nature, NATURES, Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
-import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution, setManualNeutralNature, setManualNature } from '../../reducers/route/reducer';
+import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution, setManualNeutralNature, setManualNature, setCurrentLevel } from '../../reducers/route/reducer';
 import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, StatValuePossibilitySet } from '../../utils/trackerCalculations';
 import { ConfirmedNature } from '../../utils/rangeTypes';
 import { IVDirectInput } from './IVDirectInput';
@@ -20,20 +20,19 @@ interface IVTrackerProps {
 
 export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
   const dispatch = RouteContext.useDispatch();
-  const [currentLevel, setCurrentLevel] = useState(Number(Object.keys(tracker.evSegments)[0] || 5));
   const [resetConfirmActive, setResetConfirmActive] = useState(false);
 
   const handleSetStat = useCallback((stat: Stat, value: number) => {
-    dispatch(setStat(tracker.name, stat, currentLevel, value));
-  }, [currentLevel, dispatch, tracker.name]);
+    dispatch(setStat(tracker.name, stat, tracker.currentLevel, value));
+  }, [tracker.currentLevel, dispatch, tracker.name]);
 
   const handleDecreaseLevel = useCallback(() => {
-    setCurrentLevel(Math.max(tracker.startingLevel, currentLevel - 1));
-  }, [tracker.startingLevel, currentLevel]);
+    dispatch(setCurrentLevel(tracker.name, Math.max(tracker.startingLevel, tracker.currentLevel - 1)));
+  }, [tracker.startingLevel, dispatch, tracker.currentLevel, tracker.name]);
 
   const handleIncreaseLevel = useCallback(() => {
-    setCurrentLevel(Math.min(100, currentLevel + 1));
-  }, [currentLevel]);
+    dispatch(setCurrentLevel(tracker.name, Math.min(100, tracker.currentLevel + 1)));
+  }, [tracker.currentLevel, dispatch, tracker.name]);
 
   const handleEvolution = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (event.shiftKey) {
@@ -46,7 +45,6 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
   const handleReset = useCallback(() => {
     if (resetConfirmActive) {
       dispatch(resetTracker(tracker.name));
-      setCurrentLevel(tracker.startingLevel);
       setResetConfirmActive(false);
     } else {
       setResetConfirmActive(true);
@@ -55,11 +53,10 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
         setResetConfirmActive(false);
       }, RESET_CONFIRM_DURATION);
     }
-  }, [tracker.name, tracker.startingLevel, resetConfirmActive, dispatch]);
+  }, [tracker.name, resetConfirmActive, dispatch]);
 
   const handleSetStartingLevel = useCallback((level: number) => {
     dispatch(setStartingLevel(tracker.name, level));
-    setCurrentLevel(level);
   }, [tracker.name, dispatch]);
 
   const handleSetManualNature = useCallback((event: React.MouseEvent<HTMLButtonElement>, stat: Stat) => {
@@ -87,7 +84,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
     STATS.reduce((acc, stat) => {
       const { possible, valid } = calculatePossibleStats(
         stat,
-        currentLevel,
+        tracker.currentLevel,
         ivRanges,
         confirmedNatures,
         tracker,
@@ -101,7 +98,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
         },
       };
     }, {} as Record<Stat, StatValuePossibilitySet>)
-  ), [currentLevel, ivRanges, tracker, confirmedNatures]);
+  ), [ivRanges, tracker, confirmedNatures]);
   
   if (tracker.directInput) {
     return (
@@ -132,11 +129,11 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
 
         <ActionButtons>
           <LevelSelector>
-            <Button onClick={handleDecreaseLevel} disabled={currentLevel === tracker.startingLevel}>
+            <Button onClick={handleDecreaseLevel} disabled={tracker.currentLevel === tracker.startingLevel}>
               <FontAwesomeIcon icon={faMinus} size="sm" />
             </Button>
-            <CurrentLevel>Lv. {currentLevel}</CurrentLevel>
-            <Button onClick={handleIncreaseLevel} disabled={currentLevel === 100}>
+            <CurrentLevel>Lv. {tracker.currentLevel}</CurrentLevel>
+            <Button onClick={handleIncreaseLevel} disabled={tracker.currentLevel === 100}>
               <FontAwesomeIcon icon={faPlus} size="sm" />
             </Button>
           </LevelSelector>
@@ -153,7 +150,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
             {possibleStatValues[stat].possible.map(value => (
               <StatSelector
                 key={value}
-                selected={tracker.recordedStats[tracker.evolution]?.[currentLevel]?.[stat] === value}
+                selected={tracker.recordedStats[tracker.evolution]?.[tracker.currentLevel]?.[stat] === value}
                 disabled={possibleStatValues[stat].valid.indexOf(value) === -1}
                 onClick={() => handleSetStat(stat, value)}
               >

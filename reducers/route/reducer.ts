@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { createStatLine, Nature, Stat, StatLine } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS, SET_CURRENT_LEVEL } from './types';
 import { Generation } from '../../utils/rangeTypes';
 
 const defaultState: RouteState = {
@@ -33,7 +33,8 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         repoPath: action.payload.repoPath?.replace('/route.mdr', '').replace('/route.md', ''),
       };
 
-    case REGISTER_TRACKER:
+    case REGISTER_TRACKER: {
+      const startingLevel = Number(Object.keys(action.payload.evSegments)[0] || 5);
       return {
         ...state,
         trackers: {
@@ -43,7 +44,8 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             evolution: 0,
             calculateHiddenPower: action.payload.calculateHiddenPower,
             generation: action.payload.generation,
-            startingLevel: Number(Object.keys(action.payload.evSegments)[0] || 5),
+            startingLevel,
+            currentLevel: startingLevel,
             baseStats: action.payload.baseStats,
             recordedStats: {},
             evSegments: action.payload.evSegments,
@@ -55,6 +57,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
           },
         },
       };
+    }
 
     case SET_SHOW_OPTIONS:
       return {
@@ -131,6 +134,18 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
+    case SET_CURRENT_LEVEL:
+      return {
+        ...state,
+        trackers: {
+          ...state.trackers,
+          [action.payload.name]: {
+            ...state.trackers[action.payload.name],
+            currentLevel: action.payload.level,
+          },
+        },
+      };
+
     case LOAD_OPTIONS:
       return {
         ...state,
@@ -202,6 +217,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             manualPositiveNature: undefined,
             manualNegativeNature: undefined,
             directInputIVs: createStatLine(0, 0, 0, 0, 0, 0),
+            currentLevel: state.trackers[action.payload.name].startingLevel,
           },
         },
       };
@@ -214,6 +230,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
           [action.payload.name]: {
             ...state.trackers[action.payload.name],
             startingLevel: action.payload.startingLevel,
+            currentLevel: action.payload.startingLevel,
             evolution: 0,
             recordedStats: {},
           },
@@ -255,6 +272,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
           [key]: {
             ...state.trackers[key],
             evolution: 0,
+            currentLevel: state.trackers[key].startingLevel,
             recordedStats: {},
             manualPositiveNature: undefined,
             manualNegativeNature: undefined,
@@ -355,6 +373,16 @@ export function setManualNeutralNature(name: string, stat?: Stat): RouteAction {
     payload: {
       name,
       stat,
+    },
+  };
+}
+
+export function setCurrentLevel(name: string, level: number): RouteAction {
+  return {
+    type: SET_CURRENT_LEVEL,
+    payload: {
+      name,
+      level,
     },
   };
 }

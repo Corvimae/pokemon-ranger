@@ -25,6 +25,7 @@ export interface Tracker {
   directInput: boolean;
   directInputNatures: Nature[];
   directInputIVs: StatLine;
+  currentLevel: number;
 }
 
 export interface VariableState {
@@ -62,6 +63,7 @@ export const SET_MANUAL_NATURE = 'SET_MANUAL_NATURE';
 export const SET_MANUAL_POSITIVE_NATURE = 'SET_MANUAL_POSITIVE_NATURE';
 export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
 export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
+export const SET_CURRENT_LEVEL = 'SET_CURRENT_LEVEL';
 export const LOAD_OPTIONS = 'LOAD_OPTIONS';
 export const SET_OPTION_IV_BACKGROUND_COLOR = 'SET_OPTION_IV_BACKGROUND_COLOR';
 export const SET_OPTION_IV_FONT_FAMILY = 'SET_OPTION_IV_FONT_FAMILY';
@@ -145,6 +147,14 @@ type SetManualNeutralNatureAction = {
   payload: {
     name: string;
     stat: Stat | undefined;
+  };
+}
+
+type SetCurrentLevelAction = {
+  type: typeof SET_CURRENT_LEVEL;
+  payload: {
+    name: string;
+    level: number;
   };
 }
 
@@ -250,6 +260,7 @@ export type RouteAction =
   SetManualPositiveNatureAction |
   SetManualNegativeNatureAction |
   SetManualNeutralNatureAction |
+  SetCurrentLevelAction |
   LoadOptionsAction |
   SetOptionIVBackgroundColorAction |
   SetOptionIVFontFamilyAction |
