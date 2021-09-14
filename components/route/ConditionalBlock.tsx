@@ -2,10 +2,10 @@ import React, { useContext, useMemo } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { ErrorCard } from './ErrorCard';
 import { RouteContext } from '../../reducers/route/reducer';
-import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
+import { useCalculationSet } from '../../utils/trackerCalculations';
 import { BorderlessCard, Card, ContainerLabel, variantIsBorderless } from '../Layout';
 import { parse, Terms } from '../../directives/conditional-grammar';
-import { castRouteVariableAsType, evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
+import { evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
 
 interface ConditionalBlockProps {
@@ -25,21 +25,8 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   children,
 }) => {
   const themeContext = useContext(ThemeContext);
-
   const state = RouteContext.useState();
-  const tracker = source && state.trackers[source];
-
-  const ivRanges = useMemo(() => (
-    tracker && calculateAllPossibleIVRanges(tracker)
-  ), [tracker]);
-  const confirmedNatures = useMemo(() => tracker && ivRanges && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
-  
-  const variableValues = useMemo(() => (
-    Object.entries(state.variables).reduce((acc, [key, { type, value }]) => ({
-      ...acc,
-      [key]: castRouteVariableAsType(type, value),
-    }), {})
-  ), [state.variables]);
+  const calculationSet = useCalculationSet(source);
 
   const parsedCondition: ErrorableResult<Terms.Expression> | null = useMemo(() => {
     if (!condition) return null;
@@ -48,7 +35,7 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
   }, [condition]);
 
   const result = useMemo(() => {
-    if (!ivRanges || !condition || !source || !confirmedNatures || !parsedCondition) return null;
+    if (!calculationSet || !condition || !source || !parsedCondition) return null;
   
     const level = Number(rawLevel);
     const evolution = Number(rawEvolution);
@@ -66,11 +53,11 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
         result: evaluateCondition(
           parsedCondition.value,
           level,
-          ivRanges,
-          confirmedNatures,
-          state.trackers[source],
+          calculationSet.ivRanges,
+          calculationSet.confirmedNature,
+          calculationSet.tracker,
           evolution,
-          variableValues,
+          calculationSet.variables,
         ),
       };
     } catch (e) {
@@ -80,11 +67,11 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
         message: `${condition} is not a valid conditional statement: ${(e as any).message}`,
       };
     }
-  }, [condition, parsedCondition, rawLevel, rawEvolution, ivRanges, confirmedNatures, state.trackers, source, variableValues]);
+  }, [condition, parsedCondition, rawLevel, rawEvolution, calculationSet, source]);
 
   if (!source) return <ErrorCard>The source attribute must be specified.</ErrorCard>;
   if (!condition || !parsedCondition) return <ErrorCard>The condition attribute must be specified.</ErrorCard>;
-  if (!ivRanges || !confirmedNatures) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
+  if (!calculationSet) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
 
   if (result?.error) return <ErrorCard>{result.message}</ErrorCard>;
   if (parsedCondition?.error) return <ErrorCard>{parsedCondition.error}</ErrorCard>;

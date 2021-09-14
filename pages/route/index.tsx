@@ -15,6 +15,7 @@ import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
 import { useOnMount } from '../../utils/hooks';
 import { loadOptions } from '../../utils/options';
 import { buildRouteProcessor } from '../../utils/routeProcessor';
+import { buildAllTrackerCalculationSets, RouteCalculationsContext } from '../../utils/trackerCalculations';
 
 const RESET_CONFIRM_DURATION = 2000;
 
@@ -108,69 +109,73 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
     };
   });
 
+  const calculationSets = useMemo(() => buildAllTrackerCalculationSets(state), [state]);
+
   return (
-    <Container ivHorizontalLayout={state.options.ivHorizontalLayout} debugMode={state.options.debugMode}>
-      <Head>
-        {state.options.customCSS && (
-          <style type="text/css">
-            {state.options.customCSS}
-          </style>
-        )}
-      </Head>
-      <MainContent>
-        {content && !content?.error ? (
-          <Guide showOptions={state.showOptions} ref={guideContentElement}>
-            <RouteActions>
-              <Button onClick={handleShowOptions}>Options</Button>
-              <Button onClick={handleReset}>{resetConfirmActive ? 'Are you sure?' : 'Reset All'}</Button>
-              <Button onClick={handleCloseRoute}>Close</Button>
-            </RouteActions>
-            <RouteContent hideMedia={state.options.hideMedia}>
-              {content.content}
-              {state.options.renderOnlyTrackers && (
-                <NoRenderWarning>
-                  Route rendering is disabled. Disable the &ldquo;Render Only IV Trackers&rdquo; option
-                  to re-enable it.
-                </NoRenderWarning>
-              )}
-            </RouteContent>
-            {state.showOptions && <RouteOptionsModal />}
-          </Guide>
-        ) : (
-          <ImportContainer>
-            <ImportPrompt
-              repoQueryParam={repo}
-              error={content?.error ? content.message : undefined}
-              setFileContent={setFileContent}
-              hasAttemptedQueryParamLoad={hasAttemptedQueryParamLoad.current}
-              onInitialLoad={handleOnInitialImport}
-            />
-          </ImportContainer>
-        )}
-        <ReturnToTopButton
-          disabled={!showScrollToTop || !content || content.error}
-          onClick={handleOnScrollToTop}
+    <RouteCalculationsContext.Provider value={calculationSets}>
+      <Container ivHorizontalLayout={state.options.ivHorizontalLayout} debugMode={state.options.debugMode}>
+        <Head>
+          {state.options.customCSS && (
+            <style type="text/css">
+              {state.options.customCSS}
+            </style>
+          )}
+        </Head>
+        <MainContent>
+          {content && !content?.error ? (
+            <Guide showOptions={state.showOptions} ref={guideContentElement}>
+              <RouteActions>
+                <Button onClick={handleShowOptions}>Options</Button>
+                <Button onClick={handleReset}>{resetConfirmActive ? 'Are you sure?' : 'Reset All'}</Button>
+                <Button onClick={handleCloseRoute}>Close</Button>
+              </RouteActions>
+              <RouteContent hideMedia={state.options.hideMedia}>
+                {content.content}
+                {state.options.renderOnlyTrackers && (
+                  <NoRenderWarning>
+                    Route rendering is disabled. Disable the &ldquo;Render Only IV Trackers&rdquo; option
+                    to re-enable it.
+                  </NoRenderWarning>
+                )}
+              </RouteContent>
+              {state.showOptions && <RouteOptionsModal />}
+            </Guide>
+          ) : (
+            <ImportContainer>
+              <ImportPrompt
+                repoQueryParam={repo}
+                error={content?.error ? content.message : undefined}
+                setFileContent={setFileContent}
+                hasAttemptedQueryParamLoad={hasAttemptedQueryParamLoad.current}
+                onInitialLoad={handleOnInitialImport}
+              />
+            </ImportContainer>
+          )}
+          <ReturnToTopButton
+            disabled={!showScrollToTop || !content || content.error}
+            onClick={handleOnScrollToTop}
+          >
+            <FontAwesomeIcon icon={faChevronUp} />
+          </ReturnToTopButton>
+        </MainContent>
+        <Sidebar
+          backgroundColor={state.options.ivBackgroundColor}
+          fontFamily={state.options.ivFontFamily}
+          ivHorizontalLayout={state.options.ivHorizontalLayout}
         >
-          <FontAwesomeIcon icon={faChevronUp} />
-        </ReturnToTopButton>
-      </MainContent>
-      <Sidebar
-        backgroundColor={state.options.ivBackgroundColor}
-        fontFamily={state.options.ivFontFamily}
-        ivHorizontalLayout={state.options.ivHorizontalLayout}
-      >
-        <TrackerInputContainer>
-          {Object.values(state.trackers).map(tracker => (
-            <IVTracker key={tracker.name} tracker={tracker} />
-          ))}
-        </TrackerInputContainer>
-        <div>
-          {Object.values(state.trackers).map(tracker => (
-            <IVDisplay key={tracker.name} tracker={tracker} compactIVs={state.options.compactIVs} />
-          ))}
-        </div>
-      </Sidebar>
-    </Container>
+          <TrackerInputContainer>
+            {Object.values(state.trackers).map(tracker => (
+              <IVTracker key={tracker.name} tracker={tracker} />
+            ))}
+          </TrackerInputContainer>
+          <div>
+            {Object.values(state.trackers).map(tracker => (
+              <IVDisplay key={tracker.name} tracker={tracker} compactIVs={state.options.compactIVs} />
+            ))}
+          </div>
+        </Sidebar>
+      </Container>
+    </RouteCalculationsContext.Provider>
   );
 };
 

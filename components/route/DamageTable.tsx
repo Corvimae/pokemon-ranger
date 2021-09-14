@@ -5,7 +5,7 @@ import { calculateKillRanges, calculateRanges, combineIdenticalLines } from '../
 import { Stat } from '../../utils/constants';
 import { formatIVSplit, formatStatName, formatStatRange } from '../../utils/rangeFormat';
 import { CombinedIVResult, ConfirmedNature } from '../../utils/rangeTypes';
-import { calculateAllPossibleIVRanges, calculatePossibleNature, isIVWithinRange, IVRangeSet } from '../../utils/trackerCalculations';
+import { isIVWithinRange, IVRangeSet, useCalculationSet } from '../../utils/trackerCalculations';
 import { Card } from '../Layout';
 import { ErrorCard } from './ErrorCard';
 
@@ -82,21 +82,17 @@ export const DamageTable: React.FC<DamageTableProps> = ({
 }) => {
   const state = RouteContext.useState();
   const baseStats = source ? state.trackers[source]?.baseStats[Number(evolution)] : null;
-  const tracker = source && state.trackers[source];
 
-  const ivRanges = useMemo(() => (
-    tracker && calculateAllPossibleIVRanges(tracker)
-  ), [tracker]);
-
-  const confirmedNature = useMemo(() => ivRanges && tracker && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
+  const calculationSet = useCalculationSet(source);
 
   const offensiveStat: Stat = special === 'true' ? 'spAttack' : 'attack';
   const defensiveStat: Stat = special === 'true' ? 'spDefense' : 'defense';
   const relevantStat = offensive === 'true' ? offensiveStat : defensiveStat;
 
-  const trackerEvs = evs === -1 ? tracker && (tracker.evSegments[tracker.startingLevel]?.[Number(level)]?.[relevantStat] ?? 0) : evs;
+  const trackerEvs = evs === -1 ? calculationSet?.tracker && (calculationSet.tracker.evSegments[calculationSet.tracker.startingLevel]?.[Number(level)]?.[relevantStat] ?? 0) : evs;
 
   const rangeResults = useMemo(() => {
+    if (!calculationSet) return {};
     const ranges = calculateRanges({
       level: Number(level || 0),
       baseStat: baseStats?.[relevantStat] ?? 0,
@@ -122,16 +118,14 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     });
 
     const threshold = Number(healthThreshold);
-    const natureSet = confirmedNature || [null, null];
+    const natureSet = calculationSet.confirmedNature || [null, null];
         
-    if (!ivRanges) return {};
-
     if (threshold !== -1) {
-      return filterToStatRange(calculateKillRanges(ranges, threshold), natureSet, relevantStat, ivRanges[relevantStat]);
+      return filterToStatRange(calculateKillRanges(ranges, threshold), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
     }
 
-    return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, ivRanges[relevantStat]);
-  }, [baseStats, ivRanges, confirmedNature, relevantStat, level, offensive, trackerEvs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, screen, otherPowerModifier, source, state.trackers]);
+    return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
+  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, screen, otherPowerModifier, source, state.trackers]);
 
   if (!state.trackers[source || '']) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
   if (!level) return <ErrorCard>The level attribute must be specified.</ErrorCard>;

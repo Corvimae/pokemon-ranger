@@ -6,7 +6,7 @@ import { range } from '../utils/utils';
 import { Terms } from './conditional-grammar';
 import { calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../utils/trackerCalculations';
 import { ConfirmedNature } from '../utils/rangeTypes';
-import { RouteVariableType, Tracker } from '../reducers/route/types';
+import { Tracker } from '../reducers/route/types';
 
 type ConditionalStat = Stat | 'startingLevel';
 
@@ -188,22 +188,6 @@ function evaluateStatExpression(
   const possibleValues = calculatePossibleStatsAtLevel(matchingStat, level, ivRanges, confirmedNatures, tracker, evolution);
 
   return evaluateRange(possibleValues, expression);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function castRouteVariableAsType(type: RouteVariableType, value: string | undefined): any {
-  if (value === undefined) return undefined;
-
-  switch (type) {
-    case 'number':
-      return parseInt(value, 10);
-    
-    case 'boolean':
-      return value === 'true';
-    
-    default:
-      return value;
-  }
 }
 
 export function evaluateCondition(

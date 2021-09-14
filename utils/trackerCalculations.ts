@@ -1,5 +1,6 @@
+import { createContext, useContext } from 'react';
 import { CartesianProduct } from 'js-combinatorics/umd/combinatorics';
-import { Tracker } from '../reducers/route/types';
+import { RouteState, RouteVariableType, Tracker } from '../reducers/route/types';
 import { calculateGen1Stat, calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
 import { NATURES, Stat, STATS } from './constants';
 import { CombinedIVResult, ConfirmedNature, Generation, NatureType, StatRange } from './rangeTypes';
@@ -381,4 +382,64 @@ export function calculateHiddenPowerType(
   const [hp, atk, def, spAtk, spDef, speed] = mostProbableCombination.combination.map(value => value ? 1 : 0);
 
   return HIDDEN_POWER_TYPES[Math.floor(((hp + atk * 2 + def * 4 + speed * 8 + spAtk * 16 + spDef * 32) * 15) / 63)];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function castRouteVariableAsType(type: RouteVariableType, value: string | undefined): any {
+  if (value === undefined) return undefined;
+
+  switch (type) {
+    case 'number':
+      return parseInt(value, 10);
+    
+    case 'boolean':
+      return value === 'true';
+    
+    default:
+      return value;
+  }
+}
+
+interface TrackerCalculations {
+  ivRanges: Record<Stat, IVRangeSet>;
+  confirmedNature: ConfirmedNature;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  variables: Record<string, any>;
+  hiddenPowerType: string | null;
+  tracker: Tracker;
+}
+
+export const RouteCalculationsContext = createContext<Record<string, TrackerCalculations | null>>({});
+
+function buildTrackerCalculationSet(state: RouteState, tracker: Tracker): TrackerCalculations {
+  const ivRanges = calculateAllPossibleIVRanges(tracker);
+  const confirmedNature = tracker.generation <= 2 ? ['attack', 'attack'] as ConfirmedNature : calculatePossibleNature(ivRanges, tracker);
+  const variables = Object.entries(state.variables).reduce((acc, [key, { type, value }]) => ({
+    ...acc,
+    [key]: castRouteVariableAsType(type, value),
+  }), {});
+  const hiddenPowerType = calculateHiddenPowerType(ivRanges, confirmedNature);
+
+  return {
+    ivRanges,
+    confirmedNature,
+    variables,
+    hiddenPowerType,
+    tracker,
+  };
+}
+
+export function buildAllTrackerCalculationSets(state: RouteState): Record<string, TrackerCalculations> {
+  return Object.values(state.trackers).reduce((acc, tracker) => ({
+    ...acc,
+    [tracker.name]: buildTrackerCalculationSet(state, tracker),
+  }), {});
+}
+
+export function useCalculationSet(source: string | undefined): TrackerCalculations | null {
+  const calculationSets = useContext(RouteCalculationsContext);
+
+  if (!source) return null;
+
+  return calculationSets[source] ?? null;
 }

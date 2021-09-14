@@ -7,8 +7,7 @@ import { capitalize } from '../../utils/utils';
 import { Nature, NATURES, Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
 import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution, setManualNeutralNature, setManualNature, setCurrentLevel } from '../../reducers/route/reducer';
-import { calculateAllPossibleIVRanges, calculatePossibleNature, calculatePossibleStats, StatValuePossibilitySet } from '../../utils/trackerCalculations';
-import { ConfirmedNature } from '../../utils/rangeTypes';
+import { calculatePossibleStats, StatValuePossibilitySet, useCalculationSet } from '../../utils/trackerCalculations';
 import { IVDirectInput } from './IVDirectInput';
 import { IVGrid, IVGridHeader } from './IVGrid';
 
@@ -73,20 +72,17 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
     dispatch(setManualNature(tracker.name, NATURES[nature].plus, NATURES[nature].minus));
   }, [tracker.name, dispatch]);
 
-  const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
-  const confirmedNatures = useMemo(() => {
-    if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
+  const calculationSet = useCalculationSet(tracker.name);
 
-    return calculatePossibleNature(ivRanges, tracker);
-  }, [tracker, ivRanges]);
+  const possibleStatValues = useMemo(() => {
+    if (!calculationSet) return {} as Record<Stat, StatValuePossibilitySet>;
 
-  const possibleStatValues = useMemo(() => (
-    STATS.reduce((acc, stat) => {
+    return STATS.reduce((acc, stat) => {
       const { possible, valid } = calculatePossibleStats(
         stat,
         tracker.currentLevel,
-        ivRanges,
-        confirmedNatures,
+        calculationSet.ivRanges,
+        calculationSet.confirmedNature,
         tracker,
       );
 
@@ -97,14 +93,14 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
           valid: [...new Set(valid)],
         },
       };
-    }, {} as Record<Stat, StatValuePossibilitySet>)
-  ), [ivRanges, tracker, confirmedNatures]);
+    }, {} as Record<Stat, StatValuePossibilitySet>);
+  }, [calculationSet, tracker]);
   
   if (tracker.directInput) {
     return (
       <IVDirectInput
         tracker={tracker}
-        confirmedNatures={confirmedNatures}
+        confirmedNatures={calculationSet?.confirmedNature ?? [null, null]}
         onNatureButtonClick={handleNatureButtonClick}
         onSetManualNature={handleSetManualNature}
         onReset={handleReset}

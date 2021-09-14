@@ -4,8 +4,8 @@ import { RouteContext } from '../../reducers/route/reducer';
 import { Tracker } from '../../reducers/route/types';
 import { NATURES, Stat, STATS } from '../../utils/constants';
 import { formatStatName } from '../../utils/rangeFormat';
-import { ConfirmedNature, Generation } from '../../utils/rangeTypes';
-import { calculateAllPossibleIVRanges, calculateHiddenPowerType, calculatePossibleNature, getPossibleNatureAdjustmentsForStat, IVRangeSet } from '../../utils/trackerCalculations';
+import { Generation } from '../../utils/rangeTypes';
+import { getPossibleNatureAdjustmentsForStat, IVRangeSet, useCalculationSet } from '../../utils/trackerCalculations';
 
 interface IVDisplayProps {
   tracker: Tracker;
@@ -27,24 +27,20 @@ function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: S
 export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => {
   const state = RouteContext.useState();
 
-  const ivRanges = useMemo(() => calculateAllPossibleIVRanges(tracker), [tracker]);
-  const [confirmedNegative, confirmedPositive] = useMemo(() => {
-    if (tracker.generation <= 2) return ['attack', 'attack'] as ConfirmedNature;
+  const calculationSet = useCalculationSet(tracker.name);
 
-    return calculatePossibleNature(ivRanges, tracker);
-  }, [ivRanges, tracker]);
-  
-  const confirmedNature = useMemo(() => {
+  const {
+    ivRanges,
+    confirmedNature: [confirmedNegative, confirmedPositive],
+  } = calculationSet ?? { confirmedNature: [null, null] };
+
+  const confirmedNatureDefinition = useMemo(() => {
     if (!confirmedNegative || !confirmedPositive) return null;
 
     return Object.values(NATURES).find(nature => nature.minus === confirmedNegative && nature.plus === confirmedPositive);
   }, [confirmedNegative, confirmedPositive]);
-
-  const hiddenPowerType = useMemo(() => (
-    calculateHiddenPowerType(ivRanges, [confirmedNegative, confirmedPositive])
-  ), [ivRanges, confirmedNegative, confirmedPositive]);
-
-  if (state.options.hideIVResults) return null;
+  
+  if (!calculationSet || !ivRanges || state.options.hideIVResults) return null;
 
   return (
     <Container generation={tracker.generation} calculateHiddenPower={tracker.calculateHiddenPower} compactIVs={compactIVs}>
@@ -71,7 +67,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
         <StatDisplay>
           <StatName>Nature</StatName>
           <div>
-            {confirmedNature?.name ?? '?'}
+            {confirmedNatureDefinition?.name ?? '?'}
           </div>
         </StatDisplay>
       )}
@@ -79,7 +75,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
         <StatDisplay>
           <StatName>Hidden Power</StatName>
           <div>
-            {hiddenPowerType ?? 'N/A'}
+            {calculationSet.hiddenPowerType ?? 'N/A'}
           </div>
         </StatDisplay>
       )}

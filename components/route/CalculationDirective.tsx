@@ -2,9 +2,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { parse, Terms } from '../../directives/calc-grammar';
 import { evaluateCalculation } from '../../directives/evaluateCalculation';
-import { castRouteVariableAsType } from '../../directives/evaluateCondition';
-import { RouteContext } from '../../reducers/route/reducer';
-import { calculateAllPossibleIVRanges, calculatePossibleNature } from '../../utils/trackerCalculations';
+import { useCalculationSet } from '../../utils/trackerCalculations';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
 import { DebugText } from './DebugText';
 import { ErrorCard } from './ErrorCard';
@@ -46,21 +44,7 @@ interface CalculationDirectiveProps {
 }
 
 export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ color = 'black', source, level, evolution, format = 'range', contents }) => {
-  const state = RouteContext.useState();
-  const tracker = source ? state.trackers[source] : null;
-
-  const ivRanges = useMemo(() => (
-    tracker && calculateAllPossibleIVRanges(tracker)
-  ), [tracker]);
-  
-  const confirmedNatures = useMemo(() => tracker && ivRanges && calculatePossibleNature(ivRanges, tracker), [ivRanges, tracker]);
-  
-  const variableValues = useMemo(() => (
-    Object.entries(state.variables).reduce((acc, [key, { type, value }]) => ({
-      ...acc,
-      [key]: castRouteVariableAsType(type, value),
-    }), {})
-  ), [state.variables]);
+  const calculationSet = useCalculationSet(source);
 
   const parsedExpression: ErrorableResult<Terms.Expression> | null = useMemo(() => {
     if (!contents) return null;
@@ -71,21 +55,21 @@ export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ colo
   }, [contents]);
 
   const calculatedValueSet: ErrorableResult<number[]> | null = useMemo(() => {
-    if (!parsedExpression || parsedExpression.error) return null;
+    if (!parsedExpression || parsedExpression.error || !calculationSet) return null;
     
     return evaluateAsThrowableOptional<number[]>(() => (
       evaluateCalculation(
         parsedExpression.value,
         level,
-        ivRanges,
-        confirmedNatures,
-        tracker,
+        calculationSet.ivRanges,
+        calculationSet.confirmedNature,
+        calculationSet.tracker,
         source,
         Number(evolution ?? 0),
-        variableValues,
+        calculationSet.variables,
       )
     ));
-  }, [parsedExpression, ivRanges, level, evolution, variableValues, confirmedNatures, tracker, source]);
+  }, [parsedExpression, level, evolution, calculationSet, source]);
 
   if (!parsedExpression) return <ErrorCard>Calculation directives must have an expression.</ErrorCard>;
   if (parsedExpression.error) return <ErrorCard>{parsedExpression.message}</ErrorCard>;
@@ -95,9 +79,9 @@ export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ colo
 
   return (
     <Container color={color}>
-      <DebugText title="IV Ranges" content={ivRanges} />
-      <DebugText title="Natures" content={confirmedNatures} />
-      <DebugText title="Variables" content={variableValues} />
+      <DebugText title="IV Ranges" content={calculationSet?.ivRanges} />
+      <DebugText title="Natures" content={calculationSet?.confirmedNature} />
+      <DebugText title="Variables" content={calculationSet?.variables} />
       <DebugText title="Valueset" content={calculatedValueSet} />
       {formatValueSet(calculatedValueSet.value, format)}
     </Container>
