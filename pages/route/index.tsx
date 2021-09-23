@@ -72,6 +72,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
       };
     } catch (e) {
       console.error(e);
+      
       return {
         error: true,
         message: 'The route file is not valid.',

@@ -9,7 +9,7 @@ export interface EVSegment {
   evsByLevel: EVsByLevel;
 }
 
-const EV_SECTION_REGEX = /^([1-9][0-9]*):/g;
+const EV_SECTION_REGEX = /^\s*([1-9][0-9]*):\s*$/;
 
 interface IVCalculatorDirectiveProps {
   species?: string;
@@ -117,7 +117,11 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
       
       const [level, evs] = line.split('->');
 
-      if (!lastSection) throw new Error('Invalid EV definition: must lead with a starting level directive.');
+      if (!lastSection) {
+        console.error('Invalid EV definition: must lead with a starting level directive.');
+
+        return acc;
+      }
 
       const stats = evs.split('#')[0].split(',').map(segment => Number(segment.trim()));
       return [

@@ -9,6 +9,20 @@ import { InputRow, Link } from '../Layout';
 import { loadFile, RouteContext, setRepoPath } from '../../reducers/route/reducer';
 import { LoadingIcon } from '../LoadingIcon';
 
+const CENTRAL_ROUTE_REPO_PREFIX = 'ranger.';
+const CENTRAL_ROUTE_REPO_LOCATION = 'https://raw.githubusercontent.com/Corvimae/ranger-routes/main/';
+const CENTRAL_ROUTE_REPO_FILENAME = 'route.mdr';
+
+function normalizeRouteLocation(location: string): string {
+  const decodedLocation = decodeURIComponent(location);
+
+  if (decodedLocation.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
+    return `${decodedLocation.replace(CENTRAL_ROUTE_REPO_PREFIX, CENTRAL_ROUTE_REPO_LOCATION)}/${CENTRAL_ROUTE_REPO_FILENAME}`;
+  }
+
+  return decodedLocation;
+}
+
 interface ImportPromptProps {
   repoQueryParam?: string;
   error?: string;
@@ -62,7 +76,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
     dispatch(loadFile());
     setIsLoading(true);
 
-    const path = isFullPath ? repoPath : `https://raw.githubusercontent.com/${repoPath}/route.mdr`;
+    const path = normalizeRouteLocation(isFullPath ? repoPath : `https://raw.githubusercontent.com/${repoPath}/route.mdr`);
 
     fetch(path)
       .then(async response => {
@@ -75,7 +89,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
             {
               pathname: router.pathname,
               query: {
-                repo: encodeURIComponent(path),
+                repo: isFullPath ? repoPath : path,
               },
             },
             undefined,
@@ -87,12 +101,17 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
         }
 
         setIsLoading(false);
+      })
+      .catch(() => {
+        setFileContent(null);
+        setFileSelectError('Unable to find a route file at the specified URL.');
+        setIsLoading(false);
       });
   }, [dispatch, setFileContent, router]);
 
   const handlePublishedImport = useCallback(() => {
     if (publishedImportPath) {
-      handleImportFromGithub(`Corvimae/ranger-routes/main/${(publishedImportPath as OptionTypeBase).value}`);
+      handleImportFromGithub(`${CENTRAL_ROUTE_REPO_PREFIX}${(publishedImportPath as OptionTypeBase).value}`, true);
     }
   }, [publishedImportPath, handleImportFromGithub]);
 
