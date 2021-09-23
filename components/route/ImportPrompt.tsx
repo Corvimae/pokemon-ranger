@@ -8,20 +8,7 @@ import { Button } from '../Button';
 import { InputRow, Link } from '../Layout';
 import { loadFile, RouteContext, setRepoPath } from '../../reducers/route/reducer';
 import { LoadingIcon } from '../LoadingIcon';
-
-const CENTRAL_ROUTE_REPO_PREFIX = 'ranger.';
-const CENTRAL_ROUTE_REPO_LOCATION = 'https://raw.githubusercontent.com/Corvimae/ranger-routes/main/';
-const CENTRAL_ROUTE_REPO_FILENAME = 'route.mdr';
-
-function normalizeRouteLocation(location: string): string {
-  const decodedLocation = decodeURIComponent(location);
-
-  if (decodedLocation.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
-    return `${decodedLocation.replace(CENTRAL_ROUTE_REPO_PREFIX, CENTRAL_ROUTE_REPO_LOCATION)}/${CENTRAL_ROUTE_REPO_FILENAME}`;
-  }
-
-  return decodedLocation;
-}
+import { CENTRAL_ROUTE_REPO_PREFIX, normalizeRouteLocation } from '../../utils/utils';
 
 interface ImportPromptProps {
   repoQueryParam?: string;

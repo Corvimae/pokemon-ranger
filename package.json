@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "yarn build:server && node dist/server.js",
+    "build": "yarn build:frontend && yarn build:server",
+    "build:frontend": "next build",
+    "build:server": "tsc --project server.tsconfig.json",
+    "start": "NODE_ENV=production node dist/server.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.d.ts .",
     "build-calc-parser": "pegjs -o directives/calc-grammar.js grammars/calc-grammar.pegjs",
     "build-conditional-parser": "pegjs -o directives/conditional-grammar.js grammars/conditional-grammar.pegjs"
@@ -17,9 +19,12 @@
     "@types/js-levenshtein": "^1.1.0",
     "@types/lodash": "^4.14.167",
     "deepmerge": "^4.2.2",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
     "hast-util-sanitize": "^3.0.2",
     "hastscript": "^6.0.0",
     "html-entities": "^2.0.2",
+    "isomorphic-fetch": "^3.0.0",
     "js-combinatorics": "^1.4.5",
     "js-levenshtein": "^1.1.6",
     "lodash": "^4.17.20",
@@ -43,6 +48,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/isomorphic-fetch": "^0.0.35",
     "@types/node": "^14.14.16",
     "@types/react": "^17.0.0",
     "@types/react-beautiful-dnd": "^13.0.0",

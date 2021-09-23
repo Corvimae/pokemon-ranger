@@ -1,5 +1,19 @@
 import { Dispatch } from 'react';
 
+export const CENTRAL_ROUTE_REPO_PREFIX = 'ranger.';
+export const CENTRAL_ROUTE_REPO_LOCATION = 'https://raw.githubusercontent.com/Corvimae/ranger-routes/main/';
+export const CENTRAL_ROUTE_REPO_FILENAME = 'route.mdr';
+
+export function normalizeRouteLocation(location: string): string {
+  const decodedLocation = decodeURIComponent(location);
+
+  if (decodedLocation.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
+    return `${decodedLocation.replace(CENTRAL_ROUTE_REPO_PREFIX, CENTRAL_ROUTE_REPO_LOCATION)}/${CENTRAL_ROUTE_REPO_FILENAME}`;
+  }
+
+  return decodedLocation;
+}
+
 export function hasParentElement(child: Element | null, parent: Element): boolean {
   if (child === parent) return true;
   if (!child) return false;
