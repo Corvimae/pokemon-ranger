@@ -13,7 +13,7 @@ import { directiveConverter } from '../directives/directiveConverter';
 import { IVCalculatorDirective } from '../directives/IVCalculatorDirective';
 import { DamageTable } from '../components/route/DamageTable';
 import { ConditionalBlock } from '../components/route/ConditionalBlock';
-import { ContainerLabel } from '../components/Layout';
+import { ContainerLabel, Link } from '../components/Layout';
 import { InlineInfo } from '../components/route/InlineInfo';
 import { TrainerBlock } from '../components/route/TrainerBlock';
 import { PokemonBlock } from '../components/route/PokemonBlock';
@@ -92,6 +92,7 @@ const schema = merge(gh, {
 const EmptyComponent: React.FC = () => <></>;
 
 const FULL_COMPONENT_SET = {
+  a: Link,
   img: RouteImage,
   tracker: IVCalculatorDirective,
   if: ConditionalBlock,

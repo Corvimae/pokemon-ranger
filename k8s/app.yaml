@@ -30,5 +30,8 @@ spec:
       containers:
       - name: pokemon-ranger
         image: corvimae/pokemon-ranger:latest
+        envFrom:
+        - secretRef:
+            name: ranger-backend
         ports:
         - containerPort: 3000

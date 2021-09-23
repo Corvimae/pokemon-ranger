@@ -263,3 +263,19 @@ export function useOnMount(callback: React.EffectCallback): void {
     };
   }, []);
 }
+
+export type DebounceFunctionParameters<T> = T extends (...args: infer U) => unknown ? U : never;
+export type DebounceFunction<T> = (...args: DebounceFunctionParameters<T>) => unknown;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function useDebounce<T extends Function>(callback: T, time: number): DebounceFunction<T> {
+  const timeoutId = useRef<number | null>(null);
+
+  return useCallback<DebounceFunction<T>>((...args) => {
+    const call = (): void => callback(...args);
+
+    if (timeoutId.current) clearTimeout(timeoutId.current);
+
+    timeoutId.current = window.setTimeout(call, time);
+  }, [callback, time]);
+}

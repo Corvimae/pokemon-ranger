@@ -9,6 +9,8 @@ import { InputRow, Link } from '../Layout';
 import { loadFile, RouteContext, setRepoPath } from '../../reducers/route/reducer';
 import { LoadingIcon } from '../LoadingIcon';
 import { CENTRAL_ROUTE_REPO_PREFIX, normalizeRouteLocation } from '../../utils/utils';
+import { RouteDropdownOption, RouteMetadata } from './RouteSelectorComponents';
+import { useDebounce } from '../../utils/hooks';
 
 interface ImportPromptProps {
   repoQueryParam?: string;
@@ -17,6 +19,8 @@ interface ImportPromptProps {
   setFileContent: React.Dispatch<React.SetStateAction<string | null>>;
   onInitialLoad: () => void;
 }
+
+const ROUTE_SELECTOR_COMPONENT_OVERRIDES = { Option: RouteDropdownOption };
 
 export const ImportPrompt: React.FC<ImportPromptProps> = ({
   error,
@@ -43,21 +47,16 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
 
   const loadPublishedRoutes = useCallback((inputValue: string, callback: (options: OptionsType<OptionTypeBase>) => void) => {
     const lowerCaseInput = inputValue.toLowerCase();
-    fetch('https://api.github.com/repos/Corvimae/ranger-routes/git/trees/main').then(response => {
+    fetch(`/api/routes?query=${encodeURIComponent(lowerCaseInput)}`).then(async response => {
       if (response.status === 200) {
-        response.json().then(({ tree }) => {
-          callback(
-            (tree as { path: string; type: string; }[])
-              .filter(({ path }) => lowerCaseInput.length === 0 || path.toLowerCase().indexOf(lowerCaseInput) !== -1)
-              .filter(({ type }) => type === 'tree')
-              .map(({ path }) => ({ label: path, value: path })),
-          );
-        });
+        callback((await response.json()) as OptionsType<OptionTypeBase>);
       } else {
         setFileSelectError('Could not query ranger-routes; is GitHub down?');
       }
     });
   }, []);
+
+  const debouncedLoadPublishedRoutes = useDebounce(loadPublishedRoutes, 200);
 
   const handleImportFromGithub = useCallback((repoPath: string, isFullPath = false) => {
     dispatch(loadFile());
@@ -98,7 +97,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
 
   const handlePublishedImport = useCallback(() => {
     if (publishedImportPath) {
-      handleImportFromGithub(`${CENTRAL_ROUTE_REPO_PREFIX}${(publishedImportPath as OptionTypeBase).value}`, true);
+      handleImportFromGithub(`${CENTRAL_ROUTE_REPO_PREFIX}${(publishedImportPath as OptionTypeBase).path}`, true);
     }
   }, [publishedImportPath, handleImportFromGithub]);
 
@@ -188,7 +187,11 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
           <RepoInputContainer>
             <RouteSelector
               onChange={handleSetPublishedImportPath}
-              loadOptions={loadPublishedRoutes}
+              loadOptions={debouncedLoadPublishedRoutes}
+              components={ROUTE_SELECTOR_COMPONENT_OVERRIDES}
+              value={publishedImportPath}
+              getOptionLabel={(item: RouteMetadata) => item.title ?? item.path}
+              getOptionValue={(item: RouteMetadata) => item.path}
               classNamePrefix="route-selector"
               cacheOptions
               defaultOptions
@@ -317,7 +320,7 @@ const RepoInputContainer = styled(InputRow)`
 
   & > input,
   & > ${RouteSelector} {
-    width: 16rem;
+    width: 24rem;
     margin-bottom: 0;
     font-weight: 400;
     font-size: 1rem;
