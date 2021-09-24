@@ -164,7 +164,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     const offensiveTypeSet = (offensiveMode ? sourceTypes : pokemonContext.types) ?? [];
     const defensiveTypeSet = (offensiveMode ? pokemonContext.types : sourceTypes) ?? [];
     const isCalculatedStab = moveType ? offensiveTypeSet.indexOf(moveType) !== -1 : false;
-    const defensiveEffectiveness = moveType && defensiveTypeSet ? calculateMoveEffectiveness(moveType, ...defensiveTypeSet) : 1;
+    const generation = (source && state.trackers[source]?.generation) || 4;
+    const defensiveEffectiveness = moveType && defensiveTypeSet ? calculateMoveEffectiveness(moveType, generation, ...defensiveTypeSet) : 1;
 
     const ranges = calculateRanges({
       level: Number(level || 0),
@@ -182,7 +183,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       weatherReduced: weatherReduced === 'true',
       multiTarget: multiTarget === 'true',
       otherModifier: Number(otherModifier),
-      generation: (source && state.trackers[source]?.generation) || 4,
+      generation,
       criticalHit: false,
       offensiveMode,
       friendship: Number(friendship),
