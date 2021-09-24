@@ -41,5 +41,6 @@ Ranger uses the information specified in `route.json` to show more detailed info
   "generation": 6, // The generation of the game this route is for.
   "version": "1.0.0", // The version of the route. Please use semantic versioning: https://semver.org/
 }
-
 ```
+
+A complete list of games recognized by Ranger can be found [here](https://github.com/Corvimae/pokemon-ranger/blob/main/server/titles.ts#L8). Game names are not case sensitive.
