@@ -55,16 +55,21 @@ export async function updateRouteList(): Promise<void> {
       const routeMetadataURL = pathContent.find(item => item.name === 'route.json')?.download_url ?? undefined;
       const routeURL = pathContent.find(item => item.name === 'route.mdr')?.download_url ?? undefined;
 
-      if (routeMetadataURL) {
-        const metadataResponse = await fetch(routeMetadataURL);
-        const metadata = await metadataResponse.json();
+      try {
+        if (routeMetadataURL) {
+          const metadataResponse = await fetch(routeMetadataURL);
+          const metadata = await metadataResponse.json();
 
-        return {
-          path,
-          routeMetadataURL,
-          routeURL,
-          ...metadata,
-        };
+          return {
+            path,
+            routeMetadataURL,
+            routeURL,
+            ...metadata,
+          };
+        }
+      } catch (e) {
+        console.error(`Unable to parse route.json for ${path}.`);
+        console.error(e);
       }
 
       return {
