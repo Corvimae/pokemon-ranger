@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { registerTracker, RouteContext } from '../reducers/route/reducer';
+import { logRouteError, registerTracker, RouteContext } from '../reducers/route/reducer';
 import { EVsByLevel } from '../reducers/route/types';
-import { Nature, NATURES, StatLine } from '../utils/constants';
+import { Nature, NATURES } from '../utils/constants';
+import { arrayToStatLine, parseTypeDefinition } from '../utils/trackerCalculations';
 import { splitOnLastElement } from '../utils/utils';
 
 export interface EVSegment {
@@ -26,10 +27,8 @@ interface IVCalculatorDirectiveProps {
   nature: string;
   directInput?: string;
   directInputNatures?: string;
-}
-
-function arrayToStatRow([hp, attack, defense, spAttack, spDefense, speed]: number[]): StatLine {
-  return { hp, attack, defense, spAttack, spDefense, speed };
+  type?: string;
+  position?: string;
 }
 
 export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
@@ -47,6 +46,8 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
   nature,
   directInput,
   directInputNatures,
+  type: rawTypes,
+  position,
 }) => {
   const dispatch = RouteContext.useDispatch();
 
@@ -54,20 +55,27 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
 
   const baseStats = useMemo(() => {
     try {
-      return JSON.parse(rawBaseStats || '').map(arrayToStatRow);
+      return JSON.parse(rawBaseStats || '[]').map(arrayToStatLine);
     } catch {
-      console.error(`Unable to parse base stats: ${rawBaseStats}`);
+      dispatch(logRouteError(`Unable to parse base stats for ${species}: ${rawBaseStats}`, position));
 
-      return arrayToStatRow([0, 0, 0, 0, 0, 0]);
+      return arrayToStatLine([0, 0, 0, 0, 0, 0]);
     }
-  }, [rawBaseStats]);
+  }, [rawBaseStats, dispatch, species, position]);
+
+  const types = useMemo(() => parseTypeDefinition(
+    rawTypes || '',
+    invalidSegment => {
+      dispatch(logRouteError(`Invalid type definition for ${species}: ${invalidSegment}.`, position));
+    },
+  ), [rawTypes, species, dispatch, position]);
 
   const staticIVs = useMemo(() => {
     const ivArray = [hpIV, attackIV, defenseIV, spAttackIV, spDefenseIV, speedIV]
       .map(iv => iv ? parseInt(iv, 10) : -1)
       .map(iv => Number.isNaN(iv) ? -1 : iv);
 
-    return arrayToStatRow(ivArray);
+    return arrayToStatLine(ivArray);
   }, [hpIV, attackIV, defenseIV, spAttackIV, spDefenseIV, speedIV]);
 
   const parsedDirectInputNatures = useMemo(() => {
@@ -75,7 +83,7 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
       let natures = JSON.parse(directInputNatures || '[]') as string[];
 
       if (!Array.isArray(natures)) {
-        console.error('directInputNatures must be a JSON array.');
+        dispatch(logRouteError('directInputNatures must be a JSON array.', position));
 
         return [];
       }
@@ -85,18 +93,18 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
       const invalidNature = natures.find(value => Object.keys(NATURES).indexOf(value) === -1);
 
       if (invalidNature) {
-        console.error(`The direct input nature value ${invalidNature} is not a valid nature.`);
+        dispatch(logRouteError(`The direct input nature value ${invalidNature} is not a valid nature.`, position));
 
         return [];
       }
 
       return natures as Nature[];
     } catch {
-      console.error(`Unable to parse direct input natures: ${directInputNatures}`);
+      dispatch(logRouteError(`Unable to parse direct input natures: ${directInputNatures}`, position));
 
       return [];
     }
-  }, [directInputNatures]);
+  }, [directInputNatures, dispatch, position]);
 
   const evSegments = useMemo(() => {
     const lines = (contents ?? '').split('\n').map(line => line.trim()).filter(line => line.length > 0);
@@ -118,7 +126,7 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
       const [level, evs] = line.split('->');
 
       if (!lastSection) {
-        console.error('Invalid EV definition: must lead with a starting level directive.');
+        dispatch(logRouteError('Invalid EV definition: must lead with a starting level directive.'));
 
         return acc;
       }
@@ -130,7 +138,7 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
           ...lastSection,
           evsByLevel: {
             ...lastSection.evsByLevel,
-            [Number(level)]: arrayToStatRow(stats),
+            [Number(level)]: arrayToStatLine(stats),
           },
         },
       ];
@@ -140,7 +148,7 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
       ...acc,
       [startingLevel]: evsByLevel,
     }), {});
-  }, [contents]);
+  }, [contents, dispatch]);
 
   useEffect(() => {
     if (!hasRegistered.current) {
@@ -154,10 +162,11 @@ export const IVCalculatorDirective: React.FC<IVCalculatorDirectiveProps> = ({
         nature?.toLowerCase() as Nature,
         directInput?.toLowerCase() === 'true',
         parsedDirectInputNatures,
+        types,
       ));
       hasRegistered.current = true;
     }
-  }, [dispatch, species, baseStats, hiddenPower, evSegments, generation, staticIVs, nature, directInput, parsedDirectInputNatures]);
+  }, [dispatch, species, baseStats, hiddenPower, evSegments, generation, staticIVs, nature, directInput, parsedDirectInputNatures, types]);
   
   return null;
 };

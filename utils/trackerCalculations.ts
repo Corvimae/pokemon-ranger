@@ -2,9 +2,10 @@ import { createContext, useContext } from 'react';
 import { CartesianProduct } from 'js-combinatorics/umd/combinatorics';
 import { RouteState, RouteVariableType, Tracker } from '../reducers/route/types';
 import { calculateGen1Stat, calculateHP, calculateStat, NATURE_MODIFIERS } from './calculations';
-import { NATURES, Stat, STATS } from './constants';
+import { NatureDefinition, NATURES, Stat, StatLine, STATS } from './constants';
 import { CombinedIVResult, ConfirmedNature, Generation, NatureType, StatRange } from './rangeTypes';
 import { range, rangesOverlap } from './utils';
+import { TypeName, TYPE_NAMES } from './pokemonTypes';
 
 export const HIDDEN_POWER_TYPES = [
   'Fighting',
@@ -100,7 +101,7 @@ export function calculatePossibleStats(
     const calculatedValues = calculatePossibleStatValues(
       stat,
       level,
-      tracker.baseStats[evolution ?? tracker.evolution][stat],
+      tracker.baseStats[evolution ?? tracker.evolution]?.[stat] ?? 0,
       values[0],
       values[1],
       tracker.evSegments[tracker.startingLevel]?.[level]?.[stat] ?? 0,
@@ -283,6 +284,13 @@ export function getPossibleNatureAdjustmentsForStat(
   ];
 }
 
+export function getNatureMultiplier(stat: Stat, nature: NatureDefinition): number {
+  if (nature.plus === stat && nature.minus !== stat) return 1.1;
+  if (nature.minus === stat && nature.plus !== stat) return 0.9;
+
+  return 1;
+}
+
 export function isIVWithinValues(calculatedValue: StatRange, ivRange: [number, number]): boolean {
   if (!calculatedValue) return false;
 
@@ -442,4 +450,32 @@ export function useCalculationSet(source: string | undefined): TrackerCalculatio
   if (!source) return null;
 
   return calculationSets[source] ?? null;
+}
+
+export function arrayToStatLine([hp, attack, defense, spAttack, spDefense, speed]: number[]): StatLine {
+  return { hp, attack, defense, spAttack, spDefense, speed };
+}
+
+export function parseStatLine(rawStats: string, onError: (invalidSegment: string) => void = console.error): StatLine {
+  try {
+    return arrayToStatLine(JSON.parse(rawStats));
+  } catch (e) {
+    onError(`Unable to parse stat line: ${rawStats}`);
+    
+    return arrayToStatLine([0, 0, 0, 0, 0, 0]);
+  }
+}
+
+export function parseTypeDefinition(rawTypes: string, onError: (invalidSegment: string) => void = console.error): TypeName[] {
+  const typeSegments = rawTypes.split('/').map(x => x.trim().toLowerCase());
+
+  const invalidSegment = typeSegments.find(segment => TYPE_NAMES.indexOf(segment as TypeName) === -1);
+
+  if (invalidSegment) {
+    onError(invalidSegment);
+
+    return [] as TypeName[];
+  }
+
+  return typeSegments as TypeName[];
 }

@@ -3,8 +3,9 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { createStatLine, Nature, Stat, StatLine } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS, SET_CURRENT_LEVEL } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS, SET_CURRENT_LEVEL, LOG_ROUTE_ERROR } from './types';
 import { Generation } from '../../utils/rangeTypes';
+import { TypeName } from '../../utils/pokemonTypes';
 
 const defaultState: RouteState = {
   repoPath: undefined,
@@ -23,6 +24,7 @@ const defaultState: RouteState = {
     hideIVResults: false,
     debugMode: false,
   },
+  routeErrors: [],
 };
 
 const reducer = (state: RouteState, action: RouteAction): RouteState => {
@@ -35,6 +37,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
 
     case REGISTER_TRACKER: {
       const startingLevel = Number(Object.keys(action.payload.evSegments)[0] || 5);
+      
       return {
         ...state,
         trackers: {
@@ -54,6 +57,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             directInput: action.payload.directInput,
             directInputIVs: createStatLine(0, 0, 0, 0, 0, 0),
             directInputNatures: action.payload.directInputNatures ?? [],
+            types: action.payload.types,
           },
         },
       };
@@ -284,8 +288,18 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
       return {
         ...defaultState,
         options: state.options,
+        routeErrors: [],
       };
 
+    case LOG_ROUTE_ERROR: {
+      return {
+        ...state,
+        routeErrors: state.routeErrors.indexOf(action.payload.message) === -1 ? [
+          ...state.routeErrors,
+          action.payload.message,
+        ] : state.routeErrors,
+      };
+    }
     default:
       return state;
   }
@@ -300,7 +314,7 @@ export function setRepoPath(repoPath: string | undefined): RouteAction {
   };
 }
 
-export function registerTracker(name: string, baseStats: StatLine[], generation: Generation, calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>, staticIVs: StatLine, staticNature: Nature | undefined, directInput: boolean, directInputNatures: Nature[] | undefined): RouteAction {
+export function registerTracker(name: string, baseStats: StatLine[], generation: Generation, calculateHiddenPower: boolean, evSegments: Record<number, EVsByLevel>, staticIVs: StatLine, staticNature: Nature | undefined, directInput: boolean, directInputNatures: Nature[] | undefined, types: TypeName[]): RouteAction {
   return {
     type: REGISTER_TRACKER,
     payload: {
@@ -313,6 +327,7 @@ export function registerTracker(name: string, baseStats: StatLine[], generation:
       staticNature,
       directInput,
       directInputNatures,
+      types,
     },
   };
 }
@@ -490,5 +505,16 @@ export function resetRoute(): RouteAction {
 export function loadFile(): RouteAction {
   return {
     type: LOAD_FILE,
+  };
+}
+
+export function logRouteError(message: string, position?: string): RouteAction {
+  console.error(`[Ranger] ${position ? `${position} ` : ''}Error parsing route: ${message}.`);
+
+  return {
+    type: LOG_ROUTE_ERROR,
+    payload: {
+      message: `${message}${position?.length ? ` ${position.trim()}` : ''}`,
+    },
   };
 }

@@ -1,13 +1,45 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
-import { RouteContext } from '../../reducers/route/reducer';
+import { logRouteError, RouteContext } from '../../reducers/route/reducer';
+import { Tracker } from '../../reducers/route/types';
 import { calculateKillRanges, calculateRanges, combineIdenticalLines } from '../../utils/calculations';
 import { Stat } from '../../utils/constants';
+import { calculateMoveEffectiveness, TypeName, TYPE_NAMES } from '../../utils/pokemonTypes';
 import { formatIVSplit, formatStatName, formatStatRange } from '../../utils/rangeFormat';
 import { CombinedIVResult, ConfirmedNature } from '../../utils/rangeTypes';
 import { isIVWithinRange, IVRangeSet, useCalculationSet } from '../../utils/trackerCalculations';
 import { Card } from '../Layout';
 import { ErrorCard } from './ErrorCard';
+import { PokemonBlockContext, PokemonStatContext } from './PokemonBlock';
+
+function validateDamageTableValues(
+  trackers: Record<string, Tracker>,
+  source: string | undefined,
+  pokemonContext: PokemonStatContext,
+  level: string | undefined,
+  movePower: string | undefined,
+  opponentStat: string | undefined,
+): string | null {
+  // If the trackers aren't registered yet, just wait.
+
+  if (!trackers[source || '']) {
+    return `No IV table with the name ${source} exists.`;
+  }
+
+  if (!level) {
+    return 'The level attribute must be specified.';
+  }
+
+  if (!movePower) {
+    return 'The movePower attribute must be specified.';
+  }
+
+  if (!opponentStat && !pokemonContext.stats) {
+    return 'Either the opponentStat attribute must be specified, or stats must be defined in the parent pokemon block.';
+  }
+
+  return null;
+}
 
 function filterToStatRange<T extends CombinedIVResult>(
   results: Record<string | number, T>,
@@ -30,6 +62,7 @@ function filterToStatRange<T extends CombinedIVResult>(
 interface DamageTableProps {
   source?: string;
   contents?: string;
+  position?: string;
   level?: string;
   evolution?: string;
   evs?: string;
@@ -51,23 +84,25 @@ interface DamageTableProps {
   friendship?: string;
   screen?: string;
   otherPowerModifier?: string;
+  type?: string;
   theme?: string;
 }
 
 export const DamageTable: React.FC<DamageTableProps> = ({
   source,
   contents,
+  position,
   level,
   movePower,
   opponentStat,
   evolution = 0,
   evs = -1,
   combatStages = 0,
-  effectiveness = 1,
-  stab = 'false',
+  effectiveness,
+  stab,
   opponentCombatStages = 0,
   opponentLevel = 0,
-  healthThreshold = -1,
+  healthThreshold = '-1',
   torrent = 'false',
   weatherBoosted = 'false',
   weatherReduced = 'false',
@@ -78,30 +113,69 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   screen = 'false',
   otherPowerModifier = 1,
   friendship = 0,
+  type,
   theme = 'info',
 }) => {
   const state = RouteContext.useState();
+  const dispatch = RouteContext.useDispatch();
+  const pokemonContext = useContext(PokemonBlockContext);
   const baseStats = source ? state.trackers[source]?.baseStats[Number(evolution)] : null;
 
   const calculationSet = useCalculationSet(source);
 
   const offensiveStat: Stat = special === 'true' ? 'spAttack' : 'attack';
   const defensiveStat: Stat = special === 'true' ? 'spDefense' : 'defense';
-  const relevantStat = offensive === 'true' ? offensiveStat : defensiveStat;
+  const relevantStat = offensive?.toLowerCase() === 'true' ? offensiveStat : defensiveStat;
+  const opponentRelevantStat = offensive?.toLowerCase() === 'true' ? defensiveStat : offensiveStat;
 
   const trackerEvs = evs === -1 ? calculationSet?.tracker && (calculationSet.tracker.evSegments[calculationSet.tracker.startingLevel]?.[Number(level)]?.[relevantStat] ?? 0) : evs;
 
+  const moveType = useMemo(() => {
+    const parsedType = type?.trim().toLowerCase();
+
+    if (parsedType && TYPE_NAMES.indexOf(parsedType as TypeName) === -1) {
+      dispatch(logRouteError(`Invalid type definition for damage table: ${type}.`, position));
+
+      return null;
+    }
+
+    return (parsedType as TypeName) || null;
+  }, [type, position, dispatch]);
+
+  const hpThreshold = useMemo(() => {
+    const useParentHPThreshold = healthThreshold?.toLowerCase() === 'auto';
+    const offensiveMode = offensive.toLowerCase() === 'true';
+
+    if (useParentHPThreshold && !offensiveMode) {
+      dispatch(logRouteError('"auto" health threshold is only supported for offensive calculations.', position));
+
+      return -1;
+    }
+
+    return offensiveMode && useParentHPThreshold && pokemonContext.stats ? pokemonContext.stats.hp : Number(healthThreshold);
+  }, [healthThreshold, offensive, dispatch, position, pokemonContext.stats]);
+  
   const rangeResults = useMemo(() => {
     if (!calculationSet) return {};
+    const parsedEffectiveness = effectiveness === undefined || effectiveness == null || effectiveness === '' ? null : Number(effectiveness);
+    const parsedStab = stab === null || stab === undefined ? null : stab === 'true';
+    const sourceTypes = source ? state.trackers[source]?.types : [];
+    const offensiveMode = offensive.toLowerCase() === 'true';
+    const offensiveTypeSet = (offensiveMode ? sourceTypes : pokemonContext.types) ?? [];
+    const defensiveTypeSet = (offensiveMode ? pokemonContext.types : sourceTypes) ?? [];
+    const isCalculatedStab = moveType ? offensiveTypeSet.indexOf(moveType) !== -1 : false;
+    const defensiveEffectiveness = moveType && defensiveTypeSet ? calculateMoveEffectiveness(moveType, ...defensiveTypeSet) : 1;
+
     const ranges = calculateRanges({
       level: Number(level || 0),
       baseStat: baseStats?.[relevantStat] ?? 0,
       evs: Number(trackerEvs),
       combatStages: Number(combatStages),
       movePower: Number(movePower),
-      typeEffectiveness: Number(effectiveness),
-      stab: stab === 'true',
-      opponentStat: Number(opponentStat),
+      typeEffectiveness: parsedEffectiveness ?? defensiveEffectiveness,
+      stab: parsedStab ?? isCalculatedStab,
+      opponentStat: pokemonContext.stats ? pokemonContext.stats[opponentRelevantStat] : Number(opponentStat),
+      opponentLevel: pokemonContext.level ? pokemonContext.level : Number(opponentLevel),
       opponentCombatStages: Number(opponentCombatStages),
       torrent: torrent === 'true',
       weatherBoosted: weatherBoosted === 'true',
@@ -110,30 +184,35 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       otherModifier: Number(otherModifier),
       generation: (source && state.trackers[source]?.generation) || 4,
       criticalHit: false,
-      opponentLevel: Number(opponentLevel),
-      offensiveMode: offensive === 'true',
+      offensiveMode,
       friendship: Number(friendship),
       screen: screen === 'true',
       otherPowerModifier: Number(otherPowerModifier),
     });
 
-    const threshold = Number(healthThreshold);
     const natureSet = calculationSet.confirmedNature || [null, null];
-        
-    if (threshold !== -1) {
-      return filterToStatRange(calculateKillRanges(ranges, threshold), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
+    
+    if (hpThreshold !== -1) {
+      return filterToStatRange(calculateKillRanges(ranges, hpThreshold), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
     }
 
     return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
-  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, healthThreshold, screen, otherPowerModifier, source, state.trackers]);
+  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold]);
 
-  if (!state.trackers[source || '']) return <ErrorCard>No IV table with the name {source} exists.</ErrorCard>;
-  if (!level) return <ErrorCard>The level attribute must be specified.</ErrorCard>;
-  if (!movePower) return <ErrorCard>The movePower attribute must be specified.</ErrorCard>;
-  if (!opponentStat) return <ErrorCard>The opponentStat attribute must be specified.</ErrorCard>;
+  const error = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (error.current === null && Object.keys(state.trackers).length > 0) {
+      error.current = validateDamageTableValues(state.trackers, source, pokemonContext, level, movePower, opponentStat);
+
+      if (error.current) dispatch(logRouteError(error.current, position));
+    }
+  }, [state.trackers, level, movePower, source, pokemonContext, opponentStat, dispatch, position]);
+
+  if (error.current) return <ErrorCard>{error.current}</ErrorCard>;
 
   const resultCount = Object.keys(rangeResults).length;
-  const isAgainstThreshold = Number(healthThreshold) !== -1;
+  const isAgainstThreshold = hpThreshold !== -1;
 
   return (
     <Card variant={theme}>

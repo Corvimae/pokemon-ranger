@@ -16,6 +16,7 @@ import { useOnMount } from '../../utils/hooks';
 import { loadOptions } from '../../utils/options';
 import { buildRouteProcessor } from '../../utils/routeProcessor';
 import { buildAllTrackerCalculationSets, RouteCalculationsContext } from '../../utils/trackerCalculations';
+import { Card } from '../../components/Layout';
 
 const RESET_CONFIRM_DURATION = 2000;
 
@@ -131,6 +132,16 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
                 <Button onClick={handleCloseRoute}>Close</Button>
               </RouteActions>
               <RouteContent hideMedia={state.options.hideMedia}>
+                {state.routeErrors.length > 0 && (
+                  <Card variant="error">
+                    <ErrorCardTitle>This route contains {state.routeErrors.length} error{state.routeErrors.length === 1 ? '' : 's'}:</ErrorCardTitle>
+                    <ul>
+                      {state.routeErrors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
                 {content.content}
                 {state.options.renderOnlyTrackers && (
                   <NoRenderWarning>
@@ -311,4 +322,10 @@ const ReturnToTopButton = styled.button`
 const NoRenderWarning = styled.div`
   font-style: italic;
   color: ${({ theme }) => theme.label};
+`;
+
+const ErrorCardTitle = styled.h3`
+  &&& {
+    margin-top: 1rem;
+  }
 `;

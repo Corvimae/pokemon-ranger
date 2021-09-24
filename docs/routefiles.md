@@ -52,6 +52,8 @@ A route file can contain any number of IV trackers, but in order to take advanta
 
 `directInputNatures` (string) - A JSON-formatted array of natures. If `directInput` is true, a row of buttons will be shown with the specified natures, allowing the runner to quickly select a nature from the pre-specified list. If `directInputNatures` is not specified but `directInput` is true, a nature can still be chosen by clicking on the stat names (see Tips and Tricks).
 
+`type` (string) - The elemental type of the Pokémon. If the Pokémon has more than one type, separate them with a slash (for example, `Ghost/Flying`). Types are case insensitive. If the type is specified, damage tables will calculate type effectiveness automatically.
+
 ### Content
 
 The block content is used to determine the EVs of the Pokémon at each level. EVs at not calculated cumulatively - you must provide the total EVs that the Pokémon has when the level up occurs, not just the EVs gained since the last level up.
@@ -89,19 +91,21 @@ The content within the square brackets is displayed as a header above the table,
 
 `source` (string, required) - The unique identifier for the IV tracker associated with this damage table. The value must match the `species` value of an IV tracker.
 
+`level` (number, required) - The level of the runner's Pokémon at the time of the attack.
+
+`movePower` (number, required) - The base power of the attack.
+
+`type` (string) - The elemental type of the move. If the type is specified and the `source` Pokémon has its type(s) specified, the type effectiveness of the move will be calculated automatically. Types are case insensitive.
+
 `offensive` (boolean, default: `true`) - Whether to calculate offensive ranges (damage dealt by the runner's Pokémon) or defensive ranges (damage dealt to the runner's Pokémon).
 
 `special` (boolean, default: `false`) - Whether this move deals special damage or physical damage.
 
-`movePower` (number, required) - The base power of the attack.
+`opponentStat` (number) - The relevant stat of the opponent's Pokémon at the time of the attack. Required unless the [parent Pokémon has its stats defined](#stat-contexts). This value will override any contextual stats if specified.
 
-`opponentStat` (number, required) - The relevant stat of the opponent's Pokémon at the time of the attack.
+`opponentLevel` (number) - The level of the opponent's Pokemon at the time of the attack. Required in defensive mode unless the [parent Pokémon has its stats defined](#stat-contexts). This value will override any contextual stats if specified.
 
-`level` (number, required) - The level of the runner's Pokémon at the time of the attack.
-
-`opponentLevel` (number) - The level of the opponent's Pokemon at the time of the attack. Required in defensive mode.
-
-`healthThreshold` (number) - If specified, the table will display the number of damage rolls (out of 16) that are at least the specified value rather than the damage range.
+`healthThreshold` (number or `auto`) - If specified, the table will display the number of damage rolls (out of 16) that are at least the specified value rather than the damage range. If set to `auto` and `offensive` is true, the HP stat of the [parent Pokémon](#stat-contexts) is used instead.
 
 `evolution` (number, default: `0`) - The evolution of the runner's Pokémon at the time of the attack, zero-indexed.
 
@@ -109,9 +113,9 @@ The content within the square brackets is displayed as a header above the table,
 
 `combatStages` (number, default: `0`) - The number of combat stages in the relevant stat of the runner's Pokémon at the time of the attack.
 
-`effectiveness` (number, default: `1`) - The type effectiveness multiplier of the move (0.25, 0.5, 1, 2, 4).
+`effectiveness` (number, default: `1`) - The type effectiveness multiplier of the move (0.25, 0.5, 1, 2, 4). Effectiveness is calculated automatically if `type` is specified for the damage table and the defensive Pokémon. If manually specified, this value will override the automatic calculation.
 
-`stab` (boolean, default: `false`) - Whether this move is boosted by the Same Type Attack Bonus.
+`stab` (boolean, default: `false`) - Whether this move is boosted by the Same Type Attack Bonus. STAB is calculated automatically if `type` is specified for the damage table and the offensive Pokémon. If manually specified, this value will override the automatic calculation.
 
 `opponentCombatStages` (number, default: `0`) - The number of combat stages in the opponent Pokémon's relevant stat at the time of the attack.
 
@@ -179,10 +183,35 @@ It's recommended you format the fight instructions as an unordered list. Bullets
 :::::::
 ```
 
+### Stat Contexts
+
+If a `damage` directive is located within a `pokemon` block and the `pokemon` block has its stats defined (see below), the damage table will use the stats of that Pokémon for all of its calculations unless otherwise specified.
+
+This is optional; if you're defining a bunch of damage tables, this allows you to specify stats once, but if you don't add any damage tables for the encounter, it won't do anything.
+
+If the `stats` attribute is defined, its values will be used as provided. Otherwise, the stats at the time of the encounter are calculated using `level`, `baseStats`, `ivs`, and `evs`.
+
 ### Attributes
 
+All Pokémon block attributes are optional.
+
 `info` (string) - Text to display next to the Pokémon's name.
+
 `infoColor` (string) - The color of the info text. Any color accepted by `:info` is accepted here (see [below](#inline-info)).
+
+`level` (number) - The level of the Pokémon.
+
+`baseStats` (string) - A JSON-formatted array of the Pokémon's base stats (for example, `[90, 50, 34, 60, 44, 70]`). If you specify `stats`, this value is unused.
+
+`ivs` (string) - A JSON-formatted array of the Pokémon's IV values. If you specify `stats`, this value is unused.
+
+`evs` (string) - A JSON-formatted array of the Pokémon's EV values. If you specify `stats`, this value is unused.
+
+`stats` (string) - A JSON-formatted array of the Pokémon's stats at the time of the encounter.
+
+`nature` (string) - The nature of the Pokémon.
+
+`type` - he elemental type of the Pokémon. If the Pokémon has more than one type, separate them with a slash (for example, `Ghost/Flying`). Types are case insensitive. If the type is specified, damage tables will calculate type effectiveness automatically.
 
 ## Variables
 

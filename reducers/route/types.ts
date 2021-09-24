@@ -1,4 +1,5 @@
 import { Nature, Stat, StatLine } from '../../utils/constants';
+import { TypeName } from '../../utils/pokemonTypes';
 import { Generation } from '../../utils/rangeTypes';
 
 export const VALID_VARIABLE_TYPES = ['text', 'number', 'boolean', 'select'] as const;
@@ -26,6 +27,7 @@ export interface Tracker {
   directInputNatures: Nature[];
   directInputIVs: StatLine;
   currentLevel: number;
+  types: TypeName[];
 }
 
 export interface VariableState {
@@ -52,7 +54,8 @@ export interface RouteState {
   showOptions: boolean;
   trackers: Record<string, Tracker>;
   variables: Record<string, VariableState>;
-  options: RouteOptionsState
+  options: RouteOptionsState;
+  routeErrors: string[];
 }
 
 export const SET_REPO_PATH = 'SET_REPO_PATH';
@@ -77,6 +80,7 @@ export const REGISTER_VARIABLE = 'REGISTER_VARIABLE';
 export const SET_VARIABLE_VALUE = 'SET_VARIABLE_VALUE';
 export const RESET_ROUTE = 'RESET_ROUTE';
 export const LOAD_FILE = 'LOAD_FILE';
+export const LOG_ROUTE_ERROR = 'LOG_ROUTE_ERROR';
 
 type SetRepoPathAction = {
   type: typeof SET_REPO_PATH;
@@ -97,6 +101,7 @@ type RegisterTrackerAction = {
     staticNature: Nature | undefined;
     directInput: boolean;
     directInputNatures: Nature[] | undefined;
+    types: TypeName[];
   };
 }
 
@@ -251,6 +256,13 @@ type LoadFileAction = {
   type: typeof LOAD_FILE;
 }
 
+type LogRouteErrorAction = {
+  type: typeof LOG_ROUTE_ERROR;
+  payload: {
+    message: string;
+  };
+}
+
 export type RouteAction =
   SetRepoPathAction |
   RegisterTrackerAction |
@@ -273,4 +285,5 @@ export type RouteAction =
   RegisterVariableAction |
   SetVariableValueAction |
   ResetRouteAction |
-  LoadFileAction;
+  LoadFileAction |
+  LogRouteErrorAction;

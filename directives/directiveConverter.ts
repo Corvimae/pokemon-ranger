@@ -32,11 +32,17 @@ export function directiveConverter(): Transformer {
         return child;
       });
     }
-
+    
     data.hName = hast.tagName;
     data.hProperties = {
       ...hast.properties,
       contents: childrenToText(node),
+      position: node.position ? `(line ${node.position.start.line}, col ${node.position.start.column}) ` : '',
     };
   }
+}
+
+export interface Position {
+  line: number;
+  column: number;
 }

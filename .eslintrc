@@ -43,6 +43,7 @@
     ],
     "object-curly-newline": ["error", { "consistent": true }],
     "no-use-before-define": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "arrow-parens": ["error", "as-needed"],
     "no-confusing-arrow": "off",
     "no-trailing-spaces": ["error", { "skipBlankLines": true }],
