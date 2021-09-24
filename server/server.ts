@@ -1,6 +1,6 @@
 import express from 'express';
 import next from 'next';
-import { getRouteList, updateRouteList } from './routeList';
+import { getRouteList, groupRoutesByTitle, updateRouteList } from './routeList';
 
 const ROUTE_LIST_UPDATE_INTERVAL = 1000 * 60 * 30;
 const port = parseInt(process.env.PORT ?? '3000', 10);
@@ -20,7 +20,7 @@ app.prepare().then(async () => {
       const routes = getRouteList();
 
       if (req.query.query) {
-        res.json(routes.filter(item => {
+        const matchingRoutes = routes.filter(item => {
           const matchingValue = [
             item.author,
             item.game,
@@ -29,9 +29,11 @@ app.prepare().then(async () => {
           ].find(value => value?.toLowerCase().indexOf(req.query.query as string) !== -1);
 
           return matchingValue !== undefined && matchingValue !== null;
-        }));
+        });
+        
+        res.json(groupRoutesByTitle(matchingRoutes));
       } else {
-        res.json(getRouteList());
+        res.json(groupRoutesByTitle(getRouteList()));
       }
     });
     

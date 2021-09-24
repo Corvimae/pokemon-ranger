@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
+import { GameTitleMetadata, normalizeGameTitle } from './titles';
 
 interface RouteMetadata {
   path: string;
@@ -42,6 +43,30 @@ async function getDirectoryContentList(path: string) {
 
   return Array.isArray(content.data) ? content.data : [];
 }
+
+type RouteGroup = { label: string; options: RouteMetadata[] } & GameTitleMetadata;
+
+export function groupRoutesByTitle(routes: RouteMetadata[]): RouteGroup[] {
+  const groups = routes.reduce((acc, item) => {
+    const gameTitle = (item.game ? normalizeGameTitle(item.game) : null) ?? { title: 'Other', generation: -1 };
+
+    const group = acc[gameTitle.title] ?? {
+      label: gameTitle.shortTitle ?? gameTitle.title,
+      ...gameTitle,
+      options: [],
+    };
+
+    group.options.push(item);
+    
+    return {
+      ...acc,
+      [gameTitle.title]: group,
+    };
+  }, {} as Record<string, RouteGroup>);
+
+  return Object.values(groups).sort((a, b) => b.generation - a.generation);
+}
+
 export async function updateRouteList(): Promise<void> {
   try {
     console.info('Updating the list of routes...');

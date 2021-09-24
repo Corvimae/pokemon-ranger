@@ -20,7 +20,7 @@ app.prepare().then(async () => {
         server.get('/api/routes', async (req, res) => {
             const routes = routeList_1.getRouteList();
             if (req.query.query) {
-                res.json(routes.filter(item => {
+                const matchingRoutes = routes.filter(item => {
                     const matchingValue = [
                         item.author,
                         item.game,
@@ -28,10 +28,11 @@ app.prepare().then(async () => {
                         item.path,
                     ].find(value => (value === null || value === void 0 ? void 0 : value.toLowerCase().indexOf(req.query.query)) !== -1);
                     return matchingValue !== undefined && matchingValue !== null;
-                }));
+                });
+                res.json(routeList_1.groupRoutesByTitle(matchingRoutes));
             }
             else {
-                res.json(routeList_1.getRouteList());
+                res.json(routeList_1.groupRoutesByTitle(routeList_1.getRouteList()));
             }
         });
         server.get('*', (req, res) => handle(req, res));
