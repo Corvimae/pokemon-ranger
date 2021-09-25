@@ -27,7 +27,7 @@ const RANGER_TITLE = 'Pokémon Ranger';
 
 interface RouteViewParams {
   repo?: string;
-  routeMetadata?: RouteMetadata;
+  routeMetadata: RouteMetadata | null;
 }
 
 const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
@@ -38,7 +38,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
   const [resetConfirmActive, setResetConfirmActive] = useState(false);
 
   const [showScrollToTop, setShowScrollToTop] = useState(false);
-  const [activeRouteMetadata, setActiveRouteMetadata] = useState<RouteMetadata | undefined>(routeMetadata);
+  const [activeRouteMetadata, setActiveRouteMetadata] = useState<RouteMetadata | null>(routeMetadata);
   const [fileContent, setFileContent] = useState<string | null>(null);
 
   const state = RouteContext.useState();
@@ -55,7 +55,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
     dispatch(loadFile());
 
     setFileContent(null);
-    setActiveRouteMetadata(undefined);
+    setActiveRouteMetadata(null);
     
     router.push(
       {
@@ -211,10 +211,10 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
 
 export const getServerSideProps: GetServerSideProps = async context => {
   const repo = context.query.repo ? decodeURIComponent(context.query.repo as string) : null;
-  let routeMetadata: RouteMetadata | undefined;
+  let routeMetadata: RouteMetadata | null = null;
 
   if (repo?.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
-    routeMetadata = getRouteMetadata(repo.replace(CENTRAL_ROUTE_REPO_PREFIX, ''));
+    routeMetadata = getRouteMetadata(repo.replace(CENTRAL_ROUTE_REPO_PREFIX, '')) ?? null;
   }
 
   return {

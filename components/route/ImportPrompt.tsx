@@ -17,7 +17,7 @@ interface ImportPromptProps {
   error?: string;
   hasAttemptedQueryParamLoad: boolean;
   setFileContent: React.Dispatch<React.SetStateAction<string | null>>;
-  setActiveRouteMetadata: React.Dispatch<React.SetStateAction<RouteMetadata | undefined>>;
+  setActiveRouteMetadata: React.Dispatch<React.SetStateAction<RouteMetadata | null>>;
   onInitialLoad: () => void;
 }
 

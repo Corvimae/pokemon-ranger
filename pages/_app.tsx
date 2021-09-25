@@ -85,13 +85,6 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
                   alt: 'Quick ball styler logo but only the top half!',
                   type: 'image/png',
                 },
-                {
-                  url: 'https://ranger.maybreak.com/images/logo.png',
-                  width: 1200,
-                  height: 1200,
-                  alt: 'Quick ball styler logo! The whole thing!',
-                  type: 'image/png',
-                },
               ],
             }}
           />
