@@ -71,6 +71,8 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           <DefaultSeo
             description={META_DESCRIPTION}
             canonical="https://ranger.maybreak.com/"
+            titleTemplate="%s - Pokémon Ranger"
+            defaultTitle="Pokémon Ranger"
             openGraph={{
               type: 'website',
               locale: 'en_US',
@@ -79,13 +81,16 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
               description: META_DESCRIPTION,
               images: [
                 {
-                  url: 'https://ranger.maybreak.com/images/logo_half.png',
+                  url: 'https://horrible-shrimp-100.loca.lt/images/logo_half.png',
                   width: 1200,
                   height: 627,
-                  alt: 'Quick ball styler logo but only the top half!',
+                  alt: 'Quick ball styler logo wow!',
                   type: 'image/png',
                 },
               ],
+            }}
+            twitter={{
+              cardType: 'summary_large_image',
             }}
           />
           <Component {...pageProps} />
