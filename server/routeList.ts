@@ -20,7 +20,7 @@ interface RouteMetadata {
 
 dotenv.config();
 
-const appOctokit = new Octokit({
+const appOctokit = process.env.GITHUB_APP_ID ? new Octokit({
   authStrategy: createAppAuth,
   auth: {
     appId: process.env.GITHUB_APP_ID,
@@ -29,13 +29,19 @@ const appOctokit = new Octokit({
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
     installationId: process.env.GITHUB_INSTALLATION_ID,
   },
-});
+}) : null;
+
+if (!process.env.GITHUB_APP_ID) {
+  console.info('GitHub App ID not specified; fetching route list will fail!');
+}
 
 export function getRouteList(): RouteMetadata[] {
   return cache.get(ROUTE_LIST_CACHE_KEY);
 }
 
 async function getDirectoryContentList(path: string) {
+  if (!appOctokit) return [];
+  
   const content = await appOctokit.repos.getContent({
     owner: 'Corvimae',
     repo: 'ranger-routes',
