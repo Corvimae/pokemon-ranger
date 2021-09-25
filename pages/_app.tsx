@@ -81,7 +81,7 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
               description: META_DESCRIPTION,
               images: [
                 {
-                  url: 'https://horrible-shrimp-100.loca.lt/images/logo_half.png',
+                  url: 'https://ranger.maybreak.com/images/logo_half.png',
                   width: 1200,
                   height: 627,
                   alt: 'Quick ball styler logo wow!',
