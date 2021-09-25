@@ -4,14 +4,17 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
 import { config, dom } from '@fortawesome/fontawesome-svg-core';
-
-import 'react-tippy/dist/tippy.css';
-import '../styles/globals.css';
+import { DefaultSeo } from 'next-seo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { ApplicationContext, loadFromStorage, setDarkMode } from '../reducers/application/reducer';
 import { useOnMount } from '../utils/hooks';
 import { THEMES } from '../components/Layout';
+
+import 'react-tippy/dist/tippy.css';
+import '../styles/globals.css';
+
+const META_DESCRIPTION = 'Any likeness in naming to any DS series of videogames is purely coincidental. Ranger calculates ranges, and does some other stuff too.';
 
 config.autoAddCss = false;
 
@@ -32,6 +35,7 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           <title>Pokémon Ranger</title>
           <link rel="shortcut icon" href="/favicon.png" />
           <meta charSet="UTF-8" />
+
           <style>{dom.css()}</style>
         </Head>
         <Header>
@@ -64,6 +68,33 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           </RightAlignedActions>
         </Header>
         <Content>
+          <DefaultSeo
+            description={META_DESCRIPTION}
+            canonical="https://ranger.maybreak.com/"
+            openGraph={{
+              type: 'website',
+              locale: 'en_US',
+              url: 'https://ranger.maybreak.com/',
+              site_name: 'Pokémon Ranger',
+              description: META_DESCRIPTION,
+              images: [
+                {
+                  url: 'https://ranger.maybreak.com/images/logo_half.png',
+                  width: 1200,
+                  height: 627,
+                  alt: 'Quick ball styler logo but only the top half!',
+                  type: 'image/png',
+                },
+                {
+                  url: 'https://ranger.maybreak.com/images/logo.png',
+                  width: 1200,
+                  height: 1200,
+                  alt: 'Quick ball styler logo! The whole thing!',
+                  type: 'image/png',
+                },
+              ],
+            }}
+          />
           <Component {...pageProps} />
         </Content>
         <Footer>

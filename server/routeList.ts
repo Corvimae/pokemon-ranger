@@ -1,7 +1,10 @@
 import dotenv from 'dotenv';
+import cache from 'memory-cache';
 import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
 import { GameTitleMetadata, normalizeGameTitle } from './titles';
+
+const ROUTE_LIST_CACHE_KEY = 'routeList';
 
 interface RouteMetadata {
   path: string;
@@ -14,8 +17,6 @@ interface RouteMetadata {
   routeMetadataURL?: string;
   routeURL?: string;
 }
-
-let RouteList: RouteMetadata[] = [];
 
 dotenv.config();
 
@@ -31,7 +32,7 @@ const appOctokit = new Octokit({
 });
 
 export function getRouteList(): RouteMetadata[] {
-  return RouteList;
+  return cache.get(ROUTE_LIST_CACHE_KEY);
 }
 
 async function getDirectoryContentList(path: string) {
@@ -74,7 +75,7 @@ export async function updateRouteList(): Promise<void> {
     const content = await getDirectoryContentList('');
     const directories = content.filter(item => item.type === 'dir');
 
-    RouteList = await Promise.all(directories.map(async ({ path }) => {
+    cache.put(ROUTE_LIST_CACHE_KEY, await Promise.all(directories.map(async ({ path }) => {
       const pathContent = await getDirectoryContentList(path);
 
       const routeMetadataURL = pathContent.find(item => item.name === 'route.json')?.download_url ?? undefined;
@@ -102,11 +103,15 @@ export async function updateRouteList(): Promise<void> {
         routeMetadataURL,
         routeURL,
       };
-    }));
+    })));
 
     console.info('Route list updated.');
   } catch (e) {
     console.error('An error occurred when attempting to update the available routes:');
     console.error(e);
   }
+}
+
+export function getRouteMetadata(routeName: string): RouteMetadata | undefined {
+  return (cache.get(ROUTE_LIST_CACHE_KEY) as RouteMetadata[]).find(item => item.path === routeName);
 }

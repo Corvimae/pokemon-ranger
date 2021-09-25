@@ -17,6 +17,7 @@ interface ImportPromptProps {
   error?: string;
   hasAttemptedQueryParamLoad: boolean;
   setFileContent: React.Dispatch<React.SetStateAction<string | null>>;
+  setActiveRouteMetadata: React.Dispatch<React.SetStateAction<RouteMetadata | undefined>>;
   onInitialLoad: () => void;
 }
 
@@ -27,6 +28,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
   repoQueryParam,
   hasAttemptedQueryParamLoad,
   setFileContent,
+  setActiveRouteMetadata,
   onInitialLoad,
 }) => {
   const router = useRouter();
@@ -68,6 +70,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
       .then(async response => {
         if (response.status === 200) {
           setFileContent(await response.text());
+          if (publishedImportPath) setActiveRouteMetadata((publishedImportPath as unknown) as RouteMetadata);
           setFileSelectError(null);
           dispatch(setRepoPath(path));
      
@@ -93,7 +96,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
         setFileSelectError('Unable to find a route file at the specified URL.');
         setIsLoading(false);
       });
-  }, [dispatch, setFileContent, router]);
+  }, [dispatch, setFileContent, router, publishedImportPath, setActiveRouteMetadata]);
 
   const handlePublishedImport = useCallback(() => {
     if (publishedImportPath) {

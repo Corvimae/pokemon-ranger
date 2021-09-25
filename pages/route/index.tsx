@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { loadFile, resetRoute, RouteContext, setShowOptions } from '../../reducers/route/reducer';
@@ -17,14 +18,19 @@ import { loadOptions } from '../../utils/options';
 import { buildRouteProcessor } from '../../utils/routeProcessor';
 import { buildAllTrackerCalculationSets, RouteCalculationsContext } from '../../utils/trackerCalculations';
 import { Card } from '../../components/Layout';
+import { CENTRAL_ROUTE_REPO_PREFIX } from '../../utils/utils';
+import { getRouteMetadata } from '../../server/routeList';
+import { RouteMetadata } from '../../components/route/RouteSelectorComponents';
 
 const RESET_CONFIRM_DURATION = 2000;
+const RANGER_TITLE = 'Pokémon Ranger';
 
 interface RouteViewParams {
   repo?: string;
+  routeMetadata?: RouteMetadata;
 }
 
-const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
+const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
   const router = useRouter();
   const dispatch = RouteContext.useDispatch();
   const hasAttemptedQueryParamLoad = useRef(false);
@@ -32,6 +38,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
   const [resetConfirmActive, setResetConfirmActive] = useState(false);
 
   const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [activeRouteMetadata, setActiveRouteMetadata] = useState<RouteMetadata | undefined>(routeMetadata);
   const [fileContent, setFileContent] = useState<string | null>(null);
 
   const state = RouteContext.useState();
@@ -48,6 +55,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
     dispatch(loadFile());
 
     setFileContent(null);
+    setActiveRouteMetadata(undefined);
     
     router.push(
       {
@@ -112,11 +120,20 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
   });
 
   const calculationSets = useMemo(() => buildAllTrackerCalculationSets(state), [state]);
+  const pageDescription = activeRouteMetadata ? (
+    `A route ${activeRouteMetadata.game === 'other' ? '' : `for Pokémon ${activeRouteMetadata.game} `} by ${activeRouteMetadata.author} on ${RANGER_TITLE}.`
+  ) : 'Pokémon speedrunning made easier.';
 
   return (
     <RouteCalculationsContext.Provider value={calculationSets}>
+      <NextSeo
+        title={activeRouteMetadata ? `${activeRouteMetadata.title}` : RANGER_TITLE}
+        description={pageDescription}
+      />
+      
       <Container ivHorizontalLayout={state.options.ivHorizontalLayout} debugMode={state.options.debugMode}>
         <Head>
+          <title>{activeRouteMetadata ? `${activeRouteMetadata.title} -  ` : ''}{RANGER_TITLE}</title>
           {state.options.customCSS && (
             <style type="text/css">
               {state.options.customCSS}
@@ -158,6 +175,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
                 repoQueryParam={repo}
                 error={content?.error ? content.message : undefined}
                 setFileContent={setFileContent}
+                setActiveRouteMetadata={setActiveRouteMetadata}
                 hasAttemptedQueryParamLoad={hasAttemptedQueryParamLoad.current}
                 onInitialLoad={handleOnInitialImport}
               />
@@ -191,11 +209,21 @@ const RouteView: NextPage<RouteViewParams> = ({ repo }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async context => ({
-  props: {
-    repo: context.query.repo ? decodeURIComponent(context.query.repo as string) : null,
-  },
-});
+export const getServerSideProps: GetServerSideProps = async context => {
+  const repo = context.query.repo ? decodeURIComponent(context.query.repo as string) : null;
+  let routeMetadata: RouteMetadata | undefined;
+
+  if (repo?.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
+    routeMetadata = getRouteMetadata(repo.replace(CENTRAL_ROUTE_REPO_PREFIX, ''));
+  }
+
+  return {
+    props: {
+      repo,
+      routeMetadata,
+    },
+  };
+};
 
 export default RouteContext.connect(RouteView);
 

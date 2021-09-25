@@ -17,6 +17,15 @@ app.prepare().then(async () => {
         const server = express_1.default();
         routeList_1.updateRouteList();
         setInterval(routeList_1.updateRouteList, ROUTE_LIST_UPDATE_INTERVAL);
+        server.get('/api/route/:path', async (req, res) => {
+            const route = routeList_1.getRouteMetadata(req.params.path);
+            if (route) {
+                res.json(route);
+            }
+            else {
+                res.status(404).json('Route does not exist.');
+            }
+        });
         server.get('/api/routes', async (req, res) => {
             const routes = routeList_1.getRouteList();
             if (req.query.query) {
