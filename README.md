@@ -1,4 +1,4 @@
-# Pokemon Ranger
+# Pokémon Ranger
 
 [![Deploy](https://github.com/Corvimae/pokemon-ranger/actions/workflows/main.yml/badge.svg)](https://github.com/Corvimae/pokemon-ranger/actions/workflows/main.yml)
 
