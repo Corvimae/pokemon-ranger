@@ -419,7 +419,8 @@ const ExperienceRoute: NextPage = () => {
                 <option value={4}>4 (Diamond/Pearl/Platinum)</option>
                 <option value={5}>5 (Black/White and Black 2/White 2)</option>
                 <option value={6}>6 (X/Y)</option>
-                <option value={7}>7+ (Sun/Moon, Ultra Sun/Ultra Moon, and Sword/Shield)</option>
+                <option value={7}>7 (Sun/Moon, Ultra Sun/Ultra Moon, and Sword/Shield)</option>
+                <option value={8}>8 (Sword/Shield)</option>
                 <option value="lgpe">Let&apos;s Go</option>
               </select>
             </InputRow>

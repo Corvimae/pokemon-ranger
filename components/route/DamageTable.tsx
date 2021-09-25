@@ -159,13 +159,15 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     if (!calculationSet) return {};
     const parsedEffectiveness = effectiveness === undefined || effectiveness == null || effectiveness === '' ? null : Number(effectiveness);
     const parsedStab = stab === null || stab === undefined ? null : stab === 'true';
+    const parsedOpponentStat = opponentStat === null || opponentStat === undefined ? null : Number(opponentStat);
+    const parsedOpponentLevel = opponentLevel === null || opponentLevel === undefined ? null : Number(opponentLevel);
     const sourceTypes = source ? state.trackers[source]?.types : [];
     const offensiveMode = offensive.toLowerCase() === 'true';
     const offensiveTypeSet = (offensiveMode ? sourceTypes : pokemonContext.types) ?? [];
     const defensiveTypeSet = (offensiveMode ? pokemonContext.types : sourceTypes) ?? [];
     const isCalculatedStab = moveType ? offensiveTypeSet.indexOf(moveType) !== -1 : false;
     const generation = (source && state.trackers[source]?.generation) || 4;
-    const defensiveEffectiveness = moveType && defensiveTypeSet ? calculateMoveEffectiveness(moveType, generation, ...defensiveTypeSet) : 1;
+    const defensiveEffectiveness = moveType && defensiveTypeSet.length ? calculateMoveEffectiveness(moveType, generation, ...defensiveTypeSet) : 1;
 
     const ranges = calculateRanges({
       level: Number(level || 0),
@@ -175,8 +177,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       movePower: Number(movePower),
       typeEffectiveness: parsedEffectiveness ?? defensiveEffectiveness,
       stab: parsedStab ?? isCalculatedStab,
-      opponentStat: pokemonContext.stats ? pokemonContext.stats[opponentRelevantStat] : Number(opponentStat),
-      opponentLevel: pokemonContext.level ? pokemonContext.level : Number(opponentLevel),
+      opponentStat: parsedOpponentStat ?? pokemonContext.stats?.[opponentRelevantStat] ?? 5,
+      opponentLevel: parsedOpponentLevel ?? pokemonContext.level ?? 5,
       opponentCombatStages: Number(opponentCombatStages),
       torrent: torrent === 'true',
       weatherBoosted: weatherBoosted === 'true',

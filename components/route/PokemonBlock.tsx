@@ -88,6 +88,8 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
       return stats;
     }
 
+    if (!rawBaseStats) return undefined;
+
     return STATS.reduce((acc, stat) => ({
       ...acc,
       [stat]: calculateStat(
@@ -98,7 +100,7 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
         getNatureMultiplier(stat, natureDefinition),
       ),
     }), {}) as StatLine;
-  }, [level, stats, baseStats, ivs, evs, natureDefinition]);
+  }, [level, stats, baseStats, ivs, evs, natureDefinition, rawBaseStats]);
 
   const blockContext = useMemo(() => ({
     level,
