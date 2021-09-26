@@ -9,3 +9,7 @@ Any likeness in naming to any DS series of videogames is purely coincidental. Ra
 **[Documentation](https://docs.ranger.maybreak.com/)**
 
 Logo by [@limeadenectar](https://twitter.com/limeadenectar).
+
+## License
+
+[GNU GPU v3](LICENSE)
