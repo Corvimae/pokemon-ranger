@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { parse, Terms } from '../../directives/calc-grammar';
 import { evaluateCalculation } from '../../directives/evaluateCalculation';
+import { useCurrentRouteLevel } from '../../utils/routeUtils';
 import { useCalculationSet } from '../../utils/trackerCalculations';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
 import { DebugText } from './DebugText';
@@ -35,6 +36,7 @@ function formatValueSet(values: number[], format: string): number | string {
 }
 
 interface CalculationDirectiveProps {
+  line: string;
   contents?: string;
   source?: string;
   color?: string;
@@ -43,13 +45,14 @@ interface CalculationDirectiveProps {
   format?: string;
 }
 
-export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ color = 'black', source, level, evolution, format = 'range', contents }) => {
+export const CalculationDirective: React.FC<CalculationDirectiveProps> = ({ color = 'black', line, source, level: rawLevel, evolution, format = 'range', contents }) => {
   const calculationSet = useCalculationSet(source);
+  const level = useCurrentRouteLevel(source, Number(line), rawLevel);
 
   const parsedExpression: ErrorableResult<Terms.Expression> | null = useMemo(() => {
     if (!contents) return null;
 
-    const expression = (contents ?? '').split('\n').map(line => line.trim()).filter(line => line.length > 0).join('');
+    const expression = (contents ?? '').split('\n').map(contentLine => contentLine.trim()).filter(contentLine => contentLine.length > 0).join('');
 
     return evaluateAsThrowableOptional<Terms.Expression>(() => parse(expression));
   }, [contents]);

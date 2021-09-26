@@ -38,6 +38,7 @@ export function directiveConverter(): Transformer {
       ...hast.properties,
       contents: childrenToText(node),
       position: node.position ? `(line ${node.position.start.line}, col ${node.position.start.column}) ` : '',
+      line: node.position?.start.line ?? -1,
     };
   }
 }

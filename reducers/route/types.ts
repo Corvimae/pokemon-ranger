@@ -28,6 +28,7 @@ export interface Tracker {
   directInputIVs: StatLine;
   currentLevel: number;
   types: TypeName[];
+  levelIncrementLines: Record<number, number>;
 }
 
 export interface VariableState {
@@ -78,6 +79,7 @@ export const RESET_TRACKER = 'RESET_TRACKER';
 export const SET_STARTING_LEVEL = 'SET_STARTING_LEVEL';
 export const REGISTER_VARIABLE = 'REGISTER_VARIABLE';
 export const SET_VARIABLE_VALUE = 'SET_VARIABLE_VALUE';
+export const SET_LEVEL_INCREMENT_LINE = 'SET_LEVEL_INCREMENT_LINE';
 export const RESET_ROUTE = 'RESET_ROUTE';
 export const LOAD_FILE = 'LOAD_FILE';
 export const LOG_ROUTE_ERROR = 'LOG_ROUTE_ERROR';
@@ -248,6 +250,15 @@ type SetVariableValueAction = {
   };
 };
 
+type SetLevelIncrementLineAction = {
+  type: typeof SET_LEVEL_INCREMENT_LINE;
+  payload: {
+    source: string;
+    level: number;
+    line: number;
+  };
+};
+
 type ResetRouteAction = {
   type: typeof RESET_ROUTE;
 };
@@ -284,6 +295,7 @@ export type RouteAction =
   SetStartingLevelAction |
   RegisterVariableAction |
   SetVariableValueAction |
+  SetLevelIncrementLineAction |
   ResetRouteAction |
   LoadFileAction |
   LogRouteErrorAction;

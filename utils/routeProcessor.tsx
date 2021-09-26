@@ -21,6 +21,7 @@ import { RouteCard } from '../components/route/RouteCard';
 import { RouteImage } from '../components/route/RouteImage';
 import { VariableBlock } from '../components/route/VariableBlock';
 import { CalculationDirective } from '../components/route/CalculationDirective';
+import { LevelDirective } from '../directives/LevelDirective';
 
 const schema = merge(gh, {
   tagNames: [
@@ -35,6 +36,7 @@ const schema = merge(gh, {
     'containerlabel',
     'variable',
     'calc',
+    'level',
   ],
   attributes: {
     tracker: [
@@ -74,6 +76,7 @@ const schema = merge(gh, {
     damage: [
       'source',
       'position',
+      'line',
       'contents',
       'level',
       'evolution',
@@ -100,7 +103,8 @@ const schema = merge(gh, {
       'theme',
     ],
     variable: ['position', 'theme', 'type', 'name', 'title', 'options', 'defaultValue'],
-    calc: ['position', 'color', 'contents', 'source', 'level', 'evolution', 'format'],
+    calc: ['position', 'line', 'color', 'contents', 'source', 'level', 'evolution', 'format'],
+    level: ['position', 'line', 'source', 'value'],
   },
 });
 
@@ -119,6 +123,7 @@ const FULL_COMPONENT_SET = {
   containerlabel: ContainerLabel,
   variable: VariableBlock,
   calc: CalculationDirective,
+  level: LevelDirective,
 };
 
 const TRACKER_ONLY_COMPONENT_SET = {

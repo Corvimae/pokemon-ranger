@@ -91,9 +91,9 @@ The content within the square brackets is displayed as a header above the table,
 
 `source` (string, required) - The unique identifier for the IV tracker associated with this damage table. The value must match the `species` value of an IV tracker.
 
-`level` (number, required) - The level of the runner's Pokémon at the time of the attack.
-
 `movePower` (number, required) - The base power of the attack.
+
+`level` (number) - The level of the runner's Pokémon at the time of the attack. If this value is not specified, the most recent [level-up marker](#level-up-markers) will be used.
 
 `type` (string) - The elemental type of the move. If the type is specified and the `source` Pokémon has its type(s) specified, the type effectiveness of the move will be calculated automatically. Types are case insensitive.
 
@@ -378,6 +378,22 @@ When defining conditional fights ("do this strategy if your stats are lower than
 
 This will render both fights with a divider, allowing the runner to better decide which strategy they want to use.
 
+## Level-up Markers
+
+Level-up markers indicate when a Pokémon should level up, and allow blocks located after it in the routefile to know
+what the expected level is at that point in the route.
+
+### Syntax
+```
+::level{source="Drifloon" value=10}
+```
+
+### Attributes
+
+`source` (string) - The unique identifier for the IV tracker associated with this calculation. The value must match the `species` value of an IV tracker.
+
+`value` (number) - The level of the Pokémon at this point in the route.
+
 ## Calculations
 
 Calculation directives evaluate simple mathematical expressions using Pokémon stats and variables. The expression
@@ -393,7 +409,7 @@ Torrent at level 10 is less than :calc[floor(hp / 3)]{source="Squirtle" level=10
 
 `source` (string) - The unique identifier for the IV tracker associated with this calculation. The value must match the `species` value of an IV tracker. If you are using a stat in your calculation, you must specify this attribute.
 
-`level` (number) - The level of the Pokémon at the time the calculation is relevant. If you are using a stat in this calculation, you must specify this attribute (unless you are only using the `startingLevel` stat).
+`level` (number) - The level of the Pokémon at the time the calculation is relevant. If this value is not specified, the most recent [level-up marker](#level-up-markers) will be used.
 
 `evolution` (number, default: `0`) - The evolution of the runner's Pokémon at the time the calculation is relevant, zero-indexed. If
 no stats are used in the calculation, this value is ignored.
@@ -428,7 +444,7 @@ The following terms are accepted by any binary operation or function:
 
 - An integer or decimal (e.g. `1`, `1.5`, `0.25`)
 - The name of a numeric variable, prefixed by `$` (e.g. `$myVariable`). If a non-numeric variable is specified, an error will be thrown. Variables that do not have a default value and have not had a value assigned to them by the runner evaluate to `0`.
-- The name of a stat: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`, or `startingLevel`. Using stats requires the `source` and `level` attributes, unless using the `startingLevel` stat.
+- The name of a stat: `hp`, `health`, `atk`, `attack`, `def`, `defense`, `spa`, `spatk`, `spattack`, `specialattack`, `spd`, `spdef`, `spdefense`, `specialdefense`, `spe`, `speed`, or `startingLevel`. Using stats requires the `source` attribute.
 
 ### Formatters
 

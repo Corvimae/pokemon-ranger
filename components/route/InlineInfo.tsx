@@ -3,10 +3,11 @@ import styled from 'styled-components';
 
 interface InlineInfoProps {
   color?: string;
+  className?: string;
 }
 
-export const InlineInfo: React.FC<InlineInfoProps> = ({ color = 'black', children }) => (
-  <Container color={color}>{children}</Container>
+export const InlineInfo: React.FC<InlineInfoProps> = ({ className, color = 'black', children }) => (
+  <Container className={className} color={color}>{children}</Container>
 );
 
 const Container = styled.span<{ color: string }>`

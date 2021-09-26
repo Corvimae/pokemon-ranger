@@ -7,6 +7,7 @@ import { Stat } from '../../utils/constants';
 import { calculateMoveEffectiveness, TypeName, TYPE_NAMES } from '../../utils/pokemonTypes';
 import { formatIVSplit, formatStatName, formatStatRange } from '../../utils/rangeFormat';
 import { CombinedIVResult, ConfirmedNature } from '../../utils/rangeTypes';
+import { useCurrentRouteLevel } from '../../utils/routeUtils';
 import { isIVWithinRange, IVRangeSet, useCalculationSet } from '../../utils/trackerCalculations';
 import { Card } from '../Layout';
 import { ErrorCard } from './ErrorCard';
@@ -16,7 +17,6 @@ function validateDamageTableValues(
   trackers: Record<string, Tracker>,
   source: string | undefined,
   pokemonContext: PokemonStatContext,
-  level: string | undefined,
   movePower: string | undefined,
   opponentStat: string | undefined,
 ): string | null {
@@ -24,10 +24,6 @@ function validateDamageTableValues(
 
   if (!trackers[source || '']) {
     return `No IV table with the name ${source} exists.`;
-  }
-
-  if (!level) {
-    return 'The level attribute must be specified.';
   }
 
   if (!movePower) {
@@ -63,6 +59,7 @@ interface DamageTableProps {
   source?: string;
   contents?: string;
   position?: string;
+  line: string;
   level?: string;
   evolution?: string;
   evs?: string;
@@ -92,7 +89,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   source,
   contents,
   position,
-  level,
+  line,
+  level: rawLevel,
   movePower,
   opponentStat,
   evolution = 0,
@@ -122,6 +120,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   const baseStats = source ? state.trackers[source]?.baseStats[Number(evolution)] : null;
 
   const calculationSet = useCalculationSet(source);
+
+  const level = useCurrentRouteLevel(source, Number(line), rawLevel);
 
   const offensiveStat: Stat = special === 'true' ? 'spAttack' : 'attack';
   const defensiveStat: Stat = special === 'true' ? 'spDefense' : 'defense';
@@ -206,11 +206,11 @@ export const DamageTable: React.FC<DamageTableProps> = ({
 
   useEffect(() => {
     if (error.current === null && Object.keys(state.trackers).length > 0) {
-      error.current = validateDamageTableValues(state.trackers, source, pokemonContext, level, movePower, opponentStat);
+      error.current = validateDamageTableValues(state.trackers, source, pokemonContext, movePower, opponentStat);
 
       if (error.current) dispatch(logRouteError(error.current, position));
     }
-  }, [state.trackers, level, movePower, source, pokemonContext, opponentStat, dispatch, position]);
+  }, [state.trackers, movePower, source, pokemonContext, opponentStat, dispatch, position]);
 
   if (error.current) return <ErrorCard>{error.current}</ErrorCard>;
 
