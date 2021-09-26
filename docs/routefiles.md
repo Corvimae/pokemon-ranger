@@ -472,7 +472,7 @@ Welcome to my route!
 
 `theme` (string) - The color theme to apply to the card. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified or the specified theme is invalid, `default` (blue) is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
 
-### Inline Info
+## Inline Info
 
 Inline info provides additional context to a line, such as a speed range, a kill threshold, or an alternate strategy.
 
@@ -484,6 +484,19 @@ Inline info provides additional context to a line, such as a speed range, a kill
 ### Attributes
 
 `color` (string) - The color of the text. Valid colors are `black`, `red`, `blue`, `green`, `gray`, and `pink`. If no color is specified or the specified color is invalid, `black` is used.
+
+## Debug Text
+
+Debug text is hidden unless the "Show Debug Info" is enabled in the options. Debug text should not contain any information that is required to follow the route.
+
+#### Syntax
+```
+:debug[Message here!]
+```
+
+### Attributes
+
+`title` (string) - An optional title for the debug block.
 
 ## Publishing Routefiles
 

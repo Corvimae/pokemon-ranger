@@ -7,10 +7,11 @@ interface DebugTextProps {
   className?: string;
 }
 
-const RawDebugText: React.FC<DebugTextProps> = ({ title, content, className }) => (
+const RawDebugText: React.FC<DebugTextProps> = ({ title, content, children, className }) => (
   <Container className={className}>
     <Title>[DEBUG] {title}</Title>
     {JSON.stringify(content, undefined, 2)}
+    {children}
   </Container>
 );
 
