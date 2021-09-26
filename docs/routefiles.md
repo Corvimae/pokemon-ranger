@@ -505,3 +505,5 @@ Routefiles can be retrieved from a repo, ensuring runners always have the latest
 Routefiles must be published on GitHub in a branch named `main`, and the file must be named `route.mdr`. Once pushed, runners can load the routefile by entering `<username>/<repository>` (e.g. `corvimae/test-ranger-route`).
 
 For an example, see [corvimae/test-ranger-route](https://github.com/Corvimae/test-ranger-route).
+
+Once your routefile is complete, you can [publish it to the central repository](publishing.md).
