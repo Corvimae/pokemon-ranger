@@ -77,14 +77,13 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
     if (!calculationSet) return {} as Record<Stat, StatValuePossibilitySet>;
 
     return STATS.reduce((acc, stat) => {
-      console.log(stat, calculationSet.ivRanges[stat]);
       const { possible, valid } = calculateAllPossibleStatValues(
         stat,
         tracker.currentLevel,
         calculationSet.ivRanges[stat],
         calculationSet.confirmedNature,
         tracker.baseStats[tracker.evolution][stat],
-        tracker.evSegments[tracker.startingLevel][tracker.currentLevel][stat],
+        tracker.evSegments[tracker.startingLevel]?.[tracker.currentLevel]?.[stat] ?? 0,
         tracker.generation,
       );
 

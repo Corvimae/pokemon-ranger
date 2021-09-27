@@ -152,7 +152,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
       setFileSelectError(null);
     };
 
-    reader.readAsBinaryString(acceptedFile);
+    reader.readAsText(acceptedFile);
   }, [dispatch, setFileContent]);
 
   useEffect(() => {
