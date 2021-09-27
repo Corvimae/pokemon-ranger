@@ -332,3 +332,4 @@ const attackRanges = {
 
 // function formatIVRangeSet(values: IVRangeNatureSet): string 
 console.log(formatIVRangeSet(attackRanges)); // "20+ / 3- / x"
+```
