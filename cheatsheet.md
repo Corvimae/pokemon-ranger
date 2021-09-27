@@ -195,6 +195,6 @@ Welcome to my route!
 :info[Message here!]{color=red}
 ```
 
-Valid colors: `black`, `red`, `blue`, `green`, `gray`, `pink`.
+Valid colors: `black`, `red`, `blue`, `green`, `yellow`, `gray`, `pink`.
 
 
