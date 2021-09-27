@@ -1,11 +1,9 @@
 import React, { useMemo } from 'react';
+import { formatStatName, Generation, getPossibleNatureAdjustmentsForStat, IVRangeSet, NATURES, Stat, STATS } from 'relicalc';
 import styled from 'styled-components';
 import { RouteContext } from '../../reducers/route/reducer';
 import { Tracker } from '../../reducers/route/types';
-import { NATURES, Stat, STATS } from '../../utils/constants';
-import { formatStatName } from '../../utils/rangeFormat';
-import { Generation } from '../../utils/rangeTypes';
-import { getPossibleNatureAdjustmentsForStat, IVRangeSet, useCalculationSet } from '../../utils/trackerCalculations';
+import { useCalculationSet } from '../../utils/trackerCalculations';
 
 interface IVDisplayProps {
   tracker: Tracker;
@@ -16,7 +14,7 @@ function getSymbolForStat(rangeSet: IVRangeSet, stat: Stat, confirmedPositive: S
   if (!rangeSet) return '';
 
   const [negative, neutral, positive] = getPossibleNatureAdjustmentsForStat(rangeSet, stat, [confirmedNegative, confirmedPositive]);
-
+  
   if (negative && neutral && positive) return ' ±';
   if (neutral && positive) return ' +';
   if (negative && neutral) return ' -';
@@ -55,7 +53,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
             {stat !== 'hp' && getSymbolForStat(ivRanges[stat], stat, confirmedPositive, confirmedNegative)}
           </StatName>
           <div>
-            {!ivRanges[stat].combined.some(Number.isFinite) ? (
+            {!ivRanges[stat]?.combined.some(Number.isFinite) ? (
               'Invalid'
             ) : (
               `${ivRanges[stat].combined[0]}${ivRanges[stat].combined[0] !== ivRanges[stat].combined[1] ? `–${ivRanges[stat].combined[1]}` : ''}`

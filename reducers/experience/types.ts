@@ -1,4 +1,5 @@
-import { ExperienceEvent, GrowthRate } from '../../utils/calculations';
+import { GrowthRate } from 'relicalc';
+import { ExperienceEvent } from '../../utils/calculations';
 
 export const SET_INITIAL_LEVEL = 'SET_INITIAL_LEVEL';
 export const SET_GROWTH_RATE = 'SET_GROWTH_RATE';

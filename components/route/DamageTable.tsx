@@ -1,14 +1,10 @@
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import { calculateDamageRanges, calculateKillRanges, calculateMoveEffectiveness, combineIdenticalLines, CompactRange, filterToStatRange, formatIVRangeSet, formatStatName, formatStatRange, OneShotResult, Stat, TypeName, TYPE_NAMES } from 'relicalc';
 import styled from 'styled-components';
 import { logRouteError, RouteContext } from '../../reducers/route/reducer';
 import { Tracker } from '../../reducers/route/types';
-import { calculateKillRanges, calculateRanges, combineIdenticalLines } from '../../utils/calculations';
-import { Stat } from '../../utils/constants';
-import { calculateMoveEffectiveness, TypeName, TYPE_NAMES } from '../../utils/pokemonTypes';
-import { formatIVSplit, formatStatName, formatStatRange } from '../../utils/rangeFormat';
-import { CombinedIVResult, ConfirmedNature } from '../../utils/rangeTypes';
 import { useCurrentRouteLevel } from '../../utils/routeUtils';
-import { isIVWithinRange, IVRangeSet, useCalculationSet } from '../../utils/trackerCalculations';
+import { useCalculationSet } from '../../utils/trackerCalculations';
 import { Card } from '../Layout';
 import { ErrorCard } from './ErrorCard';
 import { PokemonBlockContext, PokemonStatContext } from './PokemonBlock';
@@ -20,8 +16,6 @@ function validateDamageTableValues(
   movePower: string | undefined,
   opponentStat: string | undefined,
 ): string | null {
-  // If the trackers aren't registered yet, just wait.
-
   if (!trackers[source || '']) {
     return `No IV table with the name ${source} exists.`;
   }
@@ -35,24 +29,6 @@ function validateDamageTableValues(
   }
 
   return null;
-}
-
-function filterToStatRange<T extends CombinedIVResult>(
-  results: Record<string | number, T>,
-  confirmedNature: ConfirmedNature,
-  stat: Stat,
-  ivRanges: IVRangeSet,
-): Record<string | number, T> {
-  return Object.entries(results).reduce((acc, [key, value]) => {
-    if (isIVWithinRange(value, confirmedNature, stat, ivRanges)) {
-      return {
-        ...acc,
-        [key]: value,
-      };
-    }
-
-    return acc;
-  }, {} as Record<string | number, T>);
 }
 
 interface DamageTableProps {
@@ -155,7 +131,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     return offensiveMode && useParentHPThreshold && pokemonContext.stats ? pokemonContext.stats.hp : Number(healthThreshold);
   }, [healthThreshold, offensive, dispatch, position, pokemonContext.stats]);
   
-  const rangeResults = useMemo(() => {
+  const rangeResults = useMemo<Record<number | string, OneShotResult | CompactRange>>(() => {
     if (!calculationSet) return {};
     const parsedEffectiveness = effectiveness === undefined || effectiveness == null || effectiveness === '' ? null : Number(effectiveness);
     const parsedStab = stab === null || stab === undefined ? null : stab === 'true';
@@ -169,7 +145,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     const generation = (source && state.trackers[source]?.generation) || 4;
     const defensiveEffectiveness = moveType && defensiveTypeSet.length ? calculateMoveEffectiveness(moveType, generation, ...defensiveTypeSet) : 1;
 
-    const ranges = calculateRanges({
+    const ranges = calculateDamageRanges({
       level: Number(level || 0),
       baseStat: baseStats?.[relevantStat] ?? 0,
       evs: Number(trackerEvs),
@@ -199,7 +175,12 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       return filterToStatRange(calculateKillRanges(ranges, hpThreshold), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
     }
 
-    return filterToStatRange(combineIdenticalLines(ranges), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
+    const combinedMap = combineIdenticalLines(ranges).reduce((acc, item) => ({
+      ...acc,
+      [item.damageRangeOutput]: item,
+    }), {});
+
+    return filterToStatRange(combinedMap, natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
   }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStages, movePower, effectiveness, stab, opponentStat, opponentCombatStages, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold]);
 
   const error = useRef<string | null>(null);
@@ -215,7 +196,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   if (error.current) return <ErrorCard>{error.current}</ErrorCard>;
 
   const resultCount = Object.keys(rangeResults).length;
-  const isAgainstThreshold = hpThreshold !== -1;
+  const firstResult = Object.values(rangeResults)[0];
 
   return (
     <Card variant={theme}>
@@ -223,10 +204,10 @@ export const DamageTable: React.FC<DamageTableProps> = ({
         {contents}
         {resultCount === 1 && (
           <span>
-            <span>&nbsp;{isAgainstThreshold ? `is a ${Object.values(rangeResults)[0].successes} / 16 range to kill` : `deals ${Object.keys(rangeResults)[0]} damage`}</span>
-            <span>&nbsp;at {formatStatRange(Object.values(rangeResults)[0].statFrom, Object.values(rangeResults)[0].statTo)}</span>
+            <span>&nbsp;{'successes' in firstResult ? `is a ${firstResult.successes} / 16 range to kill` : `deals ${Object.keys(rangeResults)[0]} damage`}</span>
+            <span>&nbsp;at {formatStatRange(firstResult.statFrom, firstResult.statTo)}</span>
             <span>&nbsp;{formatStatName(relevantStat)}</span>
-            <span>&nbsp;({formatIVSplit(Object.values(rangeResults)[0])})</span>
+            <span>&nbsp;({formatIVRangeSet(firstResult)})</span>
           </span>
         )}
       </Header>
@@ -235,13 +216,13 @@ export const DamageTable: React.FC<DamageTableProps> = ({
           <RangeGridHeader>
             <div>IVs</div>
             <div>{formatStatName(relevantStat)}</div>
-            <div>{isAgainstThreshold ? 'Chance to Kill' : 'Damage'}</div>
+            <div>{'successes' in firstResult ? 'Chance to Kill' : 'Damage'}</div>
           </RangeGridHeader>
           {Object.entries(rangeResults).map(([key, value], index) => (
             <React.Fragment key={index}>
-              <div>{formatIVSplit(value)}</div>
+              <div>{formatIVRangeSet(value)}</div>
               <div>{formatStatRange(value.statFrom, value.statTo)}</div>
-              <div>{isAgainstThreshold ? `${value.successes} / 16` : key}</div>
+              <div>{'successes' in value ? `${value.successes} / 16` : key}</div>
             </React.Fragment>
           ))}
         </RangeGrid>

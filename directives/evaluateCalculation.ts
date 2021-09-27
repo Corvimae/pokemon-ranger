@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
+import { Stat, ConfirmedNature, IVRangeSet } from 'relicalc';
 import { logRouteError, RouteContext } from '../reducers/route/reducer';
 import { Tracker } from '../reducers/route/types';
-import { Stat } from '../utils/constants';
-import { ConfirmedNature } from '../utils/rangeTypes';
-import { IVRangeSet, useCalculationSet } from '../utils/trackerCalculations';
+import { useCalculationSet } from '../utils/trackerCalculations';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../utils/utils';
 import { parse, Terms } from './calc-grammar';
 import { calculatePossibleStatsAtLevel, getMatchingStat } from './evaluateCondition';

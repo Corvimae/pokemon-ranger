@@ -1,11 +1,8 @@
+import { calculateAllPossibleStatValues, ConfirmedNature, filterByPossibleNatureAdjustmentsForStat, formatStatName, IVRangeSet, Stat, STATS } from 'relicalc';
 import minBy from 'lodash/minBy';
 import levenshtein from 'js-levenshtein';
-import { Stat, STATS } from '../utils/constants';
-import { formatStatName } from '../utils/rangeFormat';
-import { range } from '../utils/utils';
+import { range } from 'lodash';
 import { Terms } from './conditional-grammar';
-import { calculatePossibleStats, filterByPossibleNatureAdjustmentsForStat, IVRangeSet } from '../utils/trackerCalculations';
-import { ConfirmedNature } from '../utils/rangeTypes';
 import { Tracker } from '../reducers/route/types';
 
 type ConditionalStat = Stat | 'startingLevel';
@@ -114,7 +111,15 @@ export function calculatePossibleStatsAtLevel(
   evolution: number,
 ): number[] {
   if (isIVStat(stat)) {
-    const { valid } = calculatePossibleStats(stat, level, ivRanges, confirmedNatures, tracker, evolution);
+    const { valid } = calculateAllPossibleStatValues(
+      stat,
+      level,
+      ivRanges[stat],
+      confirmedNatures,
+      tracker.baseStats[evolution][stat],
+      tracker.evSegments[tracker.startingLevel][level][stat],
+      tracker.generation,
+    );
 
     return valid;
   }

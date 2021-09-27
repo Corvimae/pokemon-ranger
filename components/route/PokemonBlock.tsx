@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { calculateStat, Nature, NATURES, StatLine, STATS, TypeName, getNatureMultiplier } from 'relicalc';
 import { logRouteError, RouteContext } from '../../reducers/route/reducer';
-import { calculateStat } from '../../utils/calculations';
-import { Nature, NATURES, StatLine, STATS } from '../../utils/constants';
-import { TypeName } from '../../utils/pokemonTypes';
-import { getNatureMultiplier, parseStatLine, parseTypeDefinition } from '../../utils/trackerCalculations';
+import { parseStatLine, parseTypeDefinition } from '../../utils/trackerCalculations';
 import { BorderlessCard, Card, ContainerLabel } from '../Layout';
 
 export interface PokemonStatContext {

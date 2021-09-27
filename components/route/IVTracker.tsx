@@ -1,13 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { calculateAllPossibleStatValues, capitalize, Nature, NATURES, Stat, STATS, StatValuePossibilitySet } from 'relicalc';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Tracker } from '../../reducers/route/types';
-import { capitalize } from '../../utils/utils';
-import { Nature, NATURES, Stat, STATS } from '../../utils/constants';
 import { Button } from '../Button';
 import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution, setManualNeutralNature, setManualNature, setCurrentLevel } from '../../reducers/route/reducer';
-import { calculatePossibleStats, StatValuePossibilitySet, useCalculationSet } from '../../utils/trackerCalculations';
+import { useCalculationSet } from '../../utils/trackerCalculations';
 import { IVDirectInput } from './IVDirectInput';
 import { IVGrid, IVGridHeader } from './IVGrid';
 
@@ -78,19 +77,22 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
     if (!calculationSet) return {} as Record<Stat, StatValuePossibilitySet>;
 
     return STATS.reduce((acc, stat) => {
-      const { possible, valid } = calculatePossibleStats(
+      console.log(stat, calculationSet.ivRanges[stat]);
+      const { possible, valid } = calculateAllPossibleStatValues(
         stat,
         tracker.currentLevel,
-        calculationSet.ivRanges,
+        calculationSet.ivRanges[stat],
         calculationSet.confirmedNature,
-        tracker,
+        tracker.baseStats[tracker.evolution][stat],
+        tracker.evSegments[tracker.startingLevel][tracker.currentLevel][stat],
+        tracker.generation,
       );
 
       return {
         ...acc,
         [stat]: {
-          possible: [...new Set(possible)],
-          valid: [...new Set(valid)],
+          possible: Array.from(new Set(possible)),
+          valid: Array.from(new Set(valid)),
         },
       };
     }, {} as Record<Stat, StatValuePossibilitySet>);

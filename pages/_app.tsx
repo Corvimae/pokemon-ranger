@@ -14,7 +14,7 @@ import { THEMES } from '../components/Layout';
 import 'react-tippy/dist/tippy.css';
 import '../styles/globals.css';
 
-const META_DESCRIPTION = 'Any likeness in naming to any DS series of videogames is purely coincidental. Ranger calculates ranges, and does some other stuff too.';
+const META_DESCRIPTION = 'The Pokémon speedrunner\'s toolkit.';
 
 config.autoAddCss = false;
 
@@ -71,14 +71,14 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           <DefaultSeo
             description={META_DESCRIPTION}
             canonical="https://ranger.maybreak.com/"
-            titleTemplate="%s - Pokémon Ranger"
-            defaultTitle="Pokémon Ranger"
+            title="Pokémon Ranger"
             openGraph={{
               type: 'website',
               locale: 'en_US',
               url: 'https://ranger.maybreak.com/',
               site_name: 'Pokémon Ranger',
               description: META_DESCRIPTION,
+              title: 'Pokémon Ranger',
               images: [
                 {
                   url: 'https://ranger.maybreak.com/images/logo_half.png',

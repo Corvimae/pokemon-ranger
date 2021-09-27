@@ -1,14 +1,12 @@
 import React, { useMemo } from 'react';
-import { combineIdenticalLines } from '../utils/calculations';
+import { formatIVRangeSet, formatStatRange, combineIdenticalLines, DamageRangeNatureResult } from 'relicalc';
 import { useGridCopy } from '../utils/hooks';
-import { formatIVSplit, formatStatRange } from '../utils/rangeFormat';
-import { NatureResult } from '../utils/rangeTypes';
 import { CopyGridButton } from './CopyGridButton';
 import { ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 
 interface CompactDisplayProps {
-  results: NatureResult[];
+  results: DamageRangeNatureResult[];
   displayRolls: boolean;
 }
 
@@ -26,11 +24,11 @@ export const CompactDisplay: React.FC<CompactDisplayProps> = ({ results, display
 
       <CopyGridButton results={Object.values(compactedResults)} />
 
-      {Object.entries(compactedResults).map(([damageRangeOutput, { damageValues, statFrom, statTo, negative, neutral, positive }]) => (
+      {compactedResults.map(({ damageRangeOutput, damageValues, statFrom, statTo, negative, neutral, positive }) => (
         <React.Fragment key={`${statFrom} - ${statTo}`}>
           <ResultsRow>
             <div>
-              {formatIVSplit({ negative, neutral, positive })}
+              {formatIVRangeSet({ negative, neutral, positive })}
             </div>
             <div>
               {formatStatRange(statFrom, statTo)}

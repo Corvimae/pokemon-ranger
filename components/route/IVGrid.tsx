@@ -1,8 +1,7 @@
 import React from 'react';
+import { Generation, Stat } from 'relicalc';
 import styled from 'styled-components';
 import { Tracker } from '../../reducers/route/types';
-import { Stat } from '../../utils/constants';
-import { Generation } from '../../utils/rangeTypes';
 
 interface IVGridHeaderProps {
   tracker: Tracker;

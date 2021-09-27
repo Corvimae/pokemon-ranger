@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { RangeResult, OneShotResult, CompactRange } from '../utils/rangeTypes';
-import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
+import { RangeResult, OneShotResult, CompactRange, formatIVRange, formatStatRange } from 'relicalc';
 import { Button } from './Button';
 
 type GridResult = RangeResult | CompactRange | OneShotResult;

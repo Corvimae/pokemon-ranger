@@ -1,10 +1,8 @@
 import React, { useCallback } from 'react';
+import { capitalize, ConfirmedNature, Nature, NATURES, Stat } from 'relicalc';
 import styled from 'styled-components';
 import { RouteContext, setDirectInputIV } from '../../reducers/route/reducer';
 import { Tracker } from '../../reducers/route/types';
-import { Nature, NATURES, Stat } from '../../utils/constants';
-import { ConfirmedNature } from '../../utils/rangeTypes';
-import { capitalize } from '../../utils/utils';
 import { Button } from '../Button';
 import { IVGrid, IVGridHeader } from './IVGrid';
 

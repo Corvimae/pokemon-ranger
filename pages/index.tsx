@@ -1,18 +1,19 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
+import { calculateDamageRanges } from 'relicalc';
 import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
-import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox } from '../components/Layout';
+import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox, Card } from '../components/Layout';
 import { Button } from '../components/Button';
 import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
-import { calculateRanges } from '../utils/calculations';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
 import { DisplayModeToggle } from '../components/DisplayModeToggle';
 
 const Home: NextPage = () => {
   const [state, dispatch] = useRangerReducer();
+  const [calculationError, setCalculationError] = useState<string | null>(null);
 
   const handleResetValues = useCallback(() => {
     dispatch(resetState());
@@ -46,7 +47,19 @@ const Home: NextPage = () => {
   const handleSetScreen = useCallback(() => dispatch(setScreen(!state.screen)), [state.screen, dispatch]);
   const handleSetOtherPowerModifier = useCallback(event => dispatch(setOtherPowerModifier(Number(event.target.value))), [dispatch]);
 
-  const results = useMemo(() => calculateRanges(state), [state]);
+  const results = useMemo(() => {
+    try {
+      const ranges = calculateDamageRanges(state);
+
+      setCalculationError(null);
+
+      return ranges;
+    } catch (e) {
+      setCalculationError((e as Error).message);
+
+      return [];
+    }
+  }, [state]);
 
   const playerStatPrefix = state.offensiveMode ? 'Offensive' : 'Defensive';
   const opponentStatPrefix = state.offensiveMode ? 'Defensive' : 'Offensive';
@@ -88,10 +101,10 @@ const Home: NextPage = () => {
           </InputRow>
 
           {state.generation === 'lgpe' && (
-            <InputRow>
-              <label htmlFor="friendship">Friendship</label>
-              <input id="friendship" type="number" value={state.friendship} onChange={handleSetFriendship} />
-            </InputRow>
+          <InputRow>
+            <label htmlFor="friendship">Friendship</label>
+            <input id="friendship" type="number" value={state.friendship} onChange={handleSetFriendship} />
+          </InputRow>
           )}
 
           <InputSubheader>Move</InputSubheader>
@@ -127,10 +140,10 @@ const Home: NextPage = () => {
 
           <InputSubheader>Opponent</InputSubheader>
           {!state.offensiveMode && (
-            <InputRow>
-              <label htmlFor="opponentLevel">Level</label>
-              <input id="opponentLevel" type="number" value={state.opponentLevel} onChange={handleSetOpponentLevel} />
-            </InputRow>
+          <InputRow>
+            <label htmlFor="opponentLevel">Level</label>
+            <input id="opponentLevel" type="number" value={state.opponentLevel} onChange={handleSetOpponentLevel} />
+          </InputRow>
           )}
 
           <InputRow>
@@ -213,15 +226,22 @@ const Home: NextPage = () => {
           </div>
         </Header>
 
-        {state.displayMode === 'expanded' && <ExpandedDisplay results={results} displayRolls={state.displayRolls} />}
-        {state.displayMode === 'compact' && <CompactDisplay results={results} displayRolls={state.displayRolls} />}
-        {state.displayMode === 'ohko' && (
-          <OneShotDisplay
-            results={results}
-            healthThreshold={state.healthThreshold}
-            setHealthThreshold={handleSetHealthThreshold}
-            displayRolls={state.displayRolls}
-          />
+        {calculationError && (
+        <Card variant="error">
+          <h3>Unable to calculate damage ranges.</h3>
+          <p>{calculationError}</p>
+        </Card>
+        )}
+
+        {!calculationError && state.displayMode === 'expanded' && <ExpandedDisplay results={results} displayRolls={state.displayRolls} />}
+        {!calculationError && state.displayMode === 'compact' && <CompactDisplay results={results} displayRolls={state.displayRolls} />}
+        {!calculationError && state.displayMode === 'ohko' && (
+        <OneShotDisplay
+          results={results}
+          healthThreshold={state.healthThreshold}
+          setHealthThreshold={handleSetHealthThreshold}
+          displayRolls={state.displayRolls}
+        />
         )}
       </div>
     </Container>

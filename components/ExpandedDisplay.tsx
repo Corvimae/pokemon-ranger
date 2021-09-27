@@ -1,5 +1,5 @@
 import React from 'react';
-import { NatureResult, RangeResult } from '../utils/rangeTypes';
+import { DamageRangeNatureResult, RangeResult } from 'relicalc';
 import { useGridCopy } from '../utils/hooks';
 import { CopyGridButton } from './CopyGridButton';
 import { ResultsGrid, ResultsGridHeader, ResultsRow, ResultsSubheader } from './Layout';
@@ -42,7 +42,7 @@ const ExpandedDisplayGrid: React.FC<ExpandedDisplayGridProps> = ({ name, rangeSe
 };
 
 interface ExpandedDisplayProps {
-  results: NatureResult[];
+  results: DamageRangeNatureResult[];
   displayRolls: boolean;
 }
 

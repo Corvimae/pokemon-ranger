@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
+import { Nature, NATURES } from 'relicalc';
 import { logRouteError, registerTracker, RouteContext } from '../reducers/route/reducer';
 import { EVsByLevel } from '../reducers/route/types';
-import { Nature, NATURES } from '../utils/constants';
 import { arrayToStatLine, parseTypeDefinition } from '../utils/trackerCalculations';
 import { splitOnLastElement } from '../utils/utils';
 

@@ -2817,6 +2817,11 @@ js-combinatorics@^1.4.5:
   resolved "https://registry.yarnpkg.com/js-combinatorics/-/js-combinatorics-1.4.5.tgz#f9b5d57ba97d1dba420c133b4ddbfabc5a41353c"
   integrity sha512-lIBPgsZnIK5S8kCyTUY4L34Kq5YXj2LXyk9WJDPsK6iklV96+ZahxIsgHtXcwHhG9XZhqrS1EbnaEkUh5gyXdg==
 
+js-combinatorics@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/js-combinatorics/-/js-combinatorics-1.5.4.tgz#fb9c8c1817ef76c8f4d1e43b465df8705b060976"
+  integrity sha512-RpJ15pyuged8J5FNR/RrCxel53mcTmpmERa9fmN/IujwCQJ3AoiymWvwzqU63/CIUMB94s1/t0u78696c4eEfw==
+
 js-levenshtein@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/js-levenshtein/-/js-levenshtein-1.1.6.tgz#c6cee58eb3550372df8deb85fad5ce66ce01d59d"
@@ -4053,6 +4058,13 @@ rehype-sanitize@^4.0.0:
   integrity sha512-ZCr/iQRr4JeqPjun5i9CHHILVY7i45VnLu1CkkibDrSyFQ7dTLSvw8OIQpHhS4RSh9h/9GidxFw1bRb0LOxIag==
   dependencies:
     hast-util-sanitize "^3.0.0"
+
+relicalc@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/relicalc/-/relicalc-1.0.0.tgz#19984d74d6f27c39c5876991106ad5048b2a886f"
+  integrity sha512-bUI7p9pW1aHKYpI6GP3DPBuZjCOjMI/ipJD0YJjJsHcF53ieCHYB7tSNOrJktPvxi3q1gaVPPc79+TBn6ehuvw==
+  dependencies:
+    js-combinatorics "^1.5.4"
 
 remark-directive@^1.0.1:
   version "1.0.1"

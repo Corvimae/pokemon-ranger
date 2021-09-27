@@ -1,11 +1,9 @@
+import { createStatLine, Generation, Nature, Stat, StatLine, TypeName } from 'relicalc';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import { createStatLine, Nature, Stat, StatLine } from '../../utils/constants';
 import { prepareContextualReducer } from '../../utils/hooks';
 import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS, SET_CURRENT_LEVEL, LOG_ROUTE_ERROR, SET_LEVEL_INCREMENT_LINE } from './types';
-import { Generation } from '../../utils/rangeTypes';
-import { TypeName } from '../../utils/pokemonTypes';
 
 const defaultState: RouteState = {
   repoPath: undefined,

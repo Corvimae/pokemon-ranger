@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { calculateKillRanges } from '../utils/calculations';
-import { formatIVRange, formatStatRange } from '../utils/rangeFormat';
+import { calculateKillRanges, DamageRangeNatureResult, formatIVRange, formatStatRange } from 'relicalc';
 import { useGridCopy } from '../utils/hooks';
 import { InputRow, ResultsGrid, ResultsGridHeader, ResultsRow } from './Layout';
 import { ResultsDamageRow } from './ResultsDamageRow';
 import { CopyGridButton } from './CopyGridButton';
-import { NatureResult } from '../utils/rangeTypes';
 
 interface OneShotDisplayProps {
-  results: NatureResult[];
+  results: DamageRangeNatureResult[];
   displayRolls: boolean;
   healthThreshold: number;
   setHealthThreshold: (event: React.ChangeEvent<HTMLInputElement>) => void;

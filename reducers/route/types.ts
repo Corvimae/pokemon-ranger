@@ -1,6 +1,4 @@
-import { Nature, Stat, StatLine } from '../../utils/constants';
-import { TypeName } from '../../utils/pokemonTypes';
-import { Generation } from '../../utils/rangeTypes';
+import { Generation, Nature, Stat, StatLine, TypeName } from 'relicalc';
 
 export const VALID_VARIABLE_TYPES = ['text', 'number', 'boolean', 'select'] as const;
 

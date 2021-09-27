@@ -7,11 +7,11 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Select from 'react-select';
 import { useDropzone } from 'react-dropzone';
 import { Tooltip } from 'react-tippy';
+import { Generation, GrowthRate } from 'relicalc';
 import { Header, InputSection, InputRow, InputSubheader, Checkbox, HelpText } from '../../components/Layout';
 import { Button, IconButton } from '../../components/Button';
 import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, toggleExperienceEventEnabled, useExperienceReducer } from '../../reducers/experience/reducer';
-import { buildExperienceRoute, ExperienceEventWithMetadata, GrowthRate } from '../../utils/calculations';
-import { Generation } from '../../utils/rangeTypes';
+import { buildExperienceRoute, ExperienceEventWithMetadata } from '../../utils/calculations';
 
 const GROWTH_RATE_NAMES: Record<GrowthRate, string> = {
   slow: 'Slow',

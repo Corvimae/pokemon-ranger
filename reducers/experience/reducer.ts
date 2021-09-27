@@ -1,6 +1,7 @@
 import { Dispatch, useReducer } from 'react';
 import { v4 as uuid } from 'uuid';
-import { ExperienceEvent, GrowthRate } from '../../utils/calculations';
+import { GrowthRate } from 'relicalc';
+import { ExperienceEvent } from '../../utils/calculations';
 import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, IMPORT_EXPERIENCE_ROUTE, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL, TOGGLE_EXPERIENCE_EVENT_ENABLED } from './types';
 
 function insertAtPosition<T>(list: T[], item: T, position: number): T[] {

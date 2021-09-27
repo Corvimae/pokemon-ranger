@@ -1,4 +1,4 @@
-import { Generation } from '../../utils/rangeTypes';
+import { Generation } from 'relicalc';
 
 export const DISPLAY_MODES = ['expanded', 'compact', 'ohko'] as const;
 

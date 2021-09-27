@@ -21,6 +21,7 @@ import { Card } from '../../components/Layout';
 import { CENTRAL_ROUTE_REPO_PREFIX } from '../../utils/utils';
 import { getRouteMetadata } from '../../server/routeList';
 import { RouteMetadata } from '../../components/route/RouteSelectorComponents';
+import { calculateAllPossibleStatValues, calculatePossibleIVRange, IVRangeSet } from 'relicalc';
 
 const RESET_CONFIRM_DURATION = 2000;
 const RANGER_TITLE = 'Pokémon Ranger';
@@ -124,7 +125,21 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
     `A route ${activeRouteMetadata.game === 'other' ? '' : `for Pokémon ${activeRouteMetadata.game} `} by ${activeRouteMetadata.author} on ${RANGER_TITLE}.`
   ) : 'Pokémon speedrunning made easier.';
 
-  return (
+  const attackRanges = {
+    negative: [20, 31],
+    neutral: [0, 3],
+    positive: [-1, -1],
+    combined: [0, 31],
+  } as IVRangeSet;
+
+  console.log(calculatePossibleIVRange(
+    'attack', 
+    [60, 90], 
+    [{ 7: 14, 8: 15 }, {}], 
+    {},
+    6
+  ));
+    return (
     <RouteCalculationsContext.Provider value={calculationSets}>
       <NextSeo
         title={activeRouteMetadata ? `${activeRouteMetadata.title}` : RANGER_TITLE}
