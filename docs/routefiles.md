@@ -476,7 +476,7 @@ Welcome to my route!
 
 Inline info provides additional context to a line, such as a speed range, a kill threshold, or an alternate strategy.
 
-#### Syntax
+### Syntax
 ```
 :info[Message here!]{color=red}
 ```
@@ -489,7 +489,7 @@ Inline info provides additional context to a line, such as a speed range, a kill
 
 Debug text is hidden unless the "Show Debug Info" is enabled in the options. Debug text should not contain any information that is required to follow the route.
 
-#### Syntax
+### Syntax
 ```
 :debug[Message here!]
 ```
