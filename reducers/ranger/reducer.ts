@@ -25,7 +25,7 @@ const defaultState: RangerReducerState = {
   opponentLevel: 5,
   opponentCombatStages: 0,
   healthThreshold: 50,
-  friendship: 0,
+  friendship: 70,
   screen: false,
   otherPowerModifier: 1,
 };

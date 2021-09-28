@@ -1,18 +1,13 @@
 import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
-import { Combination, CartesianProduct } from 'js-combinatorics/umd/combinatorics';
+import { calculateCombinedDamage, CombinedDamageOdds } from 'relicalc';
 import { Header, InputSection, InputRow, Checkbox, HelpText, InputSubheader, ResultsGridHeader, ResultsGrid, ResultsRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { resetState, useSumReducer, setAdjustedRoll, setRoll, removeRoll, addRoll, setHPThreshold, setCritMultiplier, setCritChanceDenominator, setIncludeCrits } from '../../reducers/sum/reducer';
 
-type RollResults = { valid: false; message: string; } | { valid: true, values: number[] };
+type RollResults = { valid: false; message: string; } | { valid: true, values: CombinedDamageOdds[] };
 
-function factorial(value: number, sum = 1): number {
-  if (!value || value <= 1) return sum;
-
-  return factorial(value - 1, sum * value);
-}
 function parseRolls(values: string): number[] | null {
   const result = values.split(',').map(value => Number(value.trim()));
 
@@ -65,68 +60,26 @@ const Sum: NextPage = () => {
   ), [state.rolls]);
 
   const results = useMemo<RollResults>(() => {
-    const values = state.rolls.map(parseRolls);
+    const values = state.rolls.map(parseRolls) as number[][];
     const adjustedValues = state.adjustedRolls.map(parseRolls);
 
     const invalidRollIndex = values.findIndex(roll => roll === null);
 
     if (invalidRollIndex !== -1) return { valid: false, message: `Roll input is invalid: ${state.rolls[invalidRollIndex]}.` };
 
-    const valuesWithAdjustments = values.map((valueSet, index) => (
-      (valueSet as number[]).slice(0, values[0]?.length).map((value, subIndex) => ({
-        value,
-        adjusted: adjustedValues[index]?.[subIndex] || value,
-        index,
-        subIndex,
-      }))
-    ));
-
-    const critResults = [...new CartesianProduct(...valuesWithAdjustments)].reduce<number[][]>((critAcc, rolls) => [
-      ...critAcc,
-      [...Array(rolls.length + 1).keys()].reduce<number[]>((rollAcc, numCrits) => {
-        const combinations = numCrits === rolls.length + 1 ? [rolls] : [...new Combination(rolls, numCrits)];
-
-        const critSuccesses = combinations.reduce((combinationAcc, critValues) => {
-          const nonCritValues = rolls.filter(roll => !critValues.some(critRoll => critRoll.index === roll.index && critRoll.subIndex === roll.subIndex));
-
-          const nonCritDamage = nonCritValues.reduce((acc, { value }) => acc + value, 0);
-          const critDamage = critValues.reduce((acc, { value, adjusted }) => acc + Math.trunc((adjusted || value) * state.critMultiplier), 0);
-
-          return combinationAcc + (nonCritDamage + critDamage >= state.hpThreshold ? 1 : 0);
-        }, 0);
-
-        return [
-          ...rollAcc,
-          critSuccesses,
-        ];
-      }, []),
-    ], []);
-
-    const summedResults = critResults.reduce((acc, rollResults) => (
-      rollResults.reduce((totals, successes, index) => {
-        const updatedTotals = [...totals];
-
-        updatedTotals[index] = (totals[index] || 0) + successes;
-
-        return updatedTotals;
-      }, acc)
-    ), []);
-
     return {
       valid: true,
-      values: summedResults,
+      values: calculateCombinedDamage(
+        values,
+        state.hpThreshold,
+        {
+          critAdjustedValues: adjustedValues,
+          critChanceDenominator: state.critChanceDenominator,
+          critMultiplier: state.critMultiplier,
+        },
+      ),
     };
   }, [state]);
-
-  const critOdds = useMemo(() => {
-    const trialSize = state.rolls.length;
-    const critChance = 1 / state.critChanceDenominator;
-
-    return [...Array(state.rolls.length + 1).keys()].map(numCrits => ({
-      odds: critChance ** numCrits * (1 - critChance) ** (trialSize - numCrits),
-      binomialCoefficient: factorial(trialSize) / (factorial(numCrits) * factorial(trialSize - numCrits)),
-    }));
-  }, [state.rolls, state.critChanceDenominator]);
 
   return (
     <Container>
@@ -200,7 +153,7 @@ const Sum: NextPage = () => {
           <>
             <div>
               Of {combinationCount} possible {state.includeCrits && 'critless'} damage rolls,&nbsp;
-              <b>{results.values[0]} ({((results.values[0] / combinationCount) * 100).toFixed(2)}%) </b>
+              <b>{results.values[0].successes} ({((results.values[0].successes / combinationCount) * 100).toFixed(2)}%) </b>
               deal at least {state.hpThreshold} damage.
             </div>
 
@@ -208,7 +161,7 @@ const Sum: NextPage = () => {
               <>
                 <CritData>
                   Including crits,&nbsp;
-                  <b>{(results.values.reduce((acc, value, index) => acc + ((value / combinationCount) * critOdds[index]?.odds), 0) * 100).toFixed(2)}% </b>
+                  <b>{(results.values.reduce((acc, value) => acc + ((value.successes / combinationCount) * value.odds), 0) * 100).toFixed(2)}% </b>
                   of all possible rolls deal at least {state.hpThreshold} damage.
                 </CritData>
                 <ResultsGrid>
@@ -217,12 +170,12 @@ const Sum: NextPage = () => {
                     <div>Succesful combinations</div>
                     <div>Odds</div>
                   </ResultsGridHeader>
-                  {results.values.map((value, index) => (
-                    <ResultsRow key={index}>
-                      <div>{index}</div>
-                      <div>{results.values[index]} of {combinationCount * critOdds[index]?.binomialCoefficient}</div>
+                  {results.values.map(value => (
+                    <ResultsRow key={value.critCount}>
+                      <div>{value.critCount}</div>
+                      <div>{value.successes} of {combinationCount * value.binomialCoefficient}</div>
                       <div>
-                        {((value / combinationCount) * critOdds[index]?.odds * 100).toFixed(2)}%
+                        {((value.successes / combinationCount) * value.odds * 100).toFixed(2)}%
                       </div>
                     </ResultsRow>
                   ))}

@@ -10,6 +10,10 @@ Any likeness in naming to any DS series of videogames is purely coincidental. Ra
 
 Logo by [@limeadenectar](https://twitter.com/limeadenectar).
 
+## Where's all the math code?
+
+Ranger uses [relicalc](https://github.com/corvimae/relicalc) for its calculations.
+
 ## License
 
 [GNU GPU v3](LICENSE)
