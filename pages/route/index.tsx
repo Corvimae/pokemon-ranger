@@ -140,7 +140,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
             </style>
           )}
         </Head>
-        <MainContent>
+        <MainContent hasRouteContent={!(content?.error ?? true)}>
           {content && !content?.error ? (
             <Guide showOptions={state.showOptions} ref={guideContentElement}>
               <RouteActions>
@@ -192,6 +192,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
           backgroundColor={state.options.ivBackgroundColor}
           fontFamily={state.options.ivFontFamily}
           ivHorizontalLayout={state.options.ivHorizontalLayout}
+          hasContent={!(content?.error ?? true)}
         >
           <TrackerInputContainer>
             {Object.values(state.trackers).map(tracker => (
@@ -240,10 +241,14 @@ const Container = styled.div<{ ivHorizontalLayout: boolean; debugMode: boolean; 
   }
 `;
 
-const MainContent = styled.div`
+const MainContent = styled.div<{ hasRouteContent: boolean }>`
   position: relative;
   height: 100%;
   overflow-y: hidden;
+
+  @media (max-width: 1000px) {
+    grid-column: ${({ hasRouteContent }) => !hasRouteContent && '1 / -1'};
+  }
 `;
 
 const ImportContainer = styled.div`
@@ -259,7 +264,7 @@ const Guide = styled.div<{ showOptions: boolean }>`
   overflow-y: ${props => props.showOptions ? 'none' : 'auto'};
 `;
 
-const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; ivHorizontalLayout: boolean }>`
+const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; ivHorizontalLayout: boolean; hasContent: boolean }>`
   display: flex;
   flex-direction: ${({ ivHorizontalLayout }) => ivHorizontalLayout ? 'row' : 'column'};
   padding: 0.5rem;
@@ -267,6 +272,10 @@ const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; ivHo
   background-color: ${props => props.backgroundColor ?? '#222'};
   color: #eee;
   overflow: hidden;
+
+  @media (max-width: 1000px) {
+    display: ${({ hasContent }) => !hasContent && 'none'};
+  }
 `;
 
 const TrackerInputContainer = styled.div`
