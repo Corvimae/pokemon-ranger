@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import { range } from 'lodash';
 import { calculateHiddenPowerType, calculatePossibleIVRange, calculatePossibleNature, ConfirmedNature, IVRangeSet, NATURES, Stat, StatLine, STATS, TypeName, TYPE_NAMES } from 'relicalc';
 import { RouteState, RouteVariableType, Tracker } from '../reducers/route/types';
 
@@ -18,8 +19,8 @@ export function castRouteVariableAsType(type: RouteVariableType, value: string |
   }
 }
 
-function evolutionMappingToList<T, U>(evolutionMapping: Record<number, T>, mapFunc: (value: T) => U): U[] {
-  return Object.entries(evolutionMapping)
+function evolutionMappingToList<T, U>(tracker: Tracker, evolutionMapping: Record<number, T>, defaultValue: T, mapFunc: (value: T) => U): U[] {
+  return range(0, tracker.baseStats.length).map<[number, T]>(index => [index, evolutionMapping[index] ?? defaultValue] ?? [index, defaultValue])
     .sort(([evoA], [evoB]) => Number(evoA) - Number(evoB))
     .map(([_evo, list]) => mapFunc(list));
 }
@@ -39,7 +40,7 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
     [stat]: calculatePossibleIVRange(
       stat,
       tracker.baseStats.map(item => item[stat]),
-      evolutionMappingToList(tracker.recordedStats, statsForEvo => (
+      evolutionMappingToList(tracker, tracker.recordedStats, {}, statsForEvo => (
         Object.entries(statsForEvo).reduce<Record<number, number>>((statAcc, [level, entry]) => entry?.[stat] ? {
           ...statAcc,
           [level]: entry[stat],
