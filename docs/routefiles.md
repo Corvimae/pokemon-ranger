@@ -111,13 +111,13 @@ The content within the square brackets is displayed as a header above the table,
 
 `evs` (number, default: `0`) - The EVs in the relevant stat of the runner's Pokémon at the time of the attack. When no EVs are specified, the EVs from the IV tracker for the given level will be used if available.
 
-`combatStages` (number, default: `0`) - The number of combat stages in the relevant stat of the runner's Pokémon at the time of the attack.
+`combatStages` (number or string, default: `0`) - The number of combat stages in the relevant stat of the runner's Pokémon at the time of the attack. If formatted as a range of values (e.g. `-1 - 3`), the table will render a list of buttons above it that allow the user to select a combat stage value.
 
 `effectiveness` (number, default: `1`) - The type effectiveness multiplier of the move (0.25, 0.5, 1, 2, 4). Effectiveness is calculated automatically if `type` is specified for the damage table and the defensive Pokémon. If manually specified, this value will override the automatic calculation.
 
 `stab` (boolean, default: `false`) - Whether this move is boosted by the Same Type Attack Bonus. STAB is calculated automatically if `type` is specified for the damage table and the offensive Pokémon. If manually specified, this value will override the automatic calculation.
 
-`opponentCombatStages` (number, default: `0`) - The number of combat stages in the opponent Pokémon's relevant stat at the time of the attack.
+`opponentCombatStages` (number, default: `0`) - The number of combat stages in the opponent Pokémon's relevant stat at the time of the attack. If formatted as a range of values (e.g. `-1 - 3`), the table will render a list of buttons above it that allow the user to select a combat stage value.
 
 `torrent` (boolean, defualt: `false`) - Whether the attacker is in Torrent, Blaze, or Overgrowth.
 
