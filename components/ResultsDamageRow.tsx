@@ -21,10 +21,21 @@ export const ResultsDamageRow: React.FC<ResultsDamageRowProps> = ({ values, clas
 };
 
 const Container = styled.div`
+  display: flex;
   grid-column: 1 / -1;
   color: ${({ theme }) => theme.label};
   font-size: 0.825rem;
+  margin: 0.25rem 0 0 0;
   padding: 0.25rem 0.5rem;
+  font-variant-numeric: tabular-nums;
+  justify-content: flex-end;
+  align-items: center;
+  color: ${({ theme }) => theme.label};
+
+  &:hover {
+    background-color: ${({ theme }) => theme.backgroundSelected};
+    color: ${({ theme }) => theme.foreground};
+  }
 `;
 
 const CopyButton = styled(Button)`

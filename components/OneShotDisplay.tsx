@@ -52,10 +52,10 @@ export const OneShotDisplay: React.FC<OneShotDisplayProps> = ({ results, display
             </ResultsRow>
             <DamageRolls data-range-excluded>
               {displayRolls && componentResults.map(({ statFrom: rollFrom, statTo: rollTo, damageValues }) => (
-                <React.Fragment key={`${rollFrom} - ${rollTo}`}>
+                <OneShotDamageRowContainer key={`${rollFrom} - ${rollTo}`}>
                   <DamageRollRange data-range-excluded>{formatStatRange(rollFrom, rollTo)}</DamageRollRange>
                   <OneShotDamageRow values={damageValues} />
-                </React.Fragment>
+                </OneShotDamageRowContainer>
               ))}
             </DamageRolls>
           </React.Fragment>
@@ -98,19 +98,32 @@ const DenominatorCell = styled.div`
 
 const DamageRolls = styled.div`
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: 5rem 1fr;
   grid-column: 1 / -1;
   margin-top: 0.25rem;
 `;
 
 const DamageRollRange = styled.div`
+  display: flex;
   color: ${({ theme }) => theme.label};
   font-size: 0.825rem;
   font-weight: 700;
-  text-align: right;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 0.25rem 0 0 0;
   padding: 0.25rem 0.5rem;
+`;
+
+const OneShotDamageRowContainer = styled.div`
+  display: contents;
+  
+  &:hover > div {
+    background-color: ${({ theme }) => theme.backgroundSelected};
+    color: ${({ theme }) => theme.foreground};
+  }
 `;
 
 const OneShotDamageRow = styled(ResultsDamageRow)`
   grid-column: span 1;
+  font-variant-numeric: tabular-nums;
 `;
