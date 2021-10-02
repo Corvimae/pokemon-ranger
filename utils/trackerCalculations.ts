@@ -51,6 +51,9 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
         [level]: entry[stat],
       }) : evAcc, {}),
       tracker.generation,
+      {
+        staticIV: [tracker.staticIVs[stat], tracker.directInput ? tracker.directInputIVs[stat] : -1].find(value => value !== -1) ?? undefined,
+      },
     ),
   }), {} as Record<Stat, IVRangeSet>);
 
