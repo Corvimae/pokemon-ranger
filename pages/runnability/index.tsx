@@ -73,6 +73,17 @@ const Runnability: NextPage = () => {
     return oddsPerStat.reduce((a, b) => a * b, calculateIVOdds(state.neutral.hp)) * 100;
   }, [state]);
 
+  const hasInvalidIVValue = [
+    ...Object.values(state.negative),
+    ...Object.values(state.neutral),
+    ...Object.values(state.positive),
+  ].some(value => value < 0 || value > 31);
+
+  const isResultInvalid = hasInvalidIVValue
+    || Number.isNaN(runnabilityPercent)
+    || runnabilityPercent < 0
+    || runnabilityPercent > 100;
+
   return (
     <Container>
       <div>
@@ -84,7 +95,7 @@ const Runnability: NextPage = () => {
           </div>
         </Header>
         <Disclaimer>
-          If no value is possible, enter &ldquo;x&rdquo; or &ldquo;-&rdquo;.
+          If no value is allowed, enter &ldquo;x&rdquo; or &ldquo;-&rdquo;.
         </Disclaimer>
         <InputGrid>
           <HeaderRow>
@@ -133,9 +144,16 @@ const Runnability: NextPage = () => {
       </div>
       <div>
         <Header>Results</Header>
-        <ResultsCard variant="warning">
-          There is a {runnabilityPercent.toFixed(2)}% chance for this Pokémon to have runnable IVs.
-        </ResultsCard>
+        {isResultInvalid && (
+          <ResultsCard variant="error">
+            One or more IV values are invalid.
+          </ResultsCard>
+        )}
+        {!isResultInvalid && (
+          <ResultsCard variant="warning">
+            There is a {runnabilityPercent.toFixed(2)}% chance for this Pokémon to have runnable IVs.
+          </ResultsCard>
+        )}
       </div>
     </Container>
   );
