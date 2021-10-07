@@ -406,10 +406,6 @@ const ExperienceRoute: NextPage = () => {
             <Button onClick={handleResetValues}>Reset</Button>
           </div>
         </Header>
-        <Disclaimer>
-          This tool is a work in progress and may contain bugs. If you encounter an issue, please let me know&nbsp;
-          <a href="https://github.com/Corvimae/pokemon-ranger/issues" target="_blank" rel="noopener noreferrer">here</a>.
-        </Disclaimer>
         <InputSectionContainer>
           <InputSection>
             <InputRow>
@@ -781,10 +777,6 @@ const ExperienceEventIcon = styled.img`
   width: 1rem;
   height: 1rem;
   margin-left: 0.5rem;
-`;
-
-const Disclaimer = styled(HelpText)`
-  grid-column: span 2;
 `;
 
 const ImportError = styled.div`
