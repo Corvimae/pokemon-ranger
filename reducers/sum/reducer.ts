@@ -1,7 +1,6 @@
 import { Dispatch } from 'react';
 import { useParameterizedReducer } from '../../utils/hooks';
-import { RESET_STATE, SET_INITIAL_STATE } from '../ranger/types';
-import { ADD_ROLL, REMOVE_ROLL, SET_ADJUSTED_ROLL, SET_CRIT_CHANCE_DENOMINATOR, SET_CRIT_MULTIPLIER, SET_HP_THRESHOLD, SET_INCLUDE_CRITS, SET_ROLL, SumReducerAction, SumReducerState } from './types';
+import { RESET_STATE, SET_INITIAL_STATE, ADD_ROLL, REMOVE_ROLL, SET_ADJUSTED_ROLL, SET_CRIT_CHANCE_DENOMINATOR, SET_CRIT_MULTIPLIER, SET_HP_THRESHOLD, SET_INCLUDE_CRITS, SET_ROLL, SumReducerAction, SumReducerState } from './types';
 
 const defaultState: SumReducerState = {
   rolls: ['', ''],

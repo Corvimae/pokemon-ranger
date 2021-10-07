@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import { CopyGridButton } from './CopyGridButton';
 
@@ -219,7 +220,8 @@ export const InputSection = styled.div`
 export const InputRow = styled.div`
   display: contents;
 
-  & label {
+  & label,
+  & header {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 0.5rem;
@@ -321,3 +323,14 @@ export const BorderlessCard = styled.div<{ variant?: string }>`
 `;
 
 export const ContainerLabel = styled.div``;
+
+export const Disclaimer = styled(HelpText)`
+  grid-column: span 2;
+`;
+
+export const BetaDisclaimer: React.FC = () => (
+  <Disclaimer>
+    This tool is a work in progress and may contain bugs. If you encounter an issue, please let me know&nbsp;
+    <a href="https://github.com/Corvimae/pokemon-ranger/issues" target="_blank" rel="noopener noreferrer">here</a>.
+  </Disclaimer>
+);

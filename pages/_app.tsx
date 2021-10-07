@@ -52,7 +52,10 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
             <Link href="/lgpe-friendship">LGPE Friendship</Link>
           </li>
           <li>
-            <Link href="/experience">Exp. Route Builder (BETA)</Link>
+            <Link href="/experience">Exp. Route Builder</Link>
+          </li>
+          <li>
+            <Link href="/runnability">Runnability</Link>
           </li>
           <RightAlignedActions>
             <ActionSet>
