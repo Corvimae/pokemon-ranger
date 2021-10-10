@@ -4,13 +4,14 @@ import styled from 'styled-components';
 interface DebugTextProps {
   content: unknown;
   title?: string;
+  unformatted?: boolean;
   className?: string;
 }
 
-const RawDebugText: React.FC<DebugTextProps> = ({ title, content, children, className }) => (
+const RawDebugText: React.FC<DebugTextProps> = ({ title, content, unformatted, children, className }) => (
   <Container className={className}>
     <Title>[DEBUG] {title}</Title>
-    {JSON.stringify(content, undefined, 2)}
+    {JSON.stringify(content, undefined, unformatted ? undefined : 2)}
     {children}
   </Container>
 );

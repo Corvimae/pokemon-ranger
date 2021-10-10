@@ -155,7 +155,7 @@ function evaluateIVExpression(
     if (subCondition === 'x' || subCondition === 'X') return false;
     if (subCondition === '#') return min !== -1;
 
-    return evaluateRange(range(min, max), subCondition);
+    return evaluateRange(range(min, max + 1), subCondition);
   });
 }
 

@@ -2,7 +2,7 @@
 
 [![Deploy](https://github.com/Corvimae/pokemon-ranger/actions/workflows/main.yml/badge.svg)](https://github.com/Corvimae/pokemon-ranger/actions/workflows/main.yml)
 
-![Ranger Logo](/docs/_media/logo-50.png)
+[![Ranger Logo](/docs/_media/logo-50.png)](https://ranger.maybreak.com/)
 
 Any likeness in naming to any DS series of videogames is purely coincidental. Ranger calculates ranges, ~~nothing more~~ and does some other stuff too.
 

@@ -7,6 +7,7 @@ import { BorderlessCard, Card, ContainerLabel, variantIsBorderless } from '../La
 import { parse, Terms } from '../../directives/conditional-grammar';
 import { evaluateCondition, formatCondition } from '../../directives/evaluateCondition';
 import { ErrorableResult, evaluateAsThrowableOptional } from '../../utils/utils';
+import { DebugText } from './DebugText';
 
 interface ConditionalBlockProps {
   source?: string;
@@ -78,15 +79,26 @@ export const ConditionalBlock: React.FC<ConditionalBlockProps> = ({
 
   const CardComponent = variantIsBorderless(themeContext, variant) ? BorderlessConditionalCard : ConditionalCard;
 
+  const debugData = (
+    <>
+      <DebugText title="IV Ranges" content={calculationSet?.ivRanges} />
+      <DebugText title="Natures" content={calculationSet?.confirmedNature} unformatted />
+      <DebugText title="Variables" content={calculationSet?.variables} />
+    </>
+  );
+
   return result?.result ? (
-    <CardComponent variant={variant} expandConditions={state.options.expandConditions}>
-      <Condition>
-        Condition met:
-        <b>&nbsp;{formatCondition(parsedCondition.value)}{rawLevel && ` at Lv. ${rawLevel}`}</b>
-      </Condition>
-      {children}
-    </CardComponent>
-  ) : null;
+    <>
+      {debugData}
+      <CardComponent variant={variant} expandConditions={state.options.expandConditions}>
+        <Condition>
+          Condition met:
+          <b>&nbsp;{formatCondition(parsedCondition.value)}{rawLevel && ` at Lv. ${rawLevel}`}</b>
+        </Condition>
+        {children}
+      </CardComponent>
+    </>
+  ) : debugData;
 };
 
 const Condition = styled.div`

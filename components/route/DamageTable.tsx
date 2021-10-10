@@ -73,7 +73,7 @@ const CombatStageSelector: React.FC<CombatStageSelectorProps> = ({ label, select
   <CombatStatSelectorContainer>
     <CombatStageSelectorLabel>{label}</CombatStageSelectorLabel>
     <ButtonSelectorRow>
-      {range(options.from, options.to).map(value => (
+      {range(options.from, options.to + 1).map(value => (
         <CombatStageButton
           key={value}
           active={selectedValue === Number(value)}
