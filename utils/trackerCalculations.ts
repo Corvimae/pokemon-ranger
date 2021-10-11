@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { range } from 'lodash';
-import { calculateHiddenPowerType, calculatePossibleIVRange, calculatePossibleNature, ConfirmedNature, IVRangeSet, NATURES, Stat, StatLine, STATS, TypeName, TYPE_NAMES } from 'relicalc';
+import { calculateHiddenPowerBasePower, calculateHiddenPowerType, calculatePossibleIVRange, calculatePossibleNature, ConfirmedNature, IVRangeSet, NATURES, Stat, StatLine, STATS, TypeName, TYPE_NAMES } from 'relicalc';
 import { RouteState, RouteVariableType, Tracker } from '../reducers/route/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,6 +85,7 @@ interface TrackerCalculations {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   variables: Record<string, any>;
   hiddenPowerType: string | null;
+  hiddenPowerBasePower: number | null;
   tracker: Tracker;
 }
 
@@ -98,12 +99,14 @@ function buildTrackerCalculationSet(state: RouteState, tracker: Tracker): Tracke
     [key]: castRouteVariableAsType(type, value),
   }), {});
   const hiddenPowerType = calculateHiddenPowerType(ivRanges, confirmedNature);
+  const hiddenPowerBasePower = calculateHiddenPowerBasePower(ivRanges, confirmedNature);
 
   return {
     ivRanges,
     confirmedNature,
     variables,
     hiddenPowerType,
+    hiddenPowerBasePower,
     tracker,
   };
 }

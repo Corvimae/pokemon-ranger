@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { formatStatName, Generation, getPossibleNatureAdjustmentsForStat, IVRangeSet, NATURES, Stat, STATS } from 'relicalc';
+import { capitalize, formatStatName, Generation, getPossibleNatureAdjustmentsForStat, IVRangeSet, NATURES, Stat, STATS } from 'relicalc';
 import styled from 'styled-components';
 import { RouteContext } from '../../reducers/route/reducer';
 import { Tracker } from '../../reducers/route/types';
@@ -73,7 +73,8 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
         <StatDisplay>
           <StatName>Hidden Power</StatName>
           <div>
-            {calculationSet.hiddenPowerType ?? 'N/A'}
+            {calculationSet.hiddenPowerType ? capitalize(calculationSet.hiddenPowerType) : 'N/A'}
+            {tracker.generation <= 5 ? ` (${calculationSet.hiddenPowerBasePower})` : ''}
           </div>
         </StatDisplay>
       )}
