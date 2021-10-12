@@ -46,7 +46,7 @@ export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVR
           [level]: entry[stat],
         } : statAcc, {})
       )),
-      Object.entries(tracker.evSegments[tracker.startingLevel]).reduce<Record<number, number>>((evAcc, [level, entry]) => entry?.[stat] ? ({
+      Object.entries(tracker.evSegments[tracker.startingLevel] ?? {}).reduce<Record<number, number>>((evAcc, [level, entry]) => entry?.[stat] ? ({
         ...evAcc,
         [level]: entry[stat],
       }) : evAcc, {}),
