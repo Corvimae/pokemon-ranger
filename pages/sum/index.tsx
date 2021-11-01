@@ -123,7 +123,7 @@ const Sum: NextPage = () => {
               </InputRow>
               <InputRow>
                 <label htmlFor="critMultiplier">Crit Multiplier</label>
-                <input id="critMultiplier" value={state.critMultiplier} onChange={handleSetCritMultiplier} />
+                <input type="number" id="critMultiplier" value={state.critMultiplier} onChange={handleSetCritMultiplier} />
                 <HelpText>2.0 for Gen 2-5, 1.5 for Gen 6+</HelpText>
               </InputRow>
               <InputSubheader>Adjusted Damage Rolls</InputSubheader>
