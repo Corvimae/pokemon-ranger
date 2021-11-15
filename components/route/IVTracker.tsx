@@ -5,18 +5,48 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Tracker } from '../../reducers/route/types';
 import { Button } from '../Button';
-import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution, setManualNeutralNature, setManualNature, setCurrentLevel } from '../../reducers/route/reducer';
+import { resetTracker, RouteContext, setManualPositiveNature, setStartingLevel, setStat, setManualNegativeNature, triggerEvolution, setManualNeutralNature, setManualNature, setCurrentLevel, setManualEV } from '../../reducers/route/reducer';
 import { useCalculationSet } from '../../utils/trackerCalculations';
 import { IVDirectInput } from './IVDirectInput';
 import { IVGrid, IVGridHeader } from './IVGrid';
 
 const RESET_CONFIRM_DURATION = 2000;
 
-interface IVTrackerProps {
+interface ManualEVInputRowProps {
   tracker: Tracker;
+  stat: Stat;
 }
 
-export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
+const ManualEVInputRow: React.FC<ManualEVInputRowProps> = ({ tracker, stat }) => {
+  const dispatch = RouteContext.useDispatch();
+
+  const value = tracker.manualEVs[stat];
+
+  const handleDecreaseManualEV = useCallback(() => {
+    dispatch(setManualEV(tracker.name, stat, value - 1));
+  }, [tracker.name, dispatch, stat, value]);
+
+  const handleIncreaseManualEV = useCallback(() => {
+    dispatch(setManualEV(tracker.name, stat, value + 1));
+  }, [tracker.name, dispatch, stat, value]);
+
+  return (
+    <ManualEVRow>
+      <Button onClick={handleDecreaseManualEV}>-</Button>
+      <ManualEVValue>
+        {value > 0 && '+'}{value}
+      </ManualEVValue>
+      <Button onClick={handleIncreaseManualEV}>+</Button>
+    </ManualEVRow>
+  );
+};
+
+interface IVTrackerProps {
+  tracker: Tracker;
+  manualEVInput: boolean;
+}
+
+export const IVTracker: React.FC<IVTrackerProps> = ({ tracker, manualEVInput }) => {
   const dispatch = RouteContext.useDispatch();
   const [resetConfirmActive, setResetConfirmActive] = useState(false);
 
@@ -83,7 +113,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
         calculationSet.ivRanges[stat],
         calculationSet.confirmedNature,
         tracker.baseStats[tracker.evolution][stat],
-        tracker.evSegments[tracker.startingLevel]?.[tracker.currentLevel]?.[stat] ?? 0,
+        (tracker.evSegments[tracker.startingLevel]?.[tracker.currentLevel]?.[stat] ?? 0) + tracker.manualEVs[stat],
         tracker.generation,
       );
 
@@ -109,6 +139,8 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
       />
     );
   }
+  
+  const relevantStats = STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense');
 
   return (
     <Container>
@@ -142,7 +174,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
       </ActionRow>
       <IVGrid generation={tracker.generation}>
         <IVGridHeader tracker={tracker} onSetManualNature={handleSetManualNature} />
-        {STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense').map(stat => (
+        {relevantStats.map(stat => (
           <StatSelectorGrid key={stat}>
             {possibleStatValues[stat].possible.map(value => (
               <StatSelector
@@ -156,6 +188,8 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker }) => {
             ))}
           </StatSelectorGrid>
         ))}
+        <ManualEVRowTitle>Additional EVs</ManualEVRowTitle>
+        {manualEVInput && relevantStats.map(stat => <ManualEVInputRow key={stat} stat={stat} tracker={tracker} />)}
       </IVGrid>
     </Container>
   );
@@ -226,4 +260,32 @@ const StartingLevelButton = styled(Button)<{ active?: boolean }>`
 
 const EvolveButton = styled(Button)<{ displayAsDisabled: boolean }>`
   opacity: ${props => props.displayAsDisabled ? 0.5 : 1};
+`;
+
+const ManualEVRow = styled.div`
+  display: grid;
+  grid-template-columns: 1.125rem 1fr 1.125rem;
+  padding: 0 0.5rem;
+
+  & > button {
+    height: 1.125rem;
+    padding: 0;
+    border-radius: 0.125rem;
+    line-height: 1;
+    font-weight: 400;
+  }
+`;
+
+const ManualEVValue = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.875rem;
+`;
+
+const ManualEVRowTitle = styled.div`
+  grid-column: 1 / -1;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  color: ${({ theme }) => theme.label};
 `;

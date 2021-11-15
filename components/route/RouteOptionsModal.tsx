@@ -96,6 +96,16 @@ export const RouteOptionsModal: React.FC = () => {
               </HelpText>
             </InputRow>
 
+            <OptionSectionTitle>Features</OptionSectionTitle>
+
+            <RouteOptionCheckbox
+              label="Show Manual EV Inputs"
+              stateKey="manualEVInput"
+              storageKey={OptionKeys.ROUTE_OPTIONS_MANUAL_EV_INPUT}
+            >
+              Display buttons to manually increase and decrease EVs.
+            </RouteOptionCheckbox>
+
             <OptionSectionTitle>Layout</OptionSectionTitle>
 
             <RouteOptionCheckbox

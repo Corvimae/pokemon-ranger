@@ -196,7 +196,11 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
         >
           <TrackerInputContainer>
             {Object.values(state.trackers).map(tracker => (
-              <IVTracker key={tracker.name} tracker={tracker} />
+              <IVTracker
+                key={tracker.name}
+                tracker={tracker}
+                manualEVInput={state.options.manualEVInput}
+              />
             ))}
           </TrackerInputContainer>
           <div>

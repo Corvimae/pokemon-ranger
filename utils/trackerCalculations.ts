@@ -35,27 +35,35 @@ function calculateNatureWithOverrides(ivRanges: Record<Stat, IVRangeSet>, tracke
 }
 
 export function calculateAllPossibleIVRanges(tracker: Tracker): Record<Stat, IVRangeSet> {
-  const preliminaryResults = STATS.reduce((acc, stat) => ({
-    ...acc,
-    [stat]: calculatePossibleIVRange(
-      stat,
-      tracker.baseStats.map(item => item[stat]),
-      evolutionMappingToList(tracker, tracker.recordedStats, {}, statsForEvo => (
-        Object.entries(statsForEvo).reduce<Record<number, number>>((statAcc, [level, entry]) => entry?.[stat] ? {
-          ...statAcc,
-          [level]: entry[stat],
-        } : statAcc, {})
-      )),
-      Object.entries(tracker.evSegments[tracker.startingLevel] ?? {}).reduce<Record<number, number>>((evAcc, [level, entry]) => entry?.[stat] ? ({
+  const preliminaryResults = STATS.reduce((acc, stat) => {
+    const evSegment = Object.entries(tracker.evSegments[tracker.startingLevel] ?? {})
+      .reduce<Record<number, number>>((evAcc, [level, entry]) => entry?.[stat] ? ({
         ...evAcc,
         [level]: entry[stat],
-      }) : evAcc, {}),
-      tracker.generation,
-      {
-        staticIV: [tracker.staticIVs[stat], tracker.directInput ? tracker.directInputIVs[stat] : -1].find(value => value !== -1) ?? undefined,
-      },
-    ),
-  }), {} as Record<Stat, IVRangeSet>);
+      }) : evAcc, {});
+    
+    return {
+      ...acc,
+      [stat]: calculatePossibleIVRange(
+        stat,
+        tracker.baseStats.map(item => item[stat]),
+        evolutionMappingToList(tracker, tracker.recordedStats, {}, statsForEvo => (
+          Object.entries(statsForEvo).reduce<Record<number, number>>((statAcc, [level, entry]) => entry?.[stat] ? {
+            ...statAcc,
+            [level]: entry[stat],
+          } : statAcc, {})
+        )),
+        range(1, tracker.currentLevel + 1).reduce((evAcc, level) => ({
+          ...evAcc,
+          [level]: (evSegment[level] ?? 0) + tracker.manualEVs[stat],
+        }), {}),
+        tracker.generation,
+        {
+          staticIV: [tracker.staticIVs[stat], tracker.directInput ? tracker.directInputIVs[stat] : -1].find(value => value !== -1) ?? undefined,
+        },
+      ),
+    };
+  }, {} as Record<Stat, IVRangeSet>);
 
   const [confirmedNegative, confirmedPositive] = calculateNatureWithOverrides(preliminaryResults, tracker);
     

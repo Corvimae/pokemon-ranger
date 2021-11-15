@@ -3,7 +3,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { prepareContextualReducer } from '../../utils/hooks';
-import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS, SET_CURRENT_LEVEL, LOG_ROUTE_ERROR, SET_LEVEL_INCREMENT_LINE } from './types';
+import { EVsByLevel, LOAD_FILE, REGISTER_TRACKER, SET_SHOW_OPTIONS, RESET_TRACKER, RouteAction, RouteState, SET_MANUAL_NEGATIVE_NATURE, SET_MANUAL_NEUTRAL_NATURE, SET_MANUAL_POSITIVE_NATURE, SET_REPO_PATH, SET_STARTING_LEVEL, SET_STAT, TRIGGER_EVOLUTION, LOAD_OPTIONS, RouteOptionsState, SET_OPTION_IV_BACKGROUND_COLOR, SET_OPTION_IV_FONT_FAMILY, RouteVariableType, REGISTER_VARIABLE, SET_VARIABLE_VALUE, RESET_ROUTE, SET_DIRECT_INPUT_IV, SET_MANUAL_NATURE, SET_BOOLEAN_OPTION, BooleanRouteOptionStateKey, SET_OPTION_CUSTOM_CSS, SET_CURRENT_LEVEL, LOG_ROUTE_ERROR, SET_LEVEL_INCREMENT_LINE, SET_MANUAL_EV } from './types';
 
 const defaultState: RouteState = {
   repoPath: undefined,
@@ -20,6 +20,7 @@ const defaultState: RouteState = {
     expandConditions: false,
     renderOnlyTrackers: false,
     hideIVResults: false,
+    manualEVInput: false,
     debugMode: false,
   },
   routeErrors: [],
@@ -50,6 +51,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             baseStats: action.payload.baseStats,
             recordedStats: {},
             evSegments: action.payload.evSegments,
+            manualEVs: createStatLine(0, 0, 0, 0, 0, 0),
             staticIVs: action.payload.staticIVs,
             staticNature: action.payload.staticNature,
             directInput: action.payload.directInput,
@@ -137,6 +139,20 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
         },
       };
 
+    case SET_MANUAL_EV: {
+      const path = [
+        'trackers',
+        action.payload.name,
+        'manualEVs',
+        action.payload.stat,
+      ];
+
+      return set(
+        cloneDeep(state),
+        path,
+        get(state, path) === action.payload.value ? undefined : action.payload.value,
+      );
+    }
     case SET_CURRENT_LEVEL:
       return {
         ...state,
@@ -219,6 +235,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             recordedStats: {},
             manualPositiveNature: undefined,
             manualNegativeNature: undefined,
+            manualEVs: createStatLine(0, 0, 0, 0, 0, 0),
             directInputIVs: createStatLine(0, 0, 0, 0, 0, 0),
             currentLevel: state.trackers[action.payload.name].startingLevel,
           },
@@ -294,6 +311,7 @@ const reducer = (state: RouteState, action: RouteAction): RouteState => {
             recordedStats: {},
             manualPositiveNature: undefined,
             manualNegativeNature: undefined,
+            manualEVs: createStatLine(0, 0, 0, 0, 0, 0),
           },
         }), {}),
       };
@@ -402,6 +420,17 @@ export function setManualNeutralNature(name: string, stat?: Stat): RouteAction {
     payload: {
       name,
       stat,
+    },
+  };
+}
+
+export function setManualEV(name: string, stat: Stat, value: number): RouteAction {
+  return {
+    type: SET_MANUAL_EV,
+    payload: {
+      name,
+      stat,
+      value,
     },
   };
 }

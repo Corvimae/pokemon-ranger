@@ -17,6 +17,7 @@ export interface Tracker {
   baseStats: StatLine[];
   recordedStats: Record<number, Record<number, StatLine>>;
   evSegments: Record<number, EVsByLevel>;
+  manualEVs: StatLine;
   manualPositiveNature: Stat | undefined;
   manualNegativeNature: Stat | undefined;
   staticIVs: StatLine;
@@ -45,6 +46,7 @@ export interface RouteOptionsState {
   expandConditions: boolean;
   renderOnlyTrackers: boolean;
   hideIVResults: boolean;
+  manualEVInput: boolean;
   debugMode: boolean;
 }
 
@@ -65,6 +67,7 @@ export const SET_MANUAL_NATURE = 'SET_MANUAL_NATURE';
 export const SET_MANUAL_POSITIVE_NATURE = 'SET_MANUAL_POSITIVE_NATURE';
 export const SET_MANUAL_NEGATIVE_NATURE = 'SET_MANUAL_NEGATIVE_NATURE';
 export const SET_MANUAL_NEUTRAL_NATURE = 'SET_MANUAL_NEUTRAL_NATURE';
+export const SET_MANUAL_EV = 'SET_MANUAL_EV';
 export const SET_CURRENT_LEVEL = 'SET_CURRENT_LEVEL';
 export const LOAD_OPTIONS = 'LOAD_OPTIONS';
 export const SET_OPTION_IV_BACKGROUND_COLOR = 'SET_OPTION_IV_BACKGROUND_COLOR';
@@ -152,6 +155,15 @@ type SetManualNeutralNatureAction = {
   payload: {
     name: string;
     stat: Stat | undefined;
+  };
+}
+
+type SetManualEVAction = {
+  type: typeof SET_MANUAL_EV;
+  payload: {
+    name: string;
+    stat: Stat;
+    value: number;
   };
 }
 
@@ -281,6 +293,7 @@ export type RouteAction =
   SetManualPositiveNatureAction |
   SetManualNegativeNatureAction |
   SetManualNeutralNatureAction |
+  SetManualEVAction |
   SetCurrentLevelAction |
   LoadOptionsAction |
   SetOptionIVBackgroundColorAction |
