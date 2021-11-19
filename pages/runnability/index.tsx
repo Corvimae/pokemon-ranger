@@ -64,7 +64,7 @@ const Runnability: NextPage = () => {
       NON_NEUTRAL_MODIFIER_CHANCE * calculateIVOdds(minimumIV)
     ));
 
-    const oddsPerStat = range(0, 6).map(index => [
+    const oddsPerStat = range(0, 5).map(index => [
       negativeOdds[index],
       neutralOdds[index],
       positiveOdds[index],
