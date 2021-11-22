@@ -526,7 +526,7 @@ const ExperienceRoute: NextPage = () => {
                 <Checkbox id="speciesAffectionBoost" data-checked={hasAffectionBoostValue} onClick={() => setHasAffectionBoostValue(!hasAffectionBoostValue)} />
                 <HelpText>Does the Pokémon have an Affection of at least 2?</HelpText>
               </InputRow>
-              {generation >= 6 && (
+              {(generation >= 6 || generation === 'bdsp') && (
                 <InputRow>
                   <label htmlFor="speciesPastEvolution">Past Evolution Level</label>
                   <Checkbox id="speciesPastEvolution" data-checked={isPastEvolutionPointValue} onClick={() => setIsPastEvolutionPointValue(!isPastEvolutionPointValue)} />
