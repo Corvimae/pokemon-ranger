@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { calculateStat, Nature, NATURES, StatLine, STATS, TypeName, getNatureMultiplier } from 'relicalc';
+import { calculateStat, Nature, NATURES, StatLine, STATS, TypeName, getNatureMultiplier, calculateHP } from 'relicalc';
 import { logRouteError, RouteContext } from '../../reducers/route/reducer';
 import { parseStatLine, parseTypeDefinition } from '../../utils/trackerCalculations';
 import { BorderlessCard, Card, ContainerLabel } from '../Layout';
@@ -90,7 +90,7 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
 
     return STATS.reduce((acc, stat) => ({
       ...acc,
-      [stat]: calculateStat(
+      [stat]: (stat === 'hp' ? calculateHP : calculateStat)(
         level,
         baseStats[stat],
         ivs[stat],
