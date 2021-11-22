@@ -20,7 +20,7 @@ yarn add relicalc
 
 `Stat`: one of `hp`, `attack`, `defense`, `spAttack`, `spDefense`, or `speed`.
 
-`Generation`: one of `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, or `lgpe`.
+`Generation`: one of `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `bdsp`, or `lgpe`.
 
 `GrowthRate`: one of `fast`, `medium-fast`, `medium-slow`, `slow`, `erratic`, or `fluctuating`.
 

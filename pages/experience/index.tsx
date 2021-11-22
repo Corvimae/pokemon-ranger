@@ -201,7 +201,7 @@ const ExperienceRoute: NextPage = () => {
   const [pokemonSpeciesList, setPokemonSpeciesList] = useState<PokemonSpeciesData[]>([]);
 
   const handleSetGeneration = useCallback(event => {
-    setGeneration(event.target.value === 'lgpe' ? event.target.value : Number(event.target.value));
+    setGeneration(['lgpe', 'bdsp'].indexOf(event.target.value) !== -1 ? event.target.value : Number(event.target.value));
   }, []);
 
   const handleSetSpeciesLevelValue = useCallback(event => {
@@ -418,6 +418,7 @@ const ExperienceRoute: NextPage = () => {
                 <option value={7}>7 (Sun/Moon, Ultra Sun/Ultra Moon, and Sword/Shield)</option>
                 <option value={8}>8 (Sword/Shield)</option>
                 <option value="lgpe">Let&apos;s Go</option>
+                <option value="bdsp">Brilliant Diamond/Shining Pearl</option>
               </select>
             </InputRow>
             <InputRow>

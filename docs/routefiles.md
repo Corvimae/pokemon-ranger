@@ -32,7 +32,7 @@ A route file can contain any number of IV trackers, but in order to take advanta
 
 `hiddenPower` (boolean, default: `false`) - If true, hidden power type will be calculated and displayed.
 
-`generation` (number | 'lgpe', default: `4`) - Which generation's formulas to use. Gen 1-2 are not supported, and specifying `lgpe` will change results.
+`generation` (number | 'lgpe' | 'bdsp', default: `4`) - Which generation's formulas to use. Gen 1-2 are not supported, and specifying `lgpe` will change results.
 
 `hpIV` (number) - A static value for the HP IV. Unless you know the IV will always be set (for example, from a trade Pokémon), ignore this attribute.
 
