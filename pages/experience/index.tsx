@@ -201,7 +201,7 @@ const ExperienceRoute: NextPage = () => {
   const [pokemonSpeciesList, setPokemonSpeciesList] = useState<PokemonSpeciesData[]>([]);
 
   const handleSetGeneration = useCallback(event => {
-    setGeneration(['lgpe', 'bdsp'].indexOf(event.target.value) !== -1 ? event.target.value : Number(event.target.value));
+    setGeneration(event.target.value === 'lgpe' ? event.target.value : Number(event.target.value));
   }, []);
 
   const handleSetSpeciesLevelValue = useCallback(event => {
@@ -415,10 +415,8 @@ const ExperienceRoute: NextPage = () => {
                 <option value={4}>4 (Diamond/Pearl/Platinum)</option>
                 <option value={5}>5 (Black/White and Black 2/White 2)</option>
                 <option value={6}>6 (X/Y)</option>
-                <option value={7}>7 (Sun/Moon, Ultra Sun/Ultra Moon, and Sword/Shield)</option>
-                <option value={8}>8 (Sword/Shield)</option>
+                <option value={7}>7+ (Sun/Moon, USUM, Sword/Shield, and BDSP)</option>
                 <option value="lgpe">Let&apos;s Go</option>
-                <option value="bdsp">Brilliant Diamond/Shining Pearl</option>
               </select>
             </InputRow>
             <InputRow>
@@ -526,7 +524,7 @@ const ExperienceRoute: NextPage = () => {
                 <Checkbox id="speciesAffectionBoost" data-checked={hasAffectionBoostValue} onClick={() => setHasAffectionBoostValue(!hasAffectionBoostValue)} />
                 <HelpText>Does the Pokémon have an Affection of at least 2?</HelpText>
               </InputRow>
-              {(generation >= 6 || generation === 'bdsp') && (
+              {generation >= 6 && (
                 <InputRow>
                   <label htmlFor="speciesPastEvolution">Past Evolution Level</label>
                   <Checkbox id="speciesPastEvolution" data-checked={isPastEvolutionPointValue} onClick={() => setIsPastEvolutionPointValue(!isPastEvolutionPointValue)} />
