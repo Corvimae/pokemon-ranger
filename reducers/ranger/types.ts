@@ -25,6 +25,7 @@ export const SET_OPPONENT_COMBAT_STAGES = 'SET_OPPONENT_COMBAT_STAGES';
 export const SET_HEALTH_THRESHOLD = 'SET_HEALTH_THRESHOLD';
 export const SET_FRIENDSHIP = 'SET_FRIENDSHIP';
 export const SET_SCREEN = 'SET_SCREEN';
+export const SET_CHOICE_ITEM = 'SET_CHOICE_ITEM';
 export const SET_OTHER_POWER_MODIFIER = 'SET_OTHER_POWER_MODIFIER';
 export const SET_INITIAL_STATE = 'SET_INITIAL_STATE';
 export const RESET_STATE = 'RESET_STATE';
@@ -55,6 +56,7 @@ export interface RangerReducerState {
   healthThreshold: number;
   friendship: number;
   screen: boolean;
+  choiceItem: boolean;
   otherPowerModifier: number;
 }
 
@@ -219,6 +221,13 @@ type SetScreenAction = {
   };
 }
 
+type SetChoiceItemAction = {
+  type: typeof SET_CHOICE_ITEM,
+  payload: {
+    choiceItem: boolean;
+  };
+}
+
 type SetOtherPowerModifierAction = {
   type: typeof SET_OTHER_POWER_MODIFIER;
   payload: {
@@ -259,6 +268,7 @@ export type RangerReducerAction =
   SetHealthThresholdAction |
   SetFriendshipAction |
   SetScreenAction |
+  SetChoiceItemAction |
   SetOtherPowerModifierAction |
   ResetStateAction |
   SetInitialStateAction;

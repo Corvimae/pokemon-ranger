@@ -6,7 +6,7 @@ import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox, Card } from '../components/Layout';
 import { Button } from '../components/Button';
-import { resetState, setBaseStat, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
 import { DisplayModeToggle } from '../components/DisplayModeToggle';
@@ -45,6 +45,7 @@ const Home: NextPage = () => {
   const handleSetHealthThreshold = useCallback(event => dispatch(setHealthThreshold(Number(event.target.value))), [dispatch]);
   const handleSetFriendship = useCallback(event => dispatch(setFriendship(Number(event.target.value))), [dispatch]);
   const handleSetScreen = useCallback(() => dispatch(setScreen(!state.screen)), [state.screen, dispatch]);
+  const handleSetChoiceItem = useCallback(() => dispatch(setChoiceItem(!state.choiceItem)), [state.choiceItem, dispatch]);
   const handleSetOtherPowerModifier = useCallback(event => dispatch(setOtherPowerModifier(Number(event.target.value))), [dispatch]);
 
   const results = useMemo(() => {
@@ -192,6 +193,12 @@ const Home: NextPage = () => {
             <label htmlFor="multiTarget">Multi Target?</label>
             <Checkbox id="multiTarget" data-checked={state.multiTarget} onClick={handleSetMultiTarget} />
             <HelpText>Only applicable to double and triple battles. For Gen 3, only select this if using a move that targets all adjacent foes.</HelpText>
+          </InputRow>
+
+          <InputRow>
+            <label htmlFor="choiceItem">Choice Band/Specs?</label>
+            <Checkbox id="multiTarget" data-checked={state.choiceItem} onClick={handleSetChoiceItem} />
+            <HelpText>Is the attacker using a physical move and holding the Choice Band, or using a special move and holding the Choice Specs?</HelpText>
           </InputRow>
 
           <InputRow>

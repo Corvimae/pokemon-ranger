@@ -100,6 +100,7 @@ const schema = merge(gh, {
       'special',
       'healthThreshold',
       'screen',
+      'choiceItem',
       'otherPowerModifier',
       'type',
       'theme',

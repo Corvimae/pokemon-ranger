@@ -131,6 +131,10 @@ The content within the square brackets is displayed as a header above the table,
 
 `friendship` (number, default: `0`) - The friendship of the Pokémon, from 0-255. Only relevant if the tracker's generation is `lgpe`.
 
+`screen` (boolean, default: `false`) - Whether the attack is reduced by Reflect or Light Screen.
+
+`choiceItem` (boolean, default: `false`) - Whether the attack is boosted by the Choice Band or Choice Specs.
+
 `theme` (string, default: `info`): The color theme to apply to the damage cable. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `info` is used.
 
 ## Trainer Blocks

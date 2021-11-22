@@ -111,6 +111,7 @@ interface DamageTableProps {
   special?: string;
   friendship?: string;
   screen?: string;
+  choiceItem?: string;
   otherPowerModifier?: string;
   type?: string;
   theme?: string;
@@ -140,6 +141,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   offensive = 'true',
   special = 'false',
   screen = 'false',
+  choiceItem = 'false',
   otherPowerModifier = 1,
   friendship = 0,
   type,
@@ -218,16 +220,17 @@ export const DamageTable: React.FC<DamageTableProps> = ({
       opponentStat: parsedOpponentStat ?? pokemonContext.stats?.[opponentRelevantStat] ?? 5,
       opponentLevel: parsedOpponentLevel ?? pokemonContext.level ?? 5,
       opponentCombatStages: Number(opponentCombatStage),
-      torrent: torrent === 'true',
-      weatherBoosted: weatherBoosted === 'true',
-      weatherReduced: weatherReduced === 'true',
-      multiTarget: multiTarget === 'true',
+      torrent: torrent.toLowerCase() === 'true',
+      weatherBoosted: weatherBoosted.toLowerCase() === 'true',
+      weatherReduced: weatherReduced.toLowerCase() === 'true',
+      multiTarget: multiTarget.toLowerCase() === 'true',
       otherModifier: Number(otherModifier),
       generation,
       criticalHit: false,
       offensiveMode,
       friendship: Number(friendship),
       screen: screen === 'true',
+      choiceItem: choiceItem.toLowerCase() === 'true',
       otherPowerModifier: Number(otherPowerModifier),
     });
 
@@ -243,7 +246,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     }), {});
 
     return filterToStatRange(combinedMap, natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
-  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold]);
+  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem]);
 
   const error = useRef<string | null>(null);
 

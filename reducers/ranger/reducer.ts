@@ -1,7 +1,7 @@
 import { Dispatch } from 'react';
 import { Generation } from 'relicalc';
 import { useParameterizedReducer } from '../../utils/hooks';
-import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_FRIENDSHIP, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_OTHER_POWER_MODIFIER, SET_SCREEN, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
+import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_CHOICE_ITEM, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_FRIENDSHIP, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OTHER_MODIFIER, SET_OTHER_POWER_MODIFIER, SET_SCREEN, SET_STAB, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
 
 const defaultState: RangerReducerState = {
   displayMode: 'compact',
@@ -27,6 +27,7 @@ const defaultState: RangerReducerState = {
   healthThreshold: 50,
   friendship: 70,
   screen: false,
+  choiceItem: false,
   otherPowerModifier: 1,
 };
 
@@ -168,6 +169,12 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
       return {
         ...state,
         screen: action.payload.screen,
+      };
+
+    case SET_CHOICE_ITEM:
+      return {
+        ...state,
+        choiceItem: action.payload.choiceItem,
       };
 
     case SET_OTHER_POWER_MODIFIER:
@@ -349,6 +356,13 @@ export function setScreen(screen: boolean): RangerReducerAction {
   return {
     type: SET_SCREEN,
     payload: { screen },
+  };
+}
+
+export function setChoiceItem(choiceItem: boolean): RangerReducerAction {
+  return {
+    type: SET_CHOICE_ITEM,
+    payload: { choiceItem },
   };
 }
 
