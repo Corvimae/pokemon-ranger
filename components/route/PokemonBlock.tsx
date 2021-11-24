@@ -108,6 +108,7 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
 
   return (
     <Container info={info} infoColor={infoColor}>
+      {calculatedStats && (<PokemonSpeed>{calculatedStats.speed} Speed</PokemonSpeed>)}
       <PokemonBlockContext.Provider value={blockContext}>
         {children}
       </PokemonBlockContext.Provider>
@@ -116,6 +117,7 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
 };
 
 const Container = styled.div<{ info?: string; infoColor?: string; }>`
+  position: relative;
   padding-left: 3rem;
   margin-left: -0.5rem;
   border-left: 4px solid #717dbe;
@@ -144,6 +146,10 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
     padding-left: 0;
   }
 
+  & > ${ContainerLabel} + ${BorderlessCard} {
+    margin-top: 1rem;
+  }
+
   & ul {
     line-height: 1.65;
     list-style-type: none;
@@ -152,4 +158,11 @@ const Container = styled.div<{ info?: string; infoColor?: string; }>`
   & > ${BorderlessCard}:last-child {
     margin-bottom: 1rem;
   }
+`;
+
+const PokemonSpeed = styled.div`
+  position: absolute;
+  top: 0.125rem;
+  right: 3rem;
+  font-size: 0.875rem;
 `;

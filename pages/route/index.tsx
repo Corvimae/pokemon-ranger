@@ -10,7 +10,6 @@ import { loadFile, resetRoute, RouteContext, setShowOptions } from '../../reduce
 import { Button } from '../../components/Button';
 import { IVTracker } from '../../components/route/IVTracker';
 import { IVDisplay } from '../../components/route/IVDisplay';
-import { DebugText } from '../../components/route/DebugText';
 import { ImportPrompt } from '../../components/route/ImportPrompt';
 import { RouteOptionsModal } from '../../components/route/RouteOptionsModal';
 import { useOnMount } from '../../utils/hooks';
@@ -131,7 +130,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
         description={pageDescription}
       />
       
-      <Container ivHorizontalLayout={state.options.ivHorizontalLayout} debugMode={state.options.debugMode}>
+      <Container ivHorizontalLayout={state.options.ivHorizontalLayout}>
         <Head>
           <title>{activeRouteMetadata ? `${activeRouteMetadata.title} -  ` : ''}{RANGER_TITLE}</title>
           {state.options.customCSS && (
@@ -232,17 +231,13 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
 export default RouteContext.connect(RouteView);
 
-const Container = styled.div<{ ivHorizontalLayout: boolean; debugMode: boolean; }>`
+const Container = styled.div<{ ivHorizontalLayout: boolean; }>`
   position: relative;
   display: grid;
   height: 100%;
   grid-template-columns: ${({ ivHorizontalLayout }) => !ivHorizontalLayout && '1fr minmax(28rem, max-content)'};
   grid-template-rows: ${({ ivHorizontalLayout }) => ivHorizontalLayout && '1fr 20rem'};
   overflow: hidden;
-
-  & ${DebugText} {
-    display: ${({ debugMode }) => !debugMode && 'none'};
-  }
 `;
 
 const MainContent = styled.div<{ hasRouteContent: boolean }>`

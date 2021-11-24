@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { RouteContext } from '../../reducers/route/reducer';
 
 interface DebugTextProps {
   content: unknown;
@@ -8,13 +9,17 @@ interface DebugTextProps {
   className?: string;
 }
 
-const RawDebugText: React.FC<DebugTextProps> = ({ title, content, unformatted, children, className }) => (
-  <Container className={className}>
-    <Title>[DEBUG] {title}</Title>
-    {JSON.stringify(content, undefined, unformatted ? undefined : 2)}
-    {children}
-  </Container>
-);
+const RawDebugText: React.FC<DebugTextProps> = ({ title, content, unformatted, children, className }) => {
+  const state = RouteContext.useState();
+
+  return state.options.debugMode ? (
+    <Container className={className}>
+      <Title>[DEBUG] {title}</Title>
+      {JSON.stringify(content, undefined, unformatted ? undefined : 2)}
+      {children}
+    </Container>
+  ) : null;
+};
 
 export const DebugText = styled(RawDebugText)``;
 
