@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { components, OptionProps } from 'react-select';
 import { Link } from '../Layout';
 
+interface AuthorMetadata {
+  name: string;
+  link: string;
+}
+
 export interface RouteMetadata {
   path: string;
   title?: string;
-  author?: string;
+  author?: AuthorMetadata[] | AuthorMetadata | string;
   authorLink?: string;
   generation?: number;
   game?: string;
@@ -15,17 +20,38 @@ export interface RouteMetadata {
 export const RouteDropdownOption : React.FC<OptionProps<RouteMetadata, false>> = props => {
   const { data } = props;
 
+  const normalizedAuthorData = useMemo<AuthorMetadata[]>(() => {
+    if (!data.author) return [];
+
+    if (Array.isArray(data.author)) return data.author;
+
+    if (typeof data.author === 'string') {
+      return [{
+        name: data.author,
+        link: data.authorLink,
+      }];
+    }
+
+    return [data.author];
+  }, [data]);
+
   return (
     <components.Option {...props}>
       <Container>
         <Row>
           <Title>{data.title ?? data.path}</Title>
-          {data.author && (
+          {normalizedAuthorData.length > 0 && (
             <Author>
               by&nbsp;
-              {data.authorLink ? (
-                <Link href={data.authorLink} target="_blank" rel="nofollow noreferrer">{data.author}</Link>
-              ) : data.author}
+              {normalizedAuthorData.map(({ name, link }, index) => (
+                <React.Fragment key={name}>
+                  {link ? (
+                    <Link href={link} target="_blank" rel="nofollow noreferrer">{name}</Link>
+                  ) : <span>{name}</span>}
+                  {normalizedAuthorData.length > 2 && index === normalizedAuthorData.length - 3 && <span>, </span>}
+                  {index === normalizedAuthorData.length - 2 && <span>{normalizedAuthorData.length > 2 && ','} and </span>}
+                </React.Fragment>
+              ))}
             </Author>
           )}
         </Row>
@@ -70,7 +96,8 @@ const Title = styled.span`
 const Author = styled.span`
   font-size: 0.825rem;
   width: max-content;
-  white-space: nowrap;
+  max-width: 40%;
+  text-align: right;
   align-self: baseline;
 `;
 
