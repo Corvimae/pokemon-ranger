@@ -35,8 +35,12 @@ Ranger uses the information specified in `route.json` to show more detailed info
 ```json
 {
   "title": "My Route", // The name of your route.
-  "author": "Corvimae", // The name of the author.
-  "authorLink": "https://twitter.com/corvimae", // A link to the author's social media (optional).
+  "author": [ // You can specify more than one author. Avoid adding authors unless they made significant contributions to the route. 
+    {
+      "name": "Corvimae", // The name of the author.
+      "link": "https://twitter.com/corvimae" // A link to the author's social media (optional).
+    }
+  ],
   "game": "Alpha Sapphire", // The name of the game this route is for. Please be accurate.
   "generation": 6, // The generation of the game this route is for.
   "version": "1.0.0", // The version of the route. Please use semantic versioning: https://semver.org/
