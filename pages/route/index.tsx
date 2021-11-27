@@ -119,8 +119,27 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
   });
 
   const calculationSets = useMemo(() => buildAllTrackerCalculationSets(state), [state]);
+  const authorString = useMemo(() => {
+    if (!activeRouteMetadata || !activeRouteMetadata.author) return 'a Pokémon speedrunner';
+
+    if (typeof activeRouteMetadata.author === 'string') return activeRouteMetadata.author;
+
+    const authorList = Array.isArray(activeRouteMetadata.author) ? activeRouteMetadata.author : [activeRouteMetadata.author];
+
+    if (authorList.length === 0) return 'a Pokémon speedrunner';
+    if (authorList.length === 1) return authorList[0].name;
+    if (authorList.length === 2) return authorList.map(item => item.name).join(' and ');
+    
+    return authorList.map(item => item.name).reduce((acc, item, index) => {
+      if (index === authorList.length - 1) return acc + item;
+      if (index === authorList.length - 2) return `${acc}${item}, and `;
+
+      return `${acc}${item}, `;
+    }, '');
+  }, [activeRouteMetadata]);
+
   const pageDescription = activeRouteMetadata ? (
-    `A route ${activeRouteMetadata.game === 'other' ? '' : `for Pokémon ${activeRouteMetadata.game} `} by ${activeRouteMetadata.author} on ${RANGER_TITLE}.`
+    `A route ${activeRouteMetadata.game === 'other' ? '' : `for Pokémon ${activeRouteMetadata.game} `} by ${authorString} on ${RANGER_TITLE}.`
   ) : 'Pokémon speedrunning made easier.';
   
   return (
