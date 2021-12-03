@@ -195,60 +195,66 @@ export const DamageTable: React.FC<DamageTableProps> = ({
     return offensiveMode && useParentHPThreshold && pokemonContext.stats ? pokemonContext.stats.hp : Number(healthThreshold);
   }, [healthThreshold, offensive, dispatch, position, pokemonContext.stats]);
   
-  const rangeResults = useMemo<Record<number | string, OneShotResult | CompactRange>>(() => {
-    if (!calculationSet) return {};
-    const parsedEffectiveness = effectiveness === undefined || effectiveness == null || effectiveness === '' ? null : Number(effectiveness);
-    const parsedStab = stab === null || stab === undefined ? null : stab === 'true';
-    const parsedOpponentStat = opponentStat === null || opponentStat === undefined ? null : Number(opponentStat);
-    const parsedOpponentLevel = opponentLevel === null || opponentLevel === undefined ? null : Number(opponentLevel);
-    const sourceTypes = source ? state.trackers[source]?.types : [];
-    const offensiveMode = offensive.toLowerCase() === 'true';
-    const offensiveTypeSet = (offensiveMode ? sourceTypes : pokemonContext.types) ?? [];
-    const defensiveTypeSet = (offensiveMode ? pokemonContext.types : sourceTypes) ?? [];
-    const isCalculatedStab = moveType ? offensiveTypeSet.indexOf(moveType) !== -1 : false;
-    const generation = (source && state.trackers[source]?.generation) || 4;
-    const defensiveEffectiveness = moveType && defensiveTypeSet.length ? calculateMoveEffectiveness(moveType, generation, ...defensiveTypeSet) : 1;
-
-    const ranges = calculateDamageRanges({
-      level: Number(level || 0),
-      baseStat: baseStats?.[relevantStat] ?? 0,
-      evs: Number(trackerEvs),
-      combatStages: Number(combatStage),
-      movePower: Number(movePower),
-      typeEffectiveness: parsedEffectiveness ?? defensiveEffectiveness,
-      stab: parsedStab ?? isCalculatedStab,
-      opponentStat: parsedOpponentStat ?? pokemonContext.stats?.[opponentRelevantStat] ?? 5,
-      opponentLevel: parsedOpponentLevel ?? pokemonContext.level ?? 5,
-      opponentCombatStages: Number(opponentCombatStage),
-      torrent: torrent.toLowerCase() === 'true',
-      weatherBoosted: weatherBoosted.toLowerCase() === 'true',
-      weatherReduced: weatherReduced.toLowerCase() === 'true',
-      multiTarget: multiTarget.toLowerCase() === 'true',
-      otherModifier: Number(otherModifier),
-      generation,
-      criticalHit: false,
-      offensiveMode,
-      friendship: Number(friendship),
-      screen: screen === 'true',
-      choiceItem: choiceItem.toLowerCase() === 'true',
-      otherPowerModifier: Number(otherPowerModifier),
-    });
-
-    const natureSet = calculationSet.confirmedNature || [null, null];
-    
-    if (hpThreshold !== -1) {
-      return filterToStatRange(calculateKillRanges(ranges, hpThreshold), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
-    }
-
-    const combinedMap = combineIdenticalLines(ranges).reduce((acc, item) => ({
-      ...acc,
-      [item.damageRangeOutput]: item,
-    }), {});
-
-    return filterToStatRange(combinedMap, natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
-  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem]);
-
   const error = useRef<string | null>(null);
+
+  const rangeResults = useMemo<Record<number | string, OneShotResult | CompactRange>>(() => {
+    try {
+      if (!calculationSet) return {};
+      const parsedEffectiveness = effectiveness === undefined || effectiveness == null || effectiveness === '' ? null : Number(effectiveness);
+      const parsedStab = stab === null || stab === undefined ? null : stab === 'true';
+      const parsedOpponentStat = opponentStat === null || opponentStat === undefined ? null : Number(opponentStat);
+      const parsedOpponentLevel = opponentLevel === null || opponentLevel === undefined ? null : Number(opponentLevel);
+      const sourceTypes = source ? state.trackers[source]?.types : [];
+      const offensiveMode = offensive.toLowerCase() === 'true';
+      const offensiveTypeSet = (offensiveMode ? sourceTypes : pokemonContext.types) ?? [];
+      const defensiveTypeSet = (offensiveMode ? pokemonContext.types : sourceTypes) ?? [];
+      const isCalculatedStab = moveType ? offensiveTypeSet.indexOf(moveType) !== -1 : false;
+      const generation = (source && state.trackers[source]?.generation) || 4;
+      const defensiveEffectiveness = moveType && defensiveTypeSet.length ? calculateMoveEffectiveness(moveType, generation, ...defensiveTypeSet) : 1;
+
+      const ranges = calculateDamageRanges({
+        level: Number(level || 0),
+        baseStat: baseStats?.[relevantStat] ?? 0,
+        evs: Number(trackerEvs),
+        combatStages: Number(combatStage),
+        movePower: Number(movePower),
+        typeEffectiveness: parsedEffectiveness ?? defensiveEffectiveness,
+        stab: parsedStab ?? isCalculatedStab,
+        opponentStat: parsedOpponentStat ?? pokemonContext.stats?.[opponentRelevantStat] ?? 5,
+        opponentLevel: parsedOpponentLevel ?? pokemonContext.level ?? 5,
+        opponentCombatStages: Number(opponentCombatStage),
+        torrent: torrent.toLowerCase() === 'true',
+        weatherBoosted: weatherBoosted.toLowerCase() === 'true',
+        weatherReduced: weatherReduced.toLowerCase() === 'true',
+        multiTarget: multiTarget.toLowerCase() === 'true',
+        otherModifier: Number(otherModifier),
+        generation,
+        criticalHit: false,
+        offensiveMode,
+        friendship: Number(friendship),
+        screen: screen === 'true',
+        choiceItem: choiceItem.toLowerCase() === 'true',
+        otherPowerModifier: Number(otherPowerModifier),
+      });
+
+      const natureSet = calculationSet.confirmedNature || [null, null];
+      
+      if (hpThreshold !== -1) {
+        return filterToStatRange(calculateKillRanges(ranges, hpThreshold), natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
+      }
+
+      const combinedMap = combineIdenticalLines(ranges).reduce((acc, item) => ({
+        ...acc,
+        [item.damageRangeOutput]: item,
+      }), {});
+
+      return filterToStatRange(combinedMap, natureSet, relevantStat, calculationSet.ivRanges[relevantStat]);
+    } catch (e) {
+      error.current = (e as Error).message;
+
+      return {};
+    }
+  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem]);
 
   useEffect(() => {
     if (error.current === null && Object.keys(state.trackers).length > 0) {
