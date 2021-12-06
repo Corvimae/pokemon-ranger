@@ -188,8 +188,12 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker, manualEVInput }) 
             ))}
           </StatSelectorGrid>
         ))}
-        <ManualEVRowTitle>Additional EVs</ManualEVRowTitle>
-        {manualEVInput && relevantStats.map(stat => <ManualEVInputRow key={stat} stat={stat} tracker={tracker} />)}
+        {manualEVInput && (
+          <>
+            <ManualEVRowTitle>Additional EVs</ManualEVRowTitle>
+            {relevantStats.map(stat => <ManualEVInputRow key={stat} stat={stat} tracker={tracker} />)}
+          </>
+        )}
       </IVGrid>
     </Container>
   );

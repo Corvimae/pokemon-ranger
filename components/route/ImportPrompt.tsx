@@ -198,7 +198,6 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
               classNamePrefix="route-selector"
               cacheOptions
               defaultOptions
-              defaultMenuIsOpen
             />
             <Button onClick={handlePublishedImport}>Load</Button>
           </RepoInputContainer>
