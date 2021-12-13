@@ -408,6 +408,16 @@ const ExperienceRoute: NextPage = () => {
       nextLevel: levelAfterExperience + 1,
     };
   }, [state, experienceRoute]);
+
+  const ivTrackerOutput = useMemo(() => (
+    experienceRoute.reduce((acc, event) => {
+      if (event.isLevelUp) {
+        return [...acc, `  ${event.levelAfterExperience} -> ${event.evs.join(', ')}`];
+      }
+
+      return acc;
+    }, [`${state.initialLevel}:`]).join('\n')
+  ), [experienceRoute, state.initialLevel]);
   
   return (
     <Container>
@@ -658,6 +668,15 @@ const ExperienceRoute: NextPage = () => {
                 {experienceNeededForNextLevel && (
                   <ExperienceNeededRow>{experienceNeededForNextLevel} more experience needed to reach Lv. {nextLevel}</ExperienceNeededRow>
                 )}
+                {experienceRoute.length > 0 && (
+                  <EVRouteContainer>
+                    <ActionInputSubheader>EV Route</ActionInputSubheader>
+                    <HelpText>
+                      Paste this into an <a href="https://docs.ranger.maybreak.com/#/routefiles?id=iv-trackers" rel="noopener noreferrer" target="_blank">IV tracker directive</a> to use it in a route.
+                    </HelpText>
+                    <EVRouteTextArea readOnly value={ivTrackerOutput} />
+                  </EVRouteContainer>
+                )}
               </ExperienceEventList>
             )}
           </Droppable>
@@ -900,4 +919,19 @@ const SectionSubheader = styled.h3`
   font-style: italic;
   color: ${({ theme }) => theme.label};
   margin: 0.5rem 0;
+`;
+
+const EVRouteContainer = styled.div`
+  width: 100%;
+`;
+
+const EVRouteTextArea = styled.textarea`
+  width: 100%;
+  height: 8rem;
+  font-family: monospace;
+  padding: 0.5rem;
+  resize: none;
+  background-color: ${({ theme }) => theme.input.background};
+  color: ${({ theme }) => theme.input.foreground};
+  border: 1px solid ${({ theme }) => theme.input.border};
 `;
