@@ -104,6 +104,7 @@ export type ExperienceEventWithMetadata = ExperienceEvent & {
   experienceGained: number;
   isLevelUp: boolean;
   levelAfterExperience: number;
+  totalExperience: number;
   evs: EVSet;
 }
 
@@ -135,6 +136,7 @@ export function buildExperienceRoute(generation: Generation, initialLevel: numbe
             experienceGained: 0,
             isLevelUp: false,
             levelAfterExperience: 100,
+            totalExperience: expTotal,
             evs: updatedEVs,
           },
         ],
@@ -160,6 +162,7 @@ export function buildExperienceRoute(generation: Generation, initialLevel: numbe
         experienceGained,
         isLevelUp,
         levelAfterExperience,
+        totalExperience: expTotal + experienceGained,
         evs: updatedEVs,
       }],
       levelAfterExperience,

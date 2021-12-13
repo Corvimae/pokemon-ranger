@@ -7,7 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Select from 'react-select';
 import { useDropzone } from 'react-dropzone';
 import { Tooltip } from 'react-tippy';
-import { Generation, GrowthRate } from 'relicalc';
+import { calculateExperienceRequiredForLevel, Generation, GrowthRate } from 'relicalc';
 import { Header, InputSection, InputRow, InputSubheader, Checkbox, HelpText } from '../../components/Layout';
 import { Button, IconButton } from '../../components/Button';
 import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, toggleExperienceEventEnabled, useExperienceReducer } from '../../reducers/experience/reducer';
@@ -396,6 +396,18 @@ const ExperienceRoute: NextPage = () => {
   const experienceRoute = useMemo(() => (
     buildExperienceRoute(generation, state.initialLevel, state.growthRate, state.experienceEvents)
   ), [state, generation]);
+
+  const { experienceNeededForNextLevel, nextLevel } = useMemo(() => {
+    if (experienceRoute.length === 0) return {};
+
+    const { totalExperience, levelAfterExperience } = experienceRoute[experienceRoute.length - 1];
+    const expForNextLevel = calculateExperienceRequiredForLevel(levelAfterExperience + 1, state.growthRate);
+    
+    return {
+      experienceNeededForNextLevel: expForNextLevel - totalExperience,
+      nextLevel: levelAfterExperience + 1,
+    };
+  }, [state, experienceRoute]);
   
   return (
     <Container>
@@ -643,10 +655,14 @@ const ExperienceRoute: NextPage = () => {
                   </Draggable>
                 ))}
                 {provided.placeholder}
+                {experienceNeededForNextLevel && (
+                  <ExperienceNeededRow>{experienceNeededForNextLevel} more experience needed to reach Lv. {nextLevel}</ExperienceNeededRow>
+                )}
               </ExperienceEventList>
             )}
           </Droppable>
         </DragDropContext>
+
       </RightColumn>
     </Container>
   );
@@ -743,6 +759,12 @@ const LevelUpRow = styled.div`
   font-size: 0.825rem;
   text-align: center;
   font-style: italic;
+`;
+
+const ExperienceNeededRow = styled(LevelUpRow)`
+  background-color: ${({ theme }) => theme.cards.warning.background};
+  color: ${({ theme }) => theme.cards.warning.foreground};
+  margin-top: 0.5rem;
 `;
 
 const ExperienceEventActions = styled.div`
