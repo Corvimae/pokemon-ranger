@@ -27,6 +27,8 @@ export const SET_FRIENDSHIP = 'SET_FRIENDSHIP';
 export const SET_SCREEN = 'SET_SCREEN';
 export const SET_CHOICE_ITEM = 'SET_CHOICE_ITEM';
 export const SET_OTHER_POWER_MODIFIER = 'SET_OTHER_POWER_MODIFIER';
+export const SET_STAT_MODIFIER = 'SET_STAT_MODIFIER';
+export const SET_OPPONENT_STAT_MODIFIER = 'SET_OPPONENT_STAT_MODIFIER';
 export const SET_INITIAL_STATE = 'SET_INITIAL_STATE';
 export const RESET_STATE = 'RESET_STATE';
 
@@ -57,6 +59,8 @@ export interface RangerReducerState {
   friendship: number;
   screen: boolean;
   choiceItem: boolean;
+  statModifier: number;
+  opponentStatModifier: number;
   otherPowerModifier: number;
 }
 
@@ -228,6 +232,20 @@ type SetChoiceItemAction = {
   };
 }
 
+type SetStatModifierAction = {
+  type: typeof SET_STAT_MODIFIER;
+  payload: {
+    statModifier: number;
+  };
+};
+
+type SetOpponentStatModifierAction = {
+  type: typeof SET_OPPONENT_STAT_MODIFIER;
+  payload: {
+    opponentStatModifier: number;
+  };
+};
+
 type SetOtherPowerModifierAction = {
   type: typeof SET_OTHER_POWER_MODIFIER;
   payload: {
@@ -270,5 +288,7 @@ export type RangerReducerAction =
   SetScreenAction |
   SetChoiceItemAction |
   SetOtherPowerModifierAction |
+  SetStatModifierAction |
+  SetOpponentStatModifierAction |
   ResetStateAction |
   SetInitialStateAction;

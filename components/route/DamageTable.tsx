@@ -113,6 +113,8 @@ interface DamageTableProps {
   screen?: string;
   choiceItem?: string;
   otherPowerModifier?: string;
+  statModifier?: string;
+  opponentStatModifier?: string;
   type?: string;
   theme?: string;
 }
@@ -143,6 +145,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   screen = 'false',
   choiceItem = 'false',
   otherPowerModifier = 1,
+  statModifier = 1,
+  opponentStatModifier = 1,
   friendship = 0,
   type,
   theme = 'info',
@@ -234,6 +238,8 @@ export const DamageTable: React.FC<DamageTableProps> = ({
         friendship: Number(friendship),
         screen: screen === 'true',
         choiceItem: choiceItem.toLowerCase() === 'true',
+        statModifier: Number(statModifier),
+        opponentStatModifier: Number(opponentStatModifier),
         otherPowerModifier: Number(otherPowerModifier),
       });
 
@@ -254,7 +260,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
 
       return {};
     }
-  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem]);
+  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem, statModifier, opponentStatModifier]);
 
   useEffect(() => {
     if (error.current === null && Object.keys(state.trackers).length > 0) {

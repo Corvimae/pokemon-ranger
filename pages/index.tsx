@@ -6,7 +6,7 @@ import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox, Card } from '../components/Layout';
 import { Button } from '../components/Button';
-import { resetState, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOpponentStatModifier, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setStatModifier, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
 import { DisplayModeToggle } from '../components/DisplayModeToggle';
@@ -47,6 +47,8 @@ const Home: NextPage = () => {
   const handleSetScreen = useCallback(() => dispatch(setScreen(!state.screen)), [state.screen, dispatch]);
   const handleSetChoiceItem = useCallback(() => dispatch(setChoiceItem(!state.choiceItem)), [state.choiceItem, dispatch]);
   const handleSetOtherPowerModifier = useCallback(event => dispatch(setOtherPowerModifier(Number(event.target.value))), [dispatch]);
+  const handleSetStatModifier = useCallback(event => dispatch(setStatModifier(Number(event.target.value))), [dispatch]);
+  const handleSetOpponentStatModifier = useCallback(event => dispatch(setOpponentStatModifier(Number(event.target.value))), [dispatch]);
 
   const results = useMemo(() => {
     try {
@@ -99,6 +101,15 @@ const Home: NextPage = () => {
           <InputRow>
             <label htmlFor="playerCombatStages">{playerStatPrefix} Combat Stages</label>
             <input id="playerCombatStages" type="number" value={state.combatStages} onChange={handleSetCombatStages} />
+          </InputRow>
+
+          <InputRow>
+            <label htmlFor="playerStatModifier">{playerStatPrefix} Stat Modifier</label>
+            <input id="playerStatModifier" type="number" value={state.statModifier} onChange={handleSetStatModifier} />
+            <HelpText>
+              Any additional modifiers to the Pokémon&apos;s stat that aren&apos;t handled by Ranger, such as Huge Power.
+              This value is a multiplier; if you don&apos;t need a miscellaneous stat modifier, set it to 1.
+            </HelpText>
           </InputRow>
 
           {state.generation === 'lgpe' && (
@@ -155,6 +166,15 @@ const Home: NextPage = () => {
           <InputRow>
             <label htmlFor="opponentCombatStages">{opponentStatPrefix} Combat Stages</label>
             <input id="opponentCombatStages" type="number" value={state.opponentCombatStages} onChange={handleSetOpponentCombatStages} />
+          </InputRow>
+
+          <InputRow>
+            <label htmlFor="opponentStatModifier">{opponentStatPrefix} Stat Modifier</label>
+            <input id="opponentStatModifier" type="number" value={state.opponentStat} onChange={handleSetOpponentStatModifier} />
+            <HelpText>
+              Any additional modifiers to the opponent Pokémon&apos;s stat that aren&apos;t handled by Ranger, such as Huge Power.
+              This value is a multiplier; if you don&apos;t need a miscellaneous stat modifier, set it to 1.
+            </HelpText>
           </InputRow>
 
           <InputSubheader>Modifiers</InputSubheader>

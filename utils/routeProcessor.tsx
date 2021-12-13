@@ -102,6 +102,8 @@ const schema = merge(gh, {
       'screen',
       'choiceItem',
       'otherPowerModifier',
+      'statModifier',
+      'opponentStatModifier',
       'type',
       'theme',
     ],
