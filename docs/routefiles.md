@@ -135,6 +135,12 @@ The content within the square brackets is displayed as a header above the table,
 
 `choiceItem` (boolean, default: `false`) - Whether the attack is boosted by the Choice Band or Choice Specs.
 
+`otherPowerModifier` (number, default: `1`) - An additional multiplier to apply to the base power of the move, such as from a type-boosting item.
+
+`statModifier` (number, default: `1`) - An additional multiplier to apply to the runner's Pokémon's relevant stat, such as from the Huge Power ability. 
+
+`opponentStatModifier` (number, default: `1`) - An additional multiplier to apply to the opponent Pokémon's relevant stat, such as from the Huge Power ability. 
+
 `theme` (string, default: `info`): The color theme to apply to the damage cable. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `info` is used.
 
 ## Trainer Blocks
