@@ -244,7 +244,7 @@ const StatSelector = styled.button<{ selected?: boolean }>`
   font-family: inherit;
   font-size: inherit;
   background: none;
-  color: ${props => props.selected ? '#9eff8a' : '#fff'};
+  color: ${props => props.selected ? props.theme.selectedStat : props.theme.sidebar.foreground};
   cursor: pointer;
 
   &:disabled {

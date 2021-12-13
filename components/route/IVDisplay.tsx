@@ -114,6 +114,6 @@ const StatName = styled.div<{ positive?: boolean; negative?: boolean; }>`
     if (props.positive) return '#ff7f7f';
     if (props.negative) return '#a1a1ff';
 
-    return '#fff';
+    return props.theme.sidebar.foreground;
   }};
 `;

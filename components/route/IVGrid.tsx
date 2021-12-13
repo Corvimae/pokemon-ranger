@@ -64,11 +64,11 @@ export const IVGridHeader: React.FC<IVGridHeaderProps> = ({ tracker, onSetManual
 
 const IVGridHeaderCell = styled.button<{ uninteractable?: boolean; isPositive?: boolean; isNegative?: boolean }>`
   color: ${props => {
-    if (props.isPositive && props.isNegative) return '#fff';
+    if (props.isPositive && props.isNegative) return props.theme.sidebar.foreground;
     if (props.isPositive) return '#ff7f7f';
     if (props.isNegative) return '#a1a1ff';
 
-    return '#fff';
+    return props.theme.sidebar.foreground;
   }};
   border: none;
   padding: 0.5rem;

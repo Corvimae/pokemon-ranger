@@ -18,11 +18,16 @@ export const THEMES = {
     foregroundHover: '#000',
     primary: '#30b878',
     primaryHover: '#4ecf92',
-    label: '#9B9A97',
+    label: '#606062',
     anchor: '#5c95e0',
     error: '#900',
     trainerBackground: '#badfff',
     backgroundHover: 'rgba(0, 0, 0, 0.1)',
+    selectedStat: '#3bbb3b',
+    sidebar: {
+      background: '#E9E5E3',
+      foreground: '#333',
+    },
     input: {
       background: '#fff',
       foreground: '#333',
@@ -94,6 +99,11 @@ export const THEMES = {
     anchor: '#7ea5d8',
     error: '#de350b',
     trainerBackground: '#2e5679',
+    selectedStat: '#9eff8a',
+    sidebar: {
+      background: '#222',
+      foreground: '#eee',
+    },
     input: {
       background: '#383f45',
       foreground: '#f6f7f9',
@@ -277,6 +287,10 @@ export const HelpText = styled.div`
 
   & a {
     color: ${({ theme }) => theme.anchor};
+  }
+
+  & + & {
+    margin-top: -0.25rem;
   }
 `;
 

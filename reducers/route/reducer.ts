@@ -13,7 +13,7 @@ const defaultState: RouteState = {
   options: {
     compactIVs: false,
     hideMedia: false,
-    ivBackgroundColor: '#222',
+    ivBackgroundColor: '',
     ivFontFamily: undefined,
     customCSS: undefined,
     ivHorizontalLayout: false,

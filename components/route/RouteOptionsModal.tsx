@@ -83,8 +83,13 @@ export const RouteOptionsModal: React.FC = () => {
               <label htmlFor="ivBackgroundColor">IV Background Color</label>
               <input id="ivBackgroundColor" value={state.options.ivBackgroundColor} onChange={handleSetIVBackgroundColor} />
               <HelpText>
-                The RGB hexcode to use for the background color of the right-side column. Please use a color that meets&nbsp;
-                <a href="https://color.a11y.com/" rel="noopener noreferrer" target="_blank">accessibility contrast requirements</a> with #FFF.
+                The RGB hexcode to use for the background color of the right-side column. If left blank, the default for light or dark
+                mode will be used.
+              </HelpText>
+              <HelpText>
+                Please use a color that meets&nbsp;
+                <a href="https://color.a11y.com/" rel="noopener noreferrer" target="_blank">accessibility contrast requirements</a> with
+                #EEE in dark mode, or #333 in light mode.
               </HelpText>
             </InputRow>
 

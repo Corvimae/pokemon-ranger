@@ -277,6 +277,7 @@ const ImportContainer = styled.div`
 
 const Guide = styled.div<{ showOptions: boolean }>`
   position: relative;
+  overflow-x: hidden;
   height: 100%;
   padding: 0.5rem;
   overflow-y: ${props => props.showOptions ? 'none' : 'auto'};
@@ -287,8 +288,8 @@ const Sidebar = styled.div<{ backgroundColor?: string; fontFamily?: string; ivHo
   flex-direction: ${({ ivHorizontalLayout }) => ivHorizontalLayout ? 'row' : 'column'};
   padding: 0.5rem;
   font-family: ${props => props.fontFamily ?? undefined};
-  background-color: ${props => props.backgroundColor ?? '#222'};
-  color: #eee;
+  background-color: ${({ backgroundColor, theme }) => backgroundColor || theme.sidebar.background};
+  color: ${({ theme }) => theme.foreground};
   overflow: hidden;
 
   @media (max-width: 1000px) {
