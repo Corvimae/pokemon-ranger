@@ -398,9 +398,11 @@ const ExperienceRoute: NextPage = () => {
   ), [state, generation]);
 
   const { experienceNeededForNextLevel, nextLevel } = useMemo(() => {
-    if (experienceRoute.length === 0) return {};
+    const enabledEvents = experienceRoute.filter(item => item.enabled);
 
-    const { totalExperience, levelAfterExperience } = experienceRoute[experienceRoute.length - 1];
+    if (enabledEvents.length === 0) return {};
+
+    const { totalExperience, levelAfterExperience } = enabledEvents[enabledEvents.length - 1];
     const expForNextLevel = calculateExperienceRequiredForLevel(levelAfterExperience + 1, state.growthRate);
     
     return {
