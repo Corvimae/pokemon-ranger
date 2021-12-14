@@ -36,7 +36,7 @@ app.prepare().then(async () => {
             item.game,
             item.title,
             item.path,
-          ].find(value => value?.toLowerCase().indexOf(req.query.query as string) !== -1);
+          ].find(value => JSON.stringify(value).toLowerCase().indexOf(req.query.query as string) !== -1);
 
           return matchingValue !== undefined && matchingValue !== null;
         });
