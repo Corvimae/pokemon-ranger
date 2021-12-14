@@ -47,7 +47,7 @@ export const IVDirectInput: React.FC<IVDirectInputProps> = ({ tracker, confirmed
   <Container>
     <ActionRow>
       {capitalize(tracker.name)}
-      {tracker.directInputNatures.length && tracker.directInputNatures.map(nature => (
+      {tracker.directInputNatures.length > 0 && tracker.directInputNatures.map(nature => (
         <DirectInputNatureButton
           key={nature}
           active={confirmedNatures[0] === NATURES[nature]?.minus && confirmedNatures[1] === NATURES[nature]?.plus}
