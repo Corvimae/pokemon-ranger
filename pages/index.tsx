@@ -170,7 +170,7 @@ const Home: NextPage = () => {
 
           <InputRow>
             <label htmlFor="opponentStatModifier">{opponentStatPrefix} Stat Modifier</label>
-            <input id="opponentStatModifier" type="number" value={state.opponentStat} onChange={handleSetOpponentStatModifier} />
+            <input id="opponentStatModifier" type="number" value={state.opponentStatModifier} onChange={handleSetOpponentStatModifier} />
             <HelpText>
               Any additional modifiers to the opponent Pokémon&apos;s stat that aren&apos;t handled by Ranger, such as Huge Power.
               This value is a multiplier; if you don&apos;t need a miscellaneous stat modifier, set it to 1.
