@@ -43,8 +43,25 @@ Ranger uses the information specified in `route.json` to show more detailed info
   ],
   "game": "Alpha Sapphire", // The name of the game this route is for. Please be accurate.
   "generation": 6, // The generation of the game this route is for.
-  "version": "1.0.0", // The version of the route. Please use semantic versioning: https://semver.org/
+  "version": "1.0.0" // The version of the route. Please use semantic versioning: https://semver.org/
 }
 ```
 
 A complete list of games recognized by Ranger can be found [here](https://github.com/Corvimae/pokemon-ranger/blob/main/server/titles.ts#L8). Game names are not case sensitive.
+
+You **must** remove the comments (`//` and thereafter on each line) in your `route.json`, so it looks similar to below:
+
+```json
+{
+  "title": "My Route",
+  "author": [
+    {
+      "name": "Corvimae",
+      "link": "https://twitter.com/corvimae"
+    }
+  ],
+  "game": "Alpha Sapphire",
+  "generation": 6,
+  "version": "1.0.0"
+}
+```
