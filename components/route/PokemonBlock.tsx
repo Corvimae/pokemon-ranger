@@ -39,6 +39,7 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
   position,
   children,
 }) => {
+  const state = RouteContext.useState();
   const dispatch = RouteContext.useDispatch();
 
   const level = Number(rawLevel ?? 0);
@@ -95,10 +96,10 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
         baseStats[stat],
         ivs[stat],
         evs[stat],
-        getNatureMultiplier(stat, natureDefinition),
+        stat === 'hp' ? state.trackers[0]?.generation ?? 8 : getNatureMultiplier(stat, natureDefinition),
       ),
     }), {}) as StatLine;
-  }, [level, stats, baseStats, ivs, evs, natureDefinition, rawBaseStats]);
+  }, [level, stats, baseStats, ivs, evs, natureDefinition, rawBaseStats, state.trackers]);
 
   const blockContext = useMemo(() => ({
     level,
