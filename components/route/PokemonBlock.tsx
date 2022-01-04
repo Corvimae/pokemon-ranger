@@ -89,16 +89,31 @@ export const PokemonBlock: React.FC<PokemonBlockProps> = ({
 
     if (!rawBaseStats) return undefined;
 
-    return STATS.reduce((acc, stat) => ({
-      ...acc,
-      [stat]: (stat === 'hp' ? calculateHP : calculateStat)(
-        level,
-        baseStats[stat],
-        ivs[stat],
-        evs[stat],
-        stat === 'hp' ? state.trackers[0]?.generation ?? 8 : getNatureMultiplier(stat, natureDefinition),
-      ),
-    }), {}) as StatLine;
+    return STATS.reduce((acc, stat) => {
+      if (stat === 'hp') {
+        return {
+          ...acc,
+          [stat]: calculateHP(
+            level,
+            baseStats[stat],
+            ivs[stat],
+            evs[stat],
+            state.trackers[0]?.generation ?? 8,
+          ),
+        };
+      }
+
+      return {
+        ...acc,
+        [stat]: calculateStat(
+          level,
+          baseStats[stat],
+          ivs[stat],
+          evs[stat],
+          getNatureMultiplier(stat, natureDefinition),
+        ),
+      };
+    }, {}) as StatLine;
   }, [level, stats, baseStats, ivs, evs, natureDefinition, rawBaseStats, state.trackers]);
 
   const blockContext = useMemo(() => ({
