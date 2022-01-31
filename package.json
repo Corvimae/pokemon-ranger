@@ -10,7 +10,8 @@
     "start": "NODE_ENV=production node dist/server.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.d.ts .",
     "build-calc-parser": "pegjs -o directives/calc-grammar.js grammars/calc-grammar.pegjs",
-    "build-conditional-parser": "pegjs -o directives/conditional-grammar.js grammars/conditional-grammar.pegjs"
+    "build-conditional-parser": "pegjs -o directives/conditional-grammar.js grammars/conditional-grammar.pegjs",
+    "build-pla-research": "node scripts/compile-pla-research.js"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
