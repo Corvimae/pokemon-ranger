@@ -55,6 +55,9 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
             <Link href="/experience">Exp. Route Builder</Link>
           </li>
           <li>
+            <Link href="/arceus/research">PLA Research</Link>
+          </li>
+          <li>
             <Link href="/runnability">Runnability</Link>
           </li>
           <RightAlignedActions>
