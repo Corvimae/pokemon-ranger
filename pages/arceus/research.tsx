@@ -206,7 +206,7 @@ export default ArceusResearchContext.connect(ResearchCalculator);
 const Container = styled.div`
   display: grid;
   height: 100%;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: 24rem 1fr;
   overflow-x: hidden;
 
   & > div {
@@ -307,6 +307,5 @@ const ActionRow = styled(InputRow)`
 `;
 
 const ResultsHelpText = styled(HelpText)`
-  max-width: 24rem;
   margin-top: 1rem;
 `;
