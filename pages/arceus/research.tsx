@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
-import { Header } from '../../components/Layout';
+import { Header, InputRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
-import { useOnMount } from '../../utils/hooks';
-import { ArceusResearchContext, resetState, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
+import { useDebounce, useOnMount } from '../../utils/hooks';
+import { ArceusResearchContext, resetState, setSearchTerm, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
 
 interface ResearchTask {
   name: string;
@@ -67,6 +67,38 @@ const ResearchCalculator: NextPage = () => {
 
   const [researchData, setResearchData] = useState<ResearchEntry[]>([]);
 
+  const handleSearchTermChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchTerm(event.target.value));
+  }, [dispatch]);
+
+  const debouncedHandleSearchTermChange = useDebounce(handleSearchTermChange, 250);
+
+  const handleReset = useCallback(() => {
+    dispatch(resetState());
+  }, [dispatch]);
+
+  const filteredResearchData = useMemo(() => {
+    if (!state.searchTerm) return researchData;
+
+    const normalizedSearchTerm = state.searchTerm.toLowerCase();
+
+    return researchData.reduce<ResearchEntry[]>((acc, entry) => {
+      const matchingTasks = entry.tasks.filter(task => task.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1);
+      
+      if (entry.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1 || matchingTasks.length > 0) {
+        return [
+          ...acc,
+          {
+            ...entry,
+            tasks: matchingTasks.length === 0 ? entry.tasks : matchingTasks,
+          },
+        ];
+      }
+
+      return acc;
+    }, []);
+  }, [researchData, state.searchTerm]);
+
   const { completedEntries, researchPointsFromTasks } = useMemo(() => (
     Object.entries(state.activeTasks).reduce<{ completedEntries: string[], researchPointsFromTasks: number }>((acc, [speciesId, tasks]) => {
       const speciesDefinition = researchData.find(({ id }) => id === Number(speciesId));
@@ -94,10 +126,6 @@ const ResearchCalculator: NextPage = () => {
   const nextRank = calculateNextRank(totalResearchPoints);
   const pointsToNextRank = calculatePointsToNextRank(totalResearchPoints);
 
-  const handleReset = useCallback(() => {
-    dispatch(resetState());
-  }, [dispatch]);
-
   useOnMount(() => {
     fetch(RESEARCH_PATH).then(response => {
       response.json().then(setResearchData);
@@ -109,10 +137,6 @@ const ResearchCalculator: NextPage = () => {
       <div>
         <Header>
           Legends: Arceus Research Calculator
-
-          <div>
-            <Button onClick={handleReset}>Reset</Button>
-          </div>
         </Header>
         <TotalPoints>{totalResearchPoints} total research points.</TotalPoints>
         <RankData>
@@ -124,8 +148,16 @@ const ResearchCalculator: NextPage = () => {
         </div>
       </div>
       <div>
+        <ActionRow>
+          <input
+            defaultValue={state.searchTerm}
+            onChange={debouncedHandleSearchTermChange}
+            placeholder="Filter..."
+          />
+          <Button onClick={handleReset}>Reset</Button>
+        </ActionRow>
         <TaskGrid>
-          {researchData.map(data => (
+          {filteredResearchData.map(data => (
             <TaskSection key={data.id}>
               <SectionName>{data.name}</SectionName>
               {data.tasks.map((task, index) => (
@@ -156,9 +188,14 @@ export default ArceusResearchContext.connect(ResearchCalculator);
 
 const Container = styled.div`
   display: grid;
-  grid-template-columns: 1fr max-content;
-  
+  height: 100%;
+  grid-template-columns: max-content 1fr;
+  overflow-x: hidden;
+
   & > div {
+    position: relative;
+    height: 100%;
+    overflow-y: auto;
     padding: 1rem;
   }
 `;
@@ -240,4 +277,15 @@ const TotalPoints = styled.div`
 const RankData = styled.div`
   margin-bottom: 1rem;
   font-size: 1rem;
+`;
+
+const ActionRow = styled(InputRow)`
+  display: flex;
+  
+  & > input {
+    margin: 0 0.5rem 0 0;
+    flex-grow: 1;
+    min-width: 0;
+    align-self: stretch;
+  }
 `;
