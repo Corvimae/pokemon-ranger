@@ -39,6 +39,18 @@ export const THEMES = {
       background: '#ccc',
       cardFade: 'rgba(255, 255, 255, 0.6)',
     },
+    research: {
+      task: {
+        background: {
+          inactive: 'rgba(0, 0, 0, 0.25)',
+          active: '#409b63',
+        },
+        foreground: {
+          inactive: '#333',
+          active: '#fff',
+        },
+      },
+    },
     cards: {
       info: {
         background: '#a1c2ee',
@@ -114,6 +126,18 @@ export const THEMES = {
       foreground: '#f6f7f9',
       background: '#383f45',
       cardFade: 'rgba(0, 0, 0, 0.3)',
+    },
+    research: {
+      task: {
+        background: {
+          inactive: 'rgba(255, 255, 255, 0.25)',
+          active: '#FCE3CF',
+        },
+        foreground: {
+          inactive: '#fff',
+          active: '#333',
+        },
+      },
     },
     cards: {
       info: {

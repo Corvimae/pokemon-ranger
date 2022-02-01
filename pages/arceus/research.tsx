@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
-import { Header, InputRow } from '../../components/Layout';
+import { Header, HelpText, InputRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { useDebounce, useOnMount } from '../../utils/hooks';
 import { ArceusResearchContext, resetState, setSearchTerm, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
@@ -80,19 +80,31 @@ const ResearchCalculator: NextPage = () => {
   const filteredResearchData = useMemo(() => {
     if (!state.searchTerm) return researchData;
 
-    const normalizedSearchTerm = state.searchTerm.toLowerCase();
+    let normalizedSearchTerm = state.searchTerm.toLowerCase().trim();
+
+    if (normalizedSearchTerm.startsWith('task:')) {
+      normalizedSearchTerm = normalizedSearchTerm.replace('task:', '').trim();
+
+      return researchData.reduce<ResearchEntry[]>((acc, entry) => {
+        const filteredTasks = entry.tasks.filter(task => task.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1);
+
+        if (filteredTasks.length > 0) {
+          return [
+            ...acc,
+            {
+              ...entry,
+              tasks: filteredTasks,
+            },
+          ];
+        }
+
+        return acc;
+      }, []);
+    }
 
     return researchData.reduce<ResearchEntry[]>((acc, entry) => {
-      const matchingTasks = entry.tasks.filter(task => task.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1);
-      
-      if (entry.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1 || matchingTasks.length > 0) {
-        return [
-          ...acc,
-          {
-            ...entry,
-            tasks: matchingTasks.length === 0 ? entry.tasks : matchingTasks,
-          },
-        ];
+      if (entry.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1) {
+        return [...acc, entry];
       }
 
       return acc;
@@ -146,6 +158,10 @@ const ResearchCalculator: NextPage = () => {
           Completed {completedEntries.length} {completedEntries.length === 1 ? 'entry' : 'entries'}
           {completedEntries.length > 0 ? `: ${completedEntries.join(', ')}` : ''}.
         </div>
+        <ResultsHelpText>
+          Tip: Start your search with <code>task:</code> to filter by task instead of Pokémon name.
+          (For example, <code>task: food</code>)
+        </ResultsHelpText>
       </div>
       <div>
         <ActionRow>
@@ -244,9 +260,8 @@ const TaskValueSpacer = styled.div<{ columns: number }>`
 const TaskValueContainer = styled.div<{ active: boolean }>`
   display: flex;
   border-radius: 0.75rem;
-  /** todo light mode */
-  background-color: ${({ active }) => active ? '#FCE3CF' : 'rgba(255, 255, 255, 0.25)'};
-  color: ${({ active }) => active ? '#333' : undefined};
+  background-color: ${({ active, theme }) => active ? theme.research.task.background.active : theme.research.task.background.inactive};
+  color: ${({ active, theme }) => active ? theme.research.task.foreground.active : theme.research.task.foreground.inactive};
   justify-content: center;
   align-items: center;
   margin-left: 0.5rem;
@@ -277,7 +292,7 @@ const TotalPoints = styled.div`
 
 const RankData = styled.div`
   margin-bottom: 1rem;
-  font-size: 1rem;
+  font-size: 0.875rem;
 `;
 
 const ActionRow = styled(InputRow)`
@@ -289,4 +304,9 @@ const ActionRow = styled(InputRow)`
     min-width: 0;
     align-self: stretch;
   }
+`;
+
+const ResultsHelpText = styled(HelpText)`
+  max-width: 24rem;
+  margin-top: 1rem;
 `;
