@@ -39,7 +39,10 @@ const reducer = (state: ArceusResearchReducerState, action: ArceusResearchReduce
       };
 
     case RESET_STATE:
-      return { ...defaultState };
+      return {
+        ...defaultState,
+        searchTerm: state.searchTerm, // Keep the active search term cuz it's easier :)
+      };
 
     default:
       return state;

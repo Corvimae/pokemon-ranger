@@ -153,6 +153,7 @@ const ResearchCalculator: NextPage = () => {
             defaultValue={state.searchTerm}
             onChange={debouncedHandleSearchTermChange}
             placeholder="Filter..."
+            autoComplete="off"
           />
           <Button onClick={handleReset}>Reset</Button>
         </ActionRow>
@@ -281,7 +282,7 @@ const RankData = styled.div`
 
 const ActionRow = styled(InputRow)`
   display: flex;
-  
+
   & > input {
     margin: 0 0.5rem 0 0;
     flex-grow: 1;
