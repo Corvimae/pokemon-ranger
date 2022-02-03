@@ -103,7 +103,9 @@ const ResearchCalculator: NextPage = () => {
     }
 
     return researchData.reduce<ResearchEntry[]>((acc, entry) => {
-      if (entry.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1) {
+      const normalizedName = entry.name.toLowerCase();
+
+      if (normalizedName.indexOf(normalizedSearchTerm) !== -1 || normalizedSearchTerm.indexOf(normalizedName) !== -1) {
         return [...acc, entry];
       }
 
@@ -160,7 +162,10 @@ const ResearchCalculator: NextPage = () => {
         </div>
         <ResultsHelpText>
           Tip: Start your search with <code>task:</code> to filter by task instead of Pokémon name.
-          (For example, <code>task: food</code>)
+          (For example, <code>task: food</code>).
+        </ResultsHelpText>
+        <ResultsHelpText>
+          Tip: You can filter to multiple Pokémon by providing all of their names in the search box.
         </ResultsHelpText>
       </div>
       <div>
