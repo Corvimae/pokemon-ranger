@@ -2,6 +2,8 @@ export const SET_SEARCH_TERM = 'SET_SEARCH_TERM';
 export const SET_TASK_ACTIVE = 'SET_TASK_ACTIVE';
 export const SET_TASK_INACTIVE = 'SET_TASK_INACTIVE';
 
+export const IMPORT_SAVED_RESEARCH = 'IMPORT_SAVED_RESEARCH';
+
 export const RESET_STATE = 'RESET_STATE';
 
 export interface ArceusResearchReducerState {
@@ -34,6 +36,13 @@ type SetTaskInactiveAction = {
   };
 };
 
+type ImportSavedResearchAction = {
+  type: typeof IMPORT_SAVED_RESEARCH;
+  payload: {
+    data: Record<number, Record<string, number>>;
+  };
+};
+
 type ResetStateAction = {
   type: typeof RESET_STATE;
 }
@@ -42,4 +51,5 @@ export type ArceusResearchReducerAction =
   SetSearchTermAction |
   SetTaskActiveAction |
   SetTaskInactiveAction |
+  ImportSavedResearchAction |
   ResetStateAction;

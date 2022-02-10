@@ -1,5 +1,5 @@
 import { prepareContextualReducer } from '../../utils/hooks';
-import { ArceusResearchReducerAction, ArceusResearchReducerState, SET_SEARCH_TERM, SET_TASK_ACTIVE, SET_TASK_INACTIVE, RESET_STATE } from './types';
+import { ArceusResearchReducerAction, ArceusResearchReducerState, SET_SEARCH_TERM, SET_TASK_ACTIVE, SET_TASK_INACTIVE, RESET_STATE, IMPORT_SAVED_RESEARCH } from './types';
 
 const defaultState: ArceusResearchReducerState = {
   searchTerm: '',
@@ -44,6 +44,12 @@ const reducer = (state: ArceusResearchReducerState, action: ArceusResearchReduce
         searchTerm: state.searchTerm, // Keep the active search term cuz it's easier :)
       };
 
+    case IMPORT_SAVED_RESEARCH:
+      return {
+        ...state,
+        activeTasks: action.payload.data,
+      };
+
     default:
       return state;
   }
@@ -77,6 +83,15 @@ export function setTaskInactive(speciesId: number, taskName: string, value: numb
       speciesId,
       taskName,
       value,
+    },
+  };
+}
+
+export function importSavedResearch(data: Record<number, Record<string, number>>): ArceusResearchReducerAction {
+  return {
+    type: IMPORT_SAVED_RESEARCH,
+    payload: {
+      data,
     },
   };
 }

@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
+import { useDropzone } from 'react-dropzone';
 import { Header, HelpText, InputRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { useDebounce, useOnMount } from '../../utils/hooks';
-import { ArceusResearchContext, resetState, setSearchTerm, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
+import { ArceusResearchContext, importSavedResearch, resetState, setSearchTerm, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
 
 interface ResearchTask {
   name: string;
@@ -66,6 +67,7 @@ const ResearchCalculator: NextPage = () => {
   const dispatch = ArceusResearchContext.useDispatch();
 
   const [researchData, setResearchData] = useState<ResearchEntry[]>([]);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const handleSearchTermChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchTerm(event.target.value));
@@ -76,6 +78,75 @@ const ResearchCalculator: NextPage = () => {
   const handleReset = useCallback(() => {
     dispatch(resetState());
   }, [dispatch]);
+
+  const handleExport = useCallback(() => {
+    const a = document.createElement('a');
+
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({
+      ...state.activeTasks,
+    }, null, 2)], {
+      type: 'text/plain',
+    }));
+
+    a.setAttribute('download', 'pla-research.json');
+
+    document.body.appendChild(a);
+    
+    a.click();
+
+    document.body.removeChild(a);
+  }, [state]);
+
+  const handleImport = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 1) {
+      setImportError('Only one research file may be selected at a time.');
+
+      return;
+    }
+
+    if (acceptedFiles.length === 0) {
+      setImportError('An unknown issue occurred trying to load the file.');
+
+      return;
+    }
+
+    const [acceptedFile] = acceptedFiles;
+
+    if (!acceptedFile.name.endsWith('.json')) {
+      setImportError('Research files must end in .json');
+
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onabort = () => {
+      setImportError('The file read process was aborted.');
+    };
+
+    reader.onerror = () => {
+      setImportError('An unknown issue occurred trying to load the file. The file may be corrupted.');
+    };
+
+    reader.onload = () => {
+      try {
+        const importedJSON = JSON.parse(reader.result?.toString() ?? '');
+
+        dispatch(importSavedResearch(importedJSON));
+        setImportError(null);
+      } catch (error) {
+        setImportError(`The experience route could not be read: ${error}.`);
+      }
+    };
+
+    reader.readAsBinaryString(acceptedFile);
+  }, [dispatch]);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: handleImport,
+    noClick: true,
+    multiple: false,
+  });
 
   const filteredResearchData = useMemo(() => {
     if (!state.searchTerm) return researchData;
@@ -147,11 +218,18 @@ const ResearchCalculator: NextPage = () => {
   });
 
   return (
-    <Container>
+    <Container {...getRootProps()} tabIndex={-1}>
+      <input {...getInputProps()} />
+      
       <div>
         <Header>
           Legends: Arceus Research Calculator
+
+          <div>
+            <Button onClick={handleExport}>Export</Button>
+          </div>
         </Header>
+        {importError && <ImportError>{importError}</ImportError>}
         <TotalPoints>{totalResearchPoints} total research points.</TotalPoints>
         <RankData>
           Rank {nextRank}. Points to next rank: {pointsToNextRank === -1 ? '-' : pointsToNextRank}.
@@ -160,6 +238,9 @@ const ResearchCalculator: NextPage = () => {
           Completed {completedEntries.length} {completedEntries.length === 1 ? 'entry' : 'entries'}
           {completedEntries.length > 0 ? `: ${completedEntries.join(', ')}` : ''}.
         </div>
+        <ResultsHelpText>
+          Drag an exported research file anywhere onto this page to import it.
+        </ResultsHelpText>
         <ResultsHelpText>
           Tip: Start your search with <code>task:</code> to filter by task instead of Pokémon name.
           (For example, <code>task: food</code>).
@@ -312,5 +393,11 @@ const ActionRow = styled(InputRow)`
 `;
 
 const ResultsHelpText = styled(HelpText)`
+  margin-top: 1rem;
+`;
+
+const ImportError = styled.div`
+  color: ${({ theme }) => theme.error};
+  font-weight: 700;
   margin-top: 1rem;
 `;
