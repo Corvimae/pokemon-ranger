@@ -39,7 +39,7 @@ type SetTaskInactiveAction = {
 type ImportSavedResearchAction = {
   type: typeof IMPORT_SAVED_RESEARCH;
   payload: {
-    data: Record<number, Record<string, number>>;
+    data: Partial<ArceusResearchReducerState>;
   };
 };
 

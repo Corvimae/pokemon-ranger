@@ -46,8 +46,8 @@ const reducer = (state: ArceusResearchReducerState, action: ArceusResearchReduce
 
     case IMPORT_SAVED_RESEARCH:
       return {
-        ...state,
-        activeTasks: action.payload.data,
+        ...defaultState,
+        ...action.payload.data,
       };
 
     default:
@@ -87,7 +87,7 @@ export function setTaskInactive(speciesId: number, taskName: string, value: numb
   };
 }
 
-export function importSavedResearch(data: Record<number, Record<string, number>>): ArceusResearchReducerAction {
+export function importSavedResearch(data: Partial<ArceusResearchReducerState>): ArceusResearchReducerAction {
   return {
     type: IMPORT_SAVED_RESEARCH,
     payload: {

@@ -89,7 +89,8 @@ const ResearchCalculator: NextPage = () => {
     const a = document.createElement('a');
 
     a.href = URL.createObjectURL(new Blob([JSON.stringify({
-      ...state.activeTasks,
+      activeTasks: { ...state.activeTasks },
+      searchTerm: state.searchTerm,
     }, null, 2)], {
       type: 'text/plain',
     }));
