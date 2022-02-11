@@ -206,12 +206,14 @@ const ResearchCalculator: NextPage = () => {
         return total + completedSegments * (taskDefinition.isBoosted ? 2 : 1);
       }, 0);
       
+      const isComplete = completionPoints >= 10;
+      const rankPoints = completionPoints * 10;
       return {
-        completedEntries: completionPoints >= 10 ? [...acc.completedEntries, speciesDefinition.name] : acc.completedEntries,
-        researchPointsFromTasks: acc.researchPointsFromTasks + completionPoints * 10,
+        completedEntries: isComplete ? [...acc.completedEntries, speciesDefinition.name] : acc.completedEntries,
+        researchPointsFromTasks: acc.researchPointsFromTasks + rankPoints,
         researchPointsByTask: {
           ...acc.researchPointsByTask,
-          [speciesId]: completionPoints * 10,
+          [speciesId]: rankPoints + (isComplete ? 100 : 0),
         },
       };
     }, { completedEntries: [], researchPointsFromTasks: 0, researchPointsByTask: {} })
