@@ -20,7 +20,8 @@ interface ResearchEntry {
 }
 
 interface CalculatedResearchData {
-  completedEntries: string[];
+  completeEntries: string[];
+  incompleteEntries: string[];
   researchPointsFromTasks: number;
   researchPointsByTask: Record<number, number>;
 }
@@ -191,7 +192,7 @@ const ResearchCalculator: NextPage = () => {
     }, []);
   }, [researchData, state.searchTerm]);
 
-  const { completedEntries, researchPointsFromTasks, researchPointsByTask } = useMemo(() => (
+  const { completeEntries, incompleteEntries, researchPointsFromTasks, researchPointsByTask } = useMemo(() => (
     Object.entries(state.activeTasks).reduce<CalculatedResearchData>((acc, [speciesId, tasks]) => {
       const speciesDefinition = researchData.find(({ id }) => id === Number(speciesId));
 
@@ -209,18 +210,20 @@ const ResearchCalculator: NextPage = () => {
       
       const isComplete = completionPoints >= 10;
       const rankPoints = completionPoints * 10;
+
       return {
-        completedEntries: isComplete ? [...acc.completedEntries, speciesDefinition.name] : acc.completedEntries,
+        completeEntries: isComplete ? [...acc.completeEntries, speciesDefinition.name] : acc.completeEntries,
+        incompleteEntries: !isComplete && completionPoints > 0 ? [...acc.incompleteEntries, speciesDefinition.name] : acc.incompleteEntries,
         researchPointsFromTasks: acc.researchPointsFromTasks + rankPoints,
         researchPointsByTask: {
           ...acc.researchPointsByTask,
           [speciesId]: rankPoints + (isComplete ? 100 : 0),
         },
       };
-    }, { completedEntries: [], researchPointsFromTasks: 0, researchPointsByTask: {} })
+    }, { completeEntries: [], incompleteEntries: [], researchPointsFromTasks: 0, researchPointsByTask: {} })
   ), [researchData, state.activeTasks]);
 
-  const totalResearchPoints = researchPointsFromTasks + completedEntries.length * 100;
+  const totalResearchPoints = researchPointsFromTasks + completeEntries.length * 100;
   const nextRank = calculateNextRank(totalResearchPoints);
   const pointsToNextRank = calculatePointsToNextRank(totalResearchPoints);
 
@@ -247,10 +250,14 @@ const ResearchCalculator: NextPage = () => {
         <RankData>
           Rank {nextRank}. Points to next rank: {pointsToNextRank === -1 ? '-' : pointsToNextRank}.
         </RankData>
-        <div>
-          Completed {completedEntries.length} {completedEntries.length === 1 ? 'entry' : 'entries'}
-          {completedEntries.length > 0 ? `: ${completedEntries.join(', ')}` : ''}.
-        </div>
+        <p>
+          Completed {completeEntries.length} {completeEntries.length === 1 ? 'entry' : 'entries'}
+          {completeEntries.length > 0 ? `: ${completeEntries.join(', ')}` : ''}.
+        </p>
+        <p>
+          Partially completed {incompleteEntries.length} {incompleteEntries.length === 1 ? 'entry' : 'entries'}
+          {incompleteEntries.length > 0 ? `: ${incompleteEntries.join(', ')}` : ''}.
+        </p>
         <ResultsHelpText>
           Drag an exported research file anywhere onto this page to import it.
         </ResultsHelpText>
@@ -277,7 +284,7 @@ const ResearchCalculator: NextPage = () => {
             <TaskSection key={data.id}>
               <SectionName>
                 {data.name} ({researchPointsByTask[data.id] ?? 0})
-                {completedEntries.indexOf(data.name) !== -1 && <CompletedImage />}
+                {completeEntries.indexOf(data.name) !== -1 && <CompletedImage />}
               </SectionName>
               {data.tasks.map((task, index) => (
                 <TaskRow key={task.name || index}>
