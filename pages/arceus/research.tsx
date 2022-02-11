@@ -19,6 +19,12 @@ interface ResearchEntry {
   tasks: ResearchTask[];
 }
 
+interface CalculatedResearchData {
+  completedEntries: string[];
+  researchPointsFromTasks: number;
+  researchPointsByTask: Record<number, number>;
+}
+
 const RESEARCH_PATH = '/reference/pla-research.json';
 
 function calculateNextRank(totalResearchPoints: number): number | string {
@@ -184,8 +190,8 @@ const ResearchCalculator: NextPage = () => {
     }, []);
   }, [researchData, state.searchTerm]);
 
-  const { completedEntries, researchPointsFromTasks } = useMemo(() => (
-    Object.entries(state.activeTasks).reduce<{ completedEntries: string[], researchPointsFromTasks: number }>((acc, [speciesId, tasks]) => {
+  const { completedEntries, researchPointsFromTasks, researchPointsByTask } = useMemo(() => (
+    Object.entries(state.activeTasks).reduce<CalculatedResearchData>((acc, [speciesId, tasks]) => {
       const speciesDefinition = researchData.find(({ id }) => id === Number(speciesId));
 
       if (!speciesDefinition) return acc;
@@ -203,8 +209,12 @@ const ResearchCalculator: NextPage = () => {
       return {
         completedEntries: completionPoints >= 10 ? [...acc.completedEntries, speciesDefinition.name] : acc.completedEntries,
         researchPointsFromTasks: acc.researchPointsFromTasks + completionPoints * 10,
+        researchPointsByTask: {
+          ...acc.researchPointsByTask,
+          [speciesId]: completionPoints * 10,
+        },
       };
-    }, { completedEntries: [], researchPointsFromTasks: 0 })
+    }, { completedEntries: [], researchPointsFromTasks: 0, researchPointsByTask: {} })
   ), [researchData, state.activeTasks]);
 
   const totalResearchPoints = researchPointsFromTasks + completedEntries.length * 100;
@@ -262,7 +272,10 @@ const ResearchCalculator: NextPage = () => {
         <TaskGrid>
           {filteredResearchData.map(data => (
             <TaskSection key={data.id}>
-              <SectionName>{data.name}</SectionName>
+              <SectionName>
+                {data.name} ({researchPointsByTask[data.id] ?? 0})
+                {completedEntries.indexOf(data.name) !== -1 && <CompletedImage />}
+              </SectionName>
               {data.tasks.map((task, index) => (
                 <TaskRow key={task.name || index}>
                   {task.isBoosted ? <BoostedImage /> : <div />}
@@ -361,9 +374,20 @@ const BoostedImage = styled.div`
   background-size: cover;
 `;
 
+const CompletedImage = styled.div`
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.25rem;
+  background-image: url("/images/research-complete.png");
+  background-size: cover;
+`;
+
 const SectionName = styled.div`
+  display: flex;
   grid-column: 1 / -1;
   font-weight: 700;
+  flex-direction: row;
+  align-items: center;
 
   &&& {
     padding-left: 0;
