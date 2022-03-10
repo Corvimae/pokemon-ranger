@@ -4713,9 +4713,9 @@
         "values": [
           1,
           2,
-          3,
           4,
-          5
+          6,
+          10
         ],
         "isBoosted": true
       },
@@ -12958,7 +12958,7 @@
         "isBoosted": true
       },
       {
-        "name": "Times you've seen it use Fire Blast",
+        "name": "Number of light specimens you've caught",
         "values": [
           1,
           2,
@@ -16359,7 +16359,7 @@
   },
   {
     "id": 214,
-    "name": "Mammoswine",
+    "name": "Mamoswine",
     "tasks": [
       {
         "name": "Number caught",
