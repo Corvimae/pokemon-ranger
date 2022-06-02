@@ -74,6 +74,12 @@ const RECOGNIZED_GAME_TITLES: Record<string, GameTitleMetadata> = {
     generation: 4,
     aliases: ['heartgold', 'soulsilver', 'hgss'],
   },
+  pbr: {
+    title: 'Pokémon Battle Revolution',
+    shortTitle: 'Battle Revolution',
+    generation: 4,
+    aliases: ['pbr'],
+  },
   b1w1: {
     title: 'Pokémon Black & White',
     shortTitle: 'Black & White',
@@ -127,6 +133,12 @@ const RECOGNIZED_GAME_TITLES: Record<string, GameTitleMetadata> = {
     shortTitle: 'Brilliant Diamond & Shining Pearl',
     generation: 8,
     aliases: ['brilliant diamond', 'shining pearl', 'bd', 'sp'],
+  },
+  pla: {
+    title: 'Pokémon Legends: Arceus',
+    shortTitle: 'Legends: Arceus',
+    generation: 8,
+    aliases: ['pla', 'legends arceus', 'arceus'],
   },
 };
 
