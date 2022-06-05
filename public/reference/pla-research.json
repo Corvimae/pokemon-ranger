@@ -17105,7 +17105,7 @@
           6,
           10
         ],
-        "isBoosted": true
+        "isBoosted": false
       },
       {
         "name": "Times you've seen it use Rock Smash",
@@ -17138,14 +17138,14 @@
           7,
           10
         ],
-        "isBoosted": true
+        "isBoosted": false
       },
       {
         "name": "Number you've evolved",
         "values": [
           1
         ],
-        "isBoosted": false
+        "isBoosted": true
       }
     ]
   },

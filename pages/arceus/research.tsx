@@ -204,6 +204,11 @@ const ResearchCalculator: NextPage = () => {
         if (!taskDefinition) return total;
 
         const completedSegments = taskDefinition.values.filter(item => item <= taskValue).length;
+        
+        // Arceus research has only one entry.
+        if (Number(speciesId) === 238) {
+          return completedSegments * 10;
+        }
 
         return total + completedSegments * (taskDefinition.isBoosted ? 2 : 1);
       }, 0);
