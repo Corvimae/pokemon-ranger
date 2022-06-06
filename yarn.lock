@@ -4059,10 +4059,10 @@ rehype-sanitize@^4.0.0:
   dependencies:
     hast-util-sanitize "^3.0.0"
 
-relicalc@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/relicalc/-/relicalc-1.0.11.tgz#2b2b70106f4f57895c62d410d9e98551cd792631"
-  integrity sha512-vX5Mj8DM9YcIJn03vciZTRr78kgzAWBvef0YkMJ1bLvq7xSfApqrxmbiaskKEdF/k6NJjNdl/U9Ed8zxbJspzA==
+relicalc@^1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/relicalc/-/relicalc-1.0.12.tgz#d3e8f44c5b30b596026959799bdf5edea162b23e"
+  integrity sha512-FsNJ5+RekG26l718vm94sPvl8zQFUN6aPhRqiq+UZjcbqf4kOf4+cAt3SXM8k2VHZV+xP/KQaYCTeUMbRoOrHA==
   dependencies:
     js-combinatorics "^1.5.4"
 
