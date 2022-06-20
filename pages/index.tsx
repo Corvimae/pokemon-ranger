@@ -6,7 +6,7 @@ import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox, Card } from '../components/Layout';
 import { Button } from '../components/Button';
-import { resetState, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOpponentStatModifier, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setStatModifier, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setAdaptability, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOpponentStatModifier, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setStatModifier, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
 import { DisplayModeToggle } from '../components/DisplayModeToggle';
@@ -46,6 +46,7 @@ const Home: NextPage = () => {
   const handleSetFriendship = useCallback(event => dispatch(setFriendship(Number(event.target.value))), [dispatch]);
   const handleSetScreen = useCallback(() => dispatch(setScreen(!state.screen)), [state.screen, dispatch]);
   const handleSetChoiceItem = useCallback(() => dispatch(setChoiceItem(!state.choiceItem)), [state.choiceItem, dispatch]);
+  const handleSetAdaptability = useCallback(() => dispatch(setAdaptability(!state.adaptability)), [state.adaptability, dispatch]);
   const handleSetOtherPowerModifier = useCallback(event => dispatch(setOtherPowerModifier(Number(event.target.value))), [dispatch]);
   const handleSetStatModifier = useCallback(event => dispatch(setStatModifier(Number(event.target.value))), [dispatch]);
   const handleSetOpponentStatModifier = useCallback(event => dispatch(setOpponentStatModifier(Number(event.target.value))), [dispatch]);
@@ -217,8 +218,14 @@ const Home: NextPage = () => {
 
           <InputRow>
             <label htmlFor="choiceItem">Choice Band/Specs?</label>
-            <Checkbox id="multiTarget" data-checked={state.choiceItem} onClick={handleSetChoiceItem} />
+            <Checkbox id="choiceItem" data-checked={state.choiceItem} onClick={handleSetChoiceItem} />
             <HelpText>Is the attacker using a physical move and holding the Choice Band, or using a special move and holding the Choice Specs?</HelpText>
+          </InputRow>
+
+          <InputRow>
+            <label htmlFor="adaptibility">Adaptability</label>
+            <Checkbox id="adaptibility" data-checked={state.adaptability} onClick={handleSetAdaptability} />
+            <HelpText>Does the attacker have the ability Adaptability?</HelpText>
           </InputRow>
 
           <InputRow>

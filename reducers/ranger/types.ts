@@ -26,6 +26,7 @@ export const SET_HEALTH_THRESHOLD = 'SET_HEALTH_THRESHOLD';
 export const SET_FRIENDSHIP = 'SET_FRIENDSHIP';
 export const SET_SCREEN = 'SET_SCREEN';
 export const SET_CHOICE_ITEM = 'SET_CHOICE_ITEM';
+export const SET_ADAPTABILITY = 'SET_ADAPTABILITY';
 export const SET_OTHER_POWER_MODIFIER = 'SET_OTHER_POWER_MODIFIER';
 export const SET_STAT_MODIFIER = 'SET_STAT_MODIFIER';
 export const SET_OPPONENT_STAT_MODIFIER = 'SET_OPPONENT_STAT_MODIFIER';
@@ -59,6 +60,7 @@ export interface RangerReducerState {
   friendship: number;
   screen: boolean;
   choiceItem: boolean;
+  adaptability: boolean;
   statModifier: number;
   opponentStatModifier: number;
   otherPowerModifier: number;
@@ -239,6 +241,13 @@ type SetStatModifierAction = {
   };
 };
 
+type SetAdaptabilityAction = {
+  type: typeof SET_ADAPTABILITY;
+  payload: {
+    adaptability: boolean;
+  };
+};
+
 type SetOpponentStatModifierAction = {
   type: typeof SET_OPPONENT_STAT_MODIFIER;
   payload: {
@@ -287,6 +296,7 @@ export type RangerReducerAction =
   SetFriendshipAction |
   SetScreenAction |
   SetChoiceItemAction |
+  SetAdaptabilityAction |
   SetOtherPowerModifierAction |
   SetStatModifierAction |
   SetOpponentStatModifierAction |

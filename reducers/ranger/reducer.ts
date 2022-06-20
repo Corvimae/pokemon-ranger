@@ -1,7 +1,7 @@
 import { Dispatch } from 'react';
 import { Generation } from 'relicalc';
 import { useParameterizedReducer } from '../../utils/hooks';
-import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_BASE_STAT, SET_CHOICE_ITEM, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_FRIENDSHIP, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OPPONENT_STAT_MODIFIER, SET_OTHER_MODIFIER, SET_OTHER_POWER_MODIFIER, SET_SCREEN, SET_STAB, SET_STAT_MODIFIER, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
+import { DisplayMode, RangerReducerAction, RangerReducerState, RESET_STATE, SET_ADAPTABILITY, SET_BASE_STAT, SET_CHOICE_ITEM, SET_COMBAT_STAGES, SET_CRITICAL_HIT, SET_DISPLAY_MODE, SET_DISPLAY_ROLLS, SET_EVS, SET_FRIENDSHIP, SET_GENERATION, SET_HEALTH_THRESHOLD, SET_INITIAL_STATE, SET_LEVEL, SET_MOVE_POWER, SET_MULTI_TARGET, SET_OFFENSIVE_MODE, SET_OPPONENT_COMBAT_STAGES, SET_OPPONENT_LEVEL, SET_OPPONENT_STAT, SET_OPPONENT_STAT_MODIFIER, SET_OTHER_MODIFIER, SET_OTHER_POWER_MODIFIER, SET_SCREEN, SET_STAB, SET_STAT_MODIFIER, SET_TORRENT, SET_TYPE_EFFECTIVENESS, SET_WEATHER_BOOSTED, SET_WEATHER_REDUCED } from './types';
 
 const defaultState: RangerReducerState = {
   displayMode: 'compact',
@@ -28,6 +28,7 @@ const defaultState: RangerReducerState = {
   friendship: 70,
   screen: false,
   choiceItem: false,
+  adaptability: false,
   statModifier: 1,
   opponentStatModifier: 1,
   otherPowerModifier: 1,
@@ -177,6 +178,12 @@ const reducer = (state: RangerReducerState, action: RangerReducerAction): Ranger
       return {
         ...state,
         choiceItem: action.payload.choiceItem,
+      };
+
+    case SET_ADAPTABILITY:
+      return {
+        ...state,
+        adaptability: action.payload.adaptability,
       };
 
     case SET_OTHER_POWER_MODIFIER:
@@ -377,6 +384,13 @@ export function setChoiceItem(choiceItem: boolean): RangerReducerAction {
   return {
     type: SET_CHOICE_ITEM,
     payload: { choiceItem },
+  };
+}
+
+export function setAdaptability(adaptability: boolean): RangerReducerAction {
+  return {
+    type: SET_ADAPTABILITY,
+    payload: { adaptability },
   };
 }
 

@@ -135,6 +135,8 @@ The content within the square brackets is displayed as a header above the table,
 
 `choiceItem` (boolean, default: `false`) - Whether the attack is boosted by the Choice Band or Choice Specs.
 
+`adaptability` (boolean, default: `false`) - Whether the attacker has the ability Adaptability.
+
 `otherPowerModifier` (number, default: `1`) - An additional multiplier to apply to the base power of the move, such as from a type-boosting item.
 
 `statModifier` (number, default: `1`) - An additional multiplier to apply to the runner's Pokémon's relevant stat, such as from the Huge Power ability. 
