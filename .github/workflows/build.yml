@@ -5,7 +5,8 @@ on: push
 jobs:
   release:
     runs-on: ${{ matrix.os }}
-
+    env:
+      RANGER_ELECTRON: 1
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
