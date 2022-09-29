@@ -6,21 +6,6 @@ on:
       - "v*"
 
 jobs:
-  create_release:
-    name: Create release
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-
   build:
     runs-on: ${{ matrix.os }}
     env:
@@ -53,12 +38,58 @@ jobs:
       - name: Build Electron app
         run: yarn ${{matrix.script}}
 
-      - name: Upload release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./dist/${{ matrix.asset_name }}.zip
-          asset_name: ${{ matrix.asset_name }}.zip
-          asset_content_type: application/octet-stream
+          name: ${{matrix.asset_name}}
+          path: ./dist/${{matrix.asset_name}}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+  add_artifacts:
+    runs-on: ubuntu-latest
+    needs: [ build, release ]
+    strategy:
+        matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - os: macos-latest
+            asset_name: Pokemon Ranger-${{github.ref_name}}-arm64.dmg
+          - os: ubuntu-latest
+            asset_name: Pokemon Ranger-${{github.ref_name}}.AppImage
+          - os: windows-latest
+            asset_name: Pokemon Ranger Setup ${{github.ref_name}}.exe
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{matrix.asset_name}}
+
+    - name: Upload Artifact to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ needs.release.outputs.upload_url }}
+        asset_path: ./${{matrix.asset_name}}
+        asset_name: ${{matrix.asset_name}}
+        asset_content_type: application/octet-stream
