@@ -7,20 +7,23 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
     env:
       RANGER_ELECTRON: 1
     strategy:
       matrix:
-        os: [macos, ubuntu, windows]
+        target: [macos, ubuntu, windows]
         include:
-          - os: macos
+          - target: macos
+            os: macos-latest
             script: electron:build:macos
             asset_name: Pokemon Ranger-${{github.ref_name}}-arm64.dmg
-          - os: ubuntu
+          - target: ubuntu
+            os: ubuntu-latest
             script: electron:build:linux
             asset_name: Pokemon Ranger-${{github.ref_name}}.AppImage
-          - os: windows
+          - target: windows
+            os: ubuntu-latest
             script: electron:build:windows
             asset_name: Pokemon Ranger Setup ${{github.ref_name}}.exe
     steps:
