@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build, release ]
     strategy:
-        matrix:
+      matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
