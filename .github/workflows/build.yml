@@ -3,14 +3,38 @@ name: Build/release
 on: push
 
 jobs:
-  release:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+
+  build:
     runs-on: ${{ matrix.os }}
     env:
       RANGER_ELECTRON: 1
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-
+        include:
+          - os: macos-latest
+            script: electron:build:macos
+            asset_name: Pokemon Ranger-${{github.ref_name}}-arm64.dmg
+          - os: ubuntu-latest
+            script: electron:build:linux
+            asset_name: Pokemon Ranger-${{github.ref_name}}.AppImage
+          - os: windows-latest
+            script: electron:build:windows
+            asset_name: Pokemon Ranger Setup ${{github.ref_name}}.exe
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v1
@@ -20,13 +44,15 @@ jobs:
         with:
           node-version: 16
 
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
+      - name: Build Electron app
+        run: yarn ${{matrix.script}}
 
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      - name: Upload release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./dist/${{ matrix.asset_name }}.zip
+          asset_name: ${{ matrix.asset_name }}.zip
+          asset_content_type: application/octet-stream
