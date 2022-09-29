@@ -13,7 +13,7 @@
     "electron:prepare": "node scripts/prepare-for-electron.js",
     "electron:dev": "yarn electron:prepare && RANGER_ELECTRON=1 nextron",
     "electron:build:macos": "yarn electron:prepare && RANGER_ELECTRON=1 nextron build --mac --universal",
-    "electron:build:windows": "yarn electron:prepare && RANGER_ELECTRON=1 nextron build --win --ia32",
+    "electron:build:windows": "yarn electron:prepare && nextron build --win --ia32",
     "electron:build:linux": "yarn electron:prepare && RANGER_ELECTRON=1 nextron build --linux",
     "postinstall": "electron-builder install-app-deps",
     "build-calc-parser": "pegjs -o directives/calc-grammar.js grammars/calc-grammar.pegjs",
