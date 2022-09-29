@@ -48,5 +48,5 @@ export function evaluateAsThrowableOptional<T>(callback: () => T): ErrorableResu
 
 export function isElectron(): boolean {
   // this is fine.
-  return ((window.process as unknown) as { type: string } | null)?.type === 'renderer' ?? false;
+  return ((global?.process as unknown) as { type: string } | null)?.type === 'renderer' ?? false;
 }

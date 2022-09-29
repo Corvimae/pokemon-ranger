@@ -233,7 +233,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
   );
 };
 
-export const getServerSideProps = process.env.RANGER_ELECTRON ? undefined : async (context: GetServerSidePropsContext<ParsedUrlQuery>) => {
+export const getInitialProps = async (context: GetServerSidePropsContext<ParsedUrlQuery>): Promise<unknown> => {
   const repo = context.query.repo ? decodeURIComponent(context.query.repo as string) : null;
   let routeMetadata: RouteMetadata | null = null;
 
