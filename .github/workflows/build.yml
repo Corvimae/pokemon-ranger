@@ -6,8 +6,18 @@ on:
       - "v*"
 
 jobs:
+  extract_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+    steps:
+      - name: Extract version number
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+      
   build:
     runs-on: ${{ matrix.os }}
+    needs: [extract_version]
     env:
       RANGER_ELECTRON: 1
     strategy:
@@ -16,13 +26,13 @@ jobs:
         include:
           - os: macos-latest
             script: electron:build:macos
-            asset_name: Pokemon Ranger-${{github.ref_name}}-arm64.dmg
+            asset_name: Pokemon Ranger-${{needs.extract_version.outputs.version}}.dmg
           - os: ubuntu-latest
             script: electron:build:linux
-            asset_name: Pokemon Ranger-${{github.ref_name}}.AppImage
+            asset_name: Pokemon Ranger-${{needs.extract_version.outputs.version}}.AppImage
           - os: windows-latest
             script: electron:build:windows
-            asset_name: Pokemon Ranger Setup ${{github.ref_name}}.exe
+            asset_name: Pokemon Ranger Setup ${{needs.extract_version.outputs.version}}.exe
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v1
@@ -46,7 +56,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: build
+    needs: [extract_version, build]
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
@@ -65,17 +75,17 @@ jobs:
 
   add_artifacts:
     runs-on: ubuntu-latest
-    needs: [ build, release ]
+    needs: [extract_version, build, release]
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
-            asset_name: Pokemon Ranger-${{github.ref_name}}-arm64.dmg
+            asset_name: Pokemon Ranger-${{needs.extract_version.outputs.version}}.dmg
           - os: ubuntu-latest
-            asset_name: Pokemon Ranger-${{github.ref_name}}.AppImage
+            asset_name: Pokemon Ranger-${{needs.extract_version.outputs.version}}.AppImage
           - os: windows-latest
-            asset_name: Pokemon Ranger Setup ${{github.ref_name}}.exe
+            asset_name: Pokemon Ranger Setup ${{needs.extract_version.outputs.version}}.exe
     steps:
     - uses: actions/checkout@v2
 
