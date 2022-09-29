@@ -8,10 +8,13 @@ import { Button } from '../Button';
 import { InputRow, Link } from '../Layout';
 import { loadFile, RouteContext, setRepoPath } from '../../reducers/route/reducer';
 import { LoadingIcon } from '../LoadingIcon';
-import { CENTRAL_ROUTE_REPO_PREFIX, normalizeRouteLocation } from '../../utils/utils';
+import { CENTRAL_ROUTE_REPO_PREFIX, isElectron, normalizeRouteLocation } from '../../utils/utils';
 import { RouteDropdownOption, RouteMetadata } from './RouteSelectorComponents';
 import { useDebounce } from '../../utils/hooks';
 
+function getBaseRouteURL(): string {
+  return `${isElectron() ? 'https://ranger.maybreak.com/' : '/'}api/routes`;
+}
 interface ImportPromptProps {
   repoQueryParam?: string;
   error?: string;
@@ -49,7 +52,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
 
   const loadPublishedRoutes = useCallback((inputValue: string, callback: (options: OptionsType<OptionTypeBase>) => void) => {
     const lowerCaseInput = inputValue.toLowerCase();
-    fetch(`/api/routes?query=${encodeURIComponent(lowerCaseInput)}`).then(async response => {
+    fetch(`${getBaseRouteURL()}?query=${encodeURIComponent(lowerCaseInput)}`).then(async response => {
       if (response.status === 200) {
         callback((await response.json()) as OptionsType<OptionTypeBase>);
       } else {

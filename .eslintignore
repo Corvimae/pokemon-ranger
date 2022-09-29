@@ -1,5 +1,10 @@
 conditional-grammar.js
 calc-grammar.js
+
 .dotenv
 
 dist/
+electron/
+scripts/
+electron-config/
+main/

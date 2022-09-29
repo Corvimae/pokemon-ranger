@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { GetServerSideProps, NextPage } from 'next';
+import { GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
+import { ParsedUrlQuery } from 'querystring';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { loadFile, resetRoute, RouteContext, setShowOptions } from '../../reducers/route/reducer';
@@ -232,7 +233,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async context => {
+export const getServerSideProps = process.env.RANGER_ELECTRON ? undefined : async (context: GetServerSidePropsContext<ParsedUrlQuery>) => {
   const repo = context.query.repo ? decodeURIComponent(context.query.repo as string) : null;
   let routeMetadata: RouteMetadata | null = null;
 

@@ -26,6 +26,9 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "renderer/next.config.js",
+    "app",
+    "dist"
   ]
 }
