@@ -1,6 +1,7 @@
 import express from 'express';
 import next from 'next';
-import { getRouteList, getRouteMetadata, groupRoutesByTitle, updateRouteList } from './routeList';
+import { updateRouteList } from './routeList';
+import apiRouter from './api';
 
 const ROUTE_LIST_UPDATE_INTERVAL = 1000 * 60 * 30;
 const port = parseInt(process.env.PORT ?? '3000', 10);
@@ -15,37 +16,8 @@ app.prepare().then(async () => {
     updateRouteList();
 
     setInterval(updateRouteList, ROUTE_LIST_UPDATE_INTERVAL);
-
-    server.get('/api/route/:path', async (req, res) => {
-      const route = getRouteMetadata(req.params.path);
-
-      if (route) {
-        res.json(route);
-      } else {
-        res.status(404).json('Route does not exist.');
-      }
-    });
     
-    server.get('/api/routes', async (req, res) => {
-      const routes = getRouteList();
-
-      if (req.query.query) {
-        const matchingRoutes = routes.filter(item => {
-          const matchingValue = [
-            item.author,
-            item.game,
-            item.title,
-            item.path,
-          ].find(value => JSON.stringify(value).toLowerCase().indexOf(req.query.query as string) !== -1);
-
-          return matchingValue !== undefined && matchingValue !== null;
-        });
-        
-        res.json(groupRoutesByTitle(matchingRoutes));
-      } else {
-        res.json(groupRoutesByTitle(getRouteList()));
-      }
-    });
+    server.use('/api', apiRouter);
     
     server.get('*', (req, res) => handle(req, res));
 

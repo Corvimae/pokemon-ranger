@@ -54,7 +54,7 @@ async function getDirectoryContentList(path: string) {
 type RouteGroup = { label: string; options: RouteMetadata[] } & GameTitleMetadata;
 
 export function groupRoutesByTitle(routes: RouteMetadata[]): RouteGroup[] {
-  const groups = routes.reduce((acc, item) => {
+  const groups = (routes || []).reduce((acc, item) => {
     const gameTitle = (item.game ? normalizeGameTitle(item.game) : null) ?? { title: 'Other', generation: -1 };
 
     const group = acc[gameTitle.title] ?? {
