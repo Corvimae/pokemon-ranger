@@ -10,3 +10,5 @@ electron/
 scripts/
 electron-config/
 main/
+renderer/
+app/

@@ -7,6 +7,7 @@ export const ADD_RARE_CANDY_EXPERIENCE_EVENT = 'ADD_RARE_CANDY_EXPERIENCE_EVENT'
 export const ADD_SPECIES_EXPERIENCE_EVENT = 'ADD_SPECIES_EXPERIENCE_EVENT';
 export const ADD_MANUAL_EXPERIENCE_EVENT = 'ADD_MANUAL_EXPERIENCE_EVENT';
 export const SET_EXPERIENCE_EVENT_REWARD = 'SET_EXPERIENCE_EVENT_REWARD';
+export const UPDATE_EXPERIENCE_EVENT = 'UPDATE_EXPERIENCE_EVENT';
 export const REMOVE_EXPERIENCE_EVENT = 'REMOVE_EXPERIENCE_EVENT';
 export const REORDER_EXPERIENCE_EVENTS = 'REORDER_EXPERIENCE_EVENTS';
 export const TOGGLE_EXPERIENCE_EVENT_ENABLED = 'TOGGLE_EXPERIENCE_EVENT_ENABLED';
@@ -91,6 +92,13 @@ type SetExperienceEventRewardAction = {
   };
 };
 
+type UpdateExperienceEventAction = {
+  type: typeof UPDATE_EXPERIENCE_EVENT;
+  payload: {
+    event: ExperienceEvent;
+  };
+};
+
 type RemoveExperienceEventAction = {
   type: typeof REMOVE_EXPERIENCE_EVENT;
   payload: {
@@ -129,6 +137,7 @@ export type ExperienceReducerAction =
   AddSpeciesExperienceEventAction |
   AddManualExperienceEventAction |
   SetExperienceEventRewardAction |
+  UpdateExperienceEventAction |
   RemoveExperienceEventAction |
   ReorderExperinceEventsAction |
   ToggleExperienceEventEnabledAction |

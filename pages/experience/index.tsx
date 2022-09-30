@@ -10,8 +10,8 @@ import { Tooltip } from 'react-tippy';
 import { calculateExperienceRequiredForLevel, Generation, GrowthRate } from 'relicalc';
 import { Header, InputSection, InputRow, InputSubheader, Checkbox, HelpText } from '../../components/Layout';
 import { Button, IconButton } from '../../components/Button';
-import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, toggleExperienceEventEnabled, useExperienceReducer } from '../../reducers/experience/reducer';
-import { buildExperienceRoute, ExperienceEventWithMetadata } from '../../utils/calculations';
+import { addManualExperienceEvent, addRareCandyExperienceEvent, addSpeciesExperienceEvent, importExperienceRoute, removeExperienceEvent, reorderExperienceEvents, resetState, setGrowthRate, setInitialLevel, toggleExperienceEventEnabled, updateExperienceEvent, useExperienceReducer } from '../../reducers/experience/reducer';
+import { buildExperienceRoute, ExperienceEvent, ExperienceEventWithMetadata, SpeciesExperienceEvent } from '../../utils/calculations';
 
 const GROWTH_RATE_NAMES: Record<GrowthRate, string> = {
   slow: 'Slow',
@@ -29,39 +29,92 @@ interface PokemonSpeciesData {
   url: string;
 }
 
+function getTradeExpBoostLabel(event: SpeciesExperienceEvent): string {
+  if (event.isTrade) return 'domestic';
+  if (event.isInternationalTrade) return 'international';
+
+  return 'no';
+}
+
+function getAffectedText(status: boolean): string {
+  return status ? 'Affected' : 'Not affected';
+}
 interface ExperienceEventRowProps {
   event: ExperienceEventWithMetadata;
   onRemove: (id: string) => void;
   onToggleEnabled: (id: string, enabled: boolean) => void;
+  onUpdate: (event: ExperienceEvent) => void;
   innerRef: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   draggableProps: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   dragHandleProps: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event, draggableProps, dragHandleProps, onRemove, onToggleEnabled }) => (
-  <>
-    <ExperienceEventContainer ref={innerRef} enabled={event.enabled} {...draggableProps}>
-      <ExperienceEventDragHandleContainer {...dragHandleProps}>
-        <FontAwesomeIcon icon={faBars} color="#CCC" />
-      </ExperienceEventDragHandleContainer>
-      <IconButton onClick={() => onToggleEnabled(event.id, !event.enabled)}>
-        <FontAwesomeIcon icon={event.enabled ? faToggleOn : faToggleOff} />
-      </IconButton>
-      <ExperienceEventText>
-        {event.type === 'rareCandy' ? '(Rare Candy)' : event.name}
-        {event.type === 'species' && (
-          <ExperienceEventLevel>Lv. {event.level}</ExperienceEventLevel>
-        )}
-        {event.enabled && (
-          <ExperienceGained>(+{event.experienceGained})</ExperienceGained>
-        )}
-        {event.type === 'species' && (
-          <>
-            {(event.expShareEnabled || event.otherPokemonHoldingExperienceShare > 0) && (
+const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event, draggableProps, dragHandleProps, onUpdate, onRemove, onToggleEnabled }) => {
+  const handleToggleExpShare = useCallback(() => {
+    if (event.type !== 'species') return;
+
+    onUpdate({ ...event, expShareEnabled: !event.expShareEnabled });
+  }, [event, onUpdate]);
+
+  const handleToggleLuckyEgg = useCallback(() => {
+    if (event.type !== 'species') return;
+
+    onUpdate({ ...event, hasLuckyEgg: !event.hasLuckyEgg });
+  }, [event, onUpdate]);
+
+  const handleToggleAffectionBoost = useCallback(() => {
+    if (event.type !== 'species') return;
+
+    onUpdate({ ...event, hasAffectionBoost: !event.hasAffectionBoost });
+  }, [event, onUpdate]);
+
+  const handleCycleTrade = useCallback(() => {
+    if (event.type !== 'species') return;
+
+    if (event.isTrade) {
+      onUpdate({ ...event, isTrade: false, isInternationalTrade: true });
+    } else if (event.isInternationalTrade) {
+      onUpdate({ ...event, isTrade: false, isInternationalTrade: false });
+    } else {
+      onUpdate({ ...event, isTrade: true, isInternationalTrade: false });
+    }
+  }, [event, onUpdate]);
+
+  const handleToggleWild = useCallback(() => {
+    if (event.type !== 'species') return;
+
+    onUpdate({ ...event, isWild: !event.isWild });
+  }, [event, onUpdate]);
+
+  const handleTogglePastEvolutionPoint = useCallback(() => {
+    if (event.type !== 'species') return;
+
+    onUpdate({ ...event, isPastEvolutionPoint: !event.isPastEvolutionPoint });
+  }, [event, onUpdate]);
+  
+  return (
+    <>
+      <ExperienceEventContainer ref={innerRef} enabled={event.enabled} {...draggableProps}>
+        <ExperienceEventDragHandleContainer {...dragHandleProps}>
+          <FontAwesomeIcon icon={faBars} color="#CCC" />
+        </ExperienceEventDragHandleContainer>
+        <IconButton onClick={() => onToggleEnabled(event.id, !event.enabled)}>
+          <FontAwesomeIcon icon={event.enabled ? faToggleOn : faToggleOff} />
+        </IconButton>
+        <ExperienceEventText>
+          {event.type === 'rareCandy' ? '(Rare Candy)' : event.name}
+          {event.type === 'species' && (
+            <ExperienceEventLevel>Lv. {event.level}</ExperienceEventLevel>
+          )}
+          {event.enabled && (
+            <ExperienceGained>(+{event.experienceGained})</ExperienceGained>
+          )}
+          {event.type === 'species' && (
+            <>
               <Tooltip
                 html={(
                   <div>
-                    {event.expShareEnabled ? <div>Affected by Exp. Share</div> : null}
+                    <div>{getAffectedText(event.expShareEnabled)} by Exp. Share</div>
                     {event.otherPokemonHoldingExperienceShare ? <div>{event.otherPokemonHoldingExperienceShare} other party members have an Exp. Share</div> : null}
                   </div>
                 )}
@@ -71,98 +124,100 @@ const ExperienceEventRow: React.FC<ExperienceEventRowProps> = ({ innerRef, event
                 duration={0}
                 arrow
               >
-                <ExperienceEventIcon src="images/exp-share.png" />
+                <ExperienceEventIcon
+                  src="images/exp-share.png"
+                  enabled={(event.expShareEnabled || event.otherPokemonHoldingExperienceShare > 0)}
+                  onClick={handleToggleExpShare}
+                />
               </Tooltip>
-            )}
-            {event.hasLuckyEgg && (
               <Tooltip
-                title="Affected by Lucky Egg"
+                title={`${getAffectedText(event.hasLuckyEgg)} by Lucky Egg`}
                 className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
                 arrow
               >
-                <ExperienceEventIcon src="images/lucky-egg.png" />
+                <ExperienceEventIcon
+                  src="images/lucky-egg.png"
+                  enabled={event.hasLuckyEgg}
+                  onClick={handleToggleLuckyEgg}
+                />
               </Tooltip>
-            )}
-            {event.hasAffectionBoost && (
               <Tooltip
-                title="Affected by Affection Exp. boost (>= 2)"
+                title={`${getAffectedText(event.hasAffectionBoost)} by Affection Exp. boost (>= 2)`}
                 className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
                 arrow
               >
-                <ExperienceEventIcon src="images/affection-heart.png" />
+                <ExperienceEventIcon
+                  src="images/affection-heart.png"
+                  enabled={event.hasAffectionBoost}
+                  onClick={handleToggleAffectionBoost}
+                />
               </Tooltip>
-            )}
-            {event.isTrade && (
               <Tooltip
-                title="Affected by domestic trade Exp. boost"
+                title={`Affected by ${getTradeExpBoostLabel(event)} trade Exp. boost`}
                 className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
                 arrow
               >
-                <ExperienceEventIcon src="images/trade-icon.png" />
+                <ExperienceEventIcon
+                  src="images/trade-icon.png"
+                  enabled={event.isTrade || event.isInternationalTrade}
+                  isSpecial={event.isInternationalTrade}
+                  onClick={handleCycleTrade}
+                />
               </Tooltip>
-            )}
-            {event.isInternationalTrade && (
               <Tooltip
-                title="Affected by international trade Exp. boost"
+                title={`Opponent is ${event.isWild ? 'wild' : 'owned by a trainer'}`}
                 className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
                 arrow
               >
-                <ExperienceEventIcon src="images/trade-icon.png" />
+                <ExperienceEventIcon
+                  src="images/pokeball.png"
+                  enabled={!event.isWild}
+                  onClick={handleToggleWild}
+                />
               </Tooltip>
-            )}
-            {!event.isWild && (
               <Tooltip
-                title="Opponent is owned by a trainer"
+                title={`Pokémon is ${event.isPastEvolutionPoint ? '' : 'not '}past evolution level`}
                 className="tooltip"
                 position="bottom"
                 distance={8}
                 duration={0}
                 arrow
               >
-                <ExperienceEventIcon src="images/pokeball.png" />
+                <ExperienceEventIcon
+                  src="images/everstone.png"
+                  enabled={event.isPastEvolutionPoint}
+                  onClick={handleTogglePastEvolutionPoint}
+                />
               </Tooltip>
-            )}
-            {event.isInternationalTrade && (
-              <Tooltip
-                title="Affected by international trade Exp. boost"
-                className="tooltip"
-                position="bottom"
-                distance={8}
-                duration={0}
-                arrow
-              >
-                <ExperienceEventIcon src="images/trade-icon.png" />
-              </Tooltip>
-            )}
-
-          </>
+            </>
+          )}
+        </ExperienceEventText>
+        {event.enabled && (
+          <ExperienceEventEVs>
+            <ExperienceEVsLabel>EVs</ExperienceEVsLabel>
+            <div>{(event.evs ?? BLANK_EV_SET).join('/')}</div>
+          </ExperienceEventEVs>
         )}
-      </ExperienceEventText>
-      {event.enabled && (
-        <ExperienceEventEVs>
-          <ExperienceEVsLabel>EVs</ExperienceEVsLabel>
-          <div>{(event.evs ?? BLANK_EV_SET).join('/')}</div>
-        </ExperienceEventEVs>
+        <Button onClick={() => onRemove(event.id)}>&times;</Button>
+      </ExperienceEventContainer>
+      {event.isLevelUp && (
+        <LevelUpRow>Level up! ({event.levelAfterExperience}) </LevelUpRow>
       )}
-      <Button onClick={() => onRemove(event.id)}>&times;</Button>
-    </ExperienceEventContainer>
-    {event.isLevelUp && (
-      <LevelUpRow>Level up! ({event.levelAfterExperience}) </LevelUpRow>
-    )}
-  </>
-);
+    </>
+  );
+};
 
 const ExperienceRoute: NextPage = () => {
   const [state, dispatch] = useExperienceReducer();
@@ -293,6 +348,10 @@ const ExperienceRoute: NextPage = () => {
 
   const handleToggleExperienceEventEnabled = useCallback((id, enabled) => {
     dispatch(toggleExperienceEventEnabled(id, enabled));
+  }, [dispatch]);
+
+  const handleUpdateExperienceEvent = useCallback((updatedEvent: ExperienceEvent) => {
+    dispatch(updateExperienceEvent(updatedEvent));
   }, [dispatch]);
 
   const handleDragEnd = useCallback(dragEvent => {
@@ -660,6 +719,7 @@ const ExperienceRoute: NextPage = () => {
                         event={experienceEvent}
                         onRemove={handleRemoveExperienceEvent}
                         onToggleEnabled={handleToggleExperienceEventEnabled}
+                        onUpdate={handleUpdateExperienceEvent}
                         draggableProps={draggableProvided.draggableProps}
                         dragHandleProps={draggableProvided.dragHandleProps}
                       />
@@ -815,10 +875,24 @@ const ExperienceGained = styled.span`
   margin-left: 0.25rem;
 `;
 
-const ExperienceEventIcon = styled.img`
+const ExperienceEventIcon = styled.div<{ enabled: boolean; isSpecial?: boolean; src: string; }>`
   width: 1rem;
   height: 1rem;
   margin-left: 0.5rem;
+  opacity: ${({ enabled }) => enabled ? 1.0 : 0.2};
+  cursor: pointer;
+  background: url(${({ src }) => src});
+  background-size: cover;
+  background-position-x: center;
+  overflow: hidden;
+  
+  &:before {
+    content: ${({ isSpecial }) => isSpecial && '"⭐️"'};
+    position: absolute;
+    font-size: 0.75rem;
+    top: -0.25rem;
+    right: -0.25rem;
+  }
 `;
 
 const ImportError = styled.div`

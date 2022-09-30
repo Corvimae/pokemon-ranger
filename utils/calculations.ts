@@ -24,7 +24,7 @@ interface RareCandyExperienceEvent extends BaseExperienceEvent {
   type: 'rareCandy';
 }
 
-interface SpeciesExperienceEvent extends BaseExperienceEvent {
+export interface SpeciesExperienceEvent extends BaseExperienceEvent {
   type: 'species';
   name: string;
   baseExperience: number;

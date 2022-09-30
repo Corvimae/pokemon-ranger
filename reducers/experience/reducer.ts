@@ -2,7 +2,7 @@ import { Dispatch, useReducer } from 'react';
 import { v4 as uuid } from 'uuid';
 import { GrowthRate } from 'relicalc';
 import { ExperienceEvent } from '../../utils/calculations';
-import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, IMPORT_EXPERIENCE_ROUTE, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL, TOGGLE_EXPERIENCE_EVENT_ENABLED } from './types';
+import { ADD_MANUAL_EXPERIENCE_EVENT, ADD_RARE_CANDY_EXPERIENCE_EVENT, ADD_SPECIES_EXPERIENCE_EVENT, ExperienceReducerAction, ExperienceState, IMPORT_EXPERIENCE_ROUTE, REMOVE_EXPERIENCE_EVENT, REORDER_EXPERIENCE_EVENTS, RESET_STATE, SET_EXPERIENCE_EVENT_REWARD, SET_GROWTH_RATE, SET_INITIAL_LEVEL, TOGGLE_EXPERIENCE_EVENT_ENABLED, UPDATE_EXPERIENCE_EVENT } from './types';
 
 function insertAtPosition<T>(list: T[], item: T, position: number): T[] {
   const insertPosition = position < 0 ? list.length + position + 1 : position;
@@ -112,6 +112,15 @@ const reducer = (state: ExperienceState, action: ExperienceReducerAction): Exper
             ...event,
             experience: action.payload.reward,
           } : event,
+        ], [] as ExperienceEvent[]),
+      };
+
+    case UPDATE_EXPERIENCE_EVENT:
+      return {
+        ...state,
+        experienceEvents: state.experienceEvents.reduce((acc, event) => [
+          ...acc,
+          action.payload.event.id === event.id ? action.payload.event : event,
         ], [] as ExperienceEvent[]),
       };
 
@@ -263,6 +272,13 @@ export function setExperienceEventReward(id: string, reward: number): Experience
   return {
     type: SET_EXPERIENCE_EVENT_REWARD,
     payload: { id, reward },
+  };
+}
+
+export function updateExperienceEvent(event: ExperienceEvent): ExperienceReducerAction {
+  return {
+    type: UPDATE_EXPERIENCE_EVENT,
+    payload: { event },
   };
 }
 
