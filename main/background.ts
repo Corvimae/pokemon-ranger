@@ -1,5 +1,7 @@
-import { app } from 'electron';
+import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
+import chokidar from 'chokidar';
+import fs from 'fs';
 import { createWindow } from './helpers';
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -27,6 +29,40 @@ if (isProd) {
 
     mainWindow.webContents.openDevTools();
   }
+
+  const activeRouteWatcher: { current: chokidar.FSWatcher | null } = { current: null };
+
+  function detachActiveRouteWatcher() {
+   if (activeRouteWatcher.current) activeRouteWatcher.current.close();
+  }
+  
+  function attachActiveRouteWatcher(file: string) {
+    detachActiveRouteWatcher();
+  
+    console.info(`Now watching ${file}`);
+    activeRouteWatcher.current = chokidar.watch(file);
+  
+    activeRouteWatcher.current.on('change', path => {
+      console.info('File updated.');
+
+      const contents = fs.readFileSync(path);
+
+      mainWindow.webContents.send('route:update', [contents.toString()]);
+    });
+  }
+  
+  // listen to file(s) add event
+  ipcMain.on('route:open', ( event, files = [] ) => {
+    if (!files.length) return;
+    
+    attachActiveRouteWatcher(files[0]);
+  });
+  
+  ipcMain.on('route:close', event => {
+    detachActiveRouteWatcher();
+  });
+  
+
 })();
 
 app.on('window-all-closed', () => {

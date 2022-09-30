@@ -3,6 +3,8 @@ calc-grammar.js
 
 .dotenv
 
+nextron.config.js
+
 dist/
 electron/
 scripts/

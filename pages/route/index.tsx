@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components';
 import { GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
+import fetch from 'isomorphic-fetch';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import { ParsedUrlQuery } from 'querystring';
@@ -19,7 +20,6 @@ import { buildRouteProcessor } from '../../utils/routeProcessor';
 import { buildAllTrackerCalculationSets, RouteCalculationsContext } from '../../utils/trackerCalculations';
 import { Card } from '../../components/Layout';
 import { CENTRAL_ROUTE_REPO_PREFIX } from '../../utils/utils';
-import { getRouteMetadata } from '../../server/routeList';
 import { RouteMetadata } from '../../components/route/RouteSelectorComponents';
 
 const RESET_CONFIRM_DURATION = 2000;
@@ -238,7 +238,9 @@ export const getInitialProps = async (context: GetServerSidePropsContext<ParsedU
   let routeMetadata: RouteMetadata | null = null;
 
   if (repo?.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
-    routeMetadata = getRouteMetadata(repo.replace(CENTRAL_ROUTE_REPO_PREFIX, '')) ?? null;
+    const response = await fetch(`/api/route/${repo.replace(CENTRAL_ROUTE_REPO_PREFIX, '')}`);
+    
+    routeMetadata = await response.json();
   }
 
   return {

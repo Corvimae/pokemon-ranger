@@ -37,6 +37,7 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
           <meta charSet="UTF-8" />
 
           <style>{dom.css()}</style>
+          <script>var global = global || window;</script>
         </Head>
         <Header>
           <li>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
@@ -11,6 +11,17 @@ import { LoadingIcon } from '../LoadingIcon';
 import { CENTRAL_ROUTE_REPO_PREFIX, isElectron, normalizeRouteLocation } from '../../utils/utils';
 import { RouteDropdownOption, RouteMetadata } from './RouteSelectorComponents';
 import { useDebounce } from '../../utils/hooks';
+
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    electronAPI: {
+      openRoute: (file: string) => void;
+      closeRoute: () => void;
+      onRouteUpdate: (callback: (event: Electron.IpcRendererEvent, contents: string[]) => void) => void;
+    }
+  }
+}
 
 function getBaseRouteURL(): string {
   return `${isElectron() ? 'https://ranger.maybreak.com/' : '/'}api/routes`;
@@ -41,6 +52,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
   const [fileSelectError, setFileSelectError] = useState<string | null>(null);
   const [publishedImportPath, setPublishedImportPath] = useState<OptionsType<OptionTypeBase> | null>();
   const [repoImportPath, setRepoImportPath] = useState<string>('');
+  const hasAttachedElectronListener = useRef<boolean>(false);
 
   const handleSetRepoImportPath = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setRepoImportPath(event.target.value);
@@ -140,6 +152,10 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
 
     const reader = new FileReader();
 
+    if (isElectron()) {
+      window.electronAPI.openRoute(acceptedFile.path);
+    }
+
     reader.onabort = () => {
       setFileContent(null);
       setFileSelectError('The file read process was aborted.');
@@ -173,6 +189,16 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
     noClick: true,
     multiple: false,
   });
+
+  useEffect(() => {
+    if (!isElectron() || hasAttachedElectronListener.current) return;
+    
+    window.electronAPI.onRouteUpdate((event, contents) => {
+      setFileContent(contents[0]);
+    });
+
+    hasAttachedElectronListener.current = true;
+  }, [setFileContent]);
   
   return isLoading ? <LoadingIcon /> : (
     <Container {...getRootProps()} tabIndex={-1}>
