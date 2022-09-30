@@ -19,6 +19,10 @@ metadata:
     version: 1.0.0
 spec:
   replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: pokemon-ranger

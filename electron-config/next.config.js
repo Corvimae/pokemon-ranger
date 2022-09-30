@@ -1,4 +1,7 @@
+const baseConfig = require('../next.config');
+
 module.exports = {
+  ...baseConfig,
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.target = 'electron-renderer';

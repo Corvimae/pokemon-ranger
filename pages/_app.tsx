@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useCallback } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import Head from 'next/head';
@@ -13,6 +14,11 @@ import { THEMES } from '../components/Layout';
 
 import 'react-tippy/dist/tippy.css';
 import '../styles/globals.css';
+
+declare global {
+  // eslint-disable-next-line vars-on-top, no-var, no-underscore-dangle
+  var __NEXT_DATA__: { buildId: string };
+}
 
 const META_DESCRIPTION = 'The Pokémon speedrunner\'s toolkit.';
 
@@ -110,6 +116,10 @@ function Ranger({ Component, pageProps }: AppProps): React.ReactElement {
               <FontAwesomeIcon icon={faBug} />&nbsp;
               Report an issue
             </a>
+            <BuildID>
+              {global.__NEXT_DATA__?.buildId?.split('-')[0]}
+              <ExtendedBuildId>-{global.__NEXT_DATA__?.buildId?.split('-').splice(1).join('-')}</ExtendedBuildId>
+            </BuildID>
           </RightJustifiedFooterActions>
         </Footer>
       </Layout>
@@ -184,6 +194,7 @@ const Content = styled.div`
 `;
 
 const Footer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: row;
   padding: 0.5rem 0.75rem;
@@ -200,5 +211,30 @@ const Footer = styled.div`
 `;
 
 const RightJustifiedFooterActions = styled.div`
+  display: flex;
+  flex-direction: row;
   margin-left: auto;
+`;
+
+const ExtendedBuildId = styled.span`
+  display: none
+`;
+
+const BuildID = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: calc(100% + 1rem);
+  margin-left: 0.5rem;
+  margin-top: -0.5rem;
+  margin-right: -0.75rem;
+  margin-bottom: -0.5rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  background-color: #2f677d;
+  box-sizing: border-box;
+
+  &:hover ${ExtendedBuildId} {
+    display: inline;
+  }
 `;
