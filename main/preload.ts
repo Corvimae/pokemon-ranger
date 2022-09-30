@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   openRoute: (file: string) => {
@@ -7,7 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeRoute: () => {
     ipcRenderer.send('route:close');
   },
-  onRouteUpdate: (callback: (event: Electron.IpcRendererEvent, contents: string[]) => void) => {
+  onRouteUpdate: (callback: (event: IpcRendererEvent, contents: string[]) => void) => {
     ipcRenderer.on('route:update', callback);
   }
 });

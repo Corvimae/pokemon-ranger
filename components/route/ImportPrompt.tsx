@@ -18,7 +18,7 @@ declare global {
     electronAPI: {
       openRoute: (file: string) => void;
       closeRoute: () => void;
-      onRouteUpdate: (callback: (event: Electron.IpcRendererEvent, contents: string[]) => void) => void;
+      onRouteUpdate: (callback: (event: unknown, contents: string[]) => void) => void;
     }
   }
 }
@@ -153,7 +153,7 @@ export const ImportPrompt: React.FC<ImportPromptProps> = ({
     const reader = new FileReader();
 
     if (isElectron()) {
-      window.electronAPI.openRoute(acceptedFile.path);
+      window.electronAPI.openRoute(((acceptedFile as unknown) as { path: string }).path);
     }
 
     reader.onabort = () => {
