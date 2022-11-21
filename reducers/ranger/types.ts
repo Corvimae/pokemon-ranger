@@ -27,6 +27,7 @@ export const SET_FRIENDSHIP = 'SET_FRIENDSHIP';
 export const SET_SCREEN = 'SET_SCREEN';
 export const SET_CHOICE_ITEM = 'SET_CHOICE_ITEM';
 export const SET_ADAPTABILITY = 'SET_ADAPTABILITY';
+export const SET_TERASTALLIZED = 'SET_TERASTALLIZED';
 export const SET_OTHER_POWER_MODIFIER = 'SET_OTHER_POWER_MODIFIER';
 export const SET_STAT_MODIFIER = 'SET_STAT_MODIFIER';
 export const SET_OPPONENT_STAT_MODIFIER = 'SET_OPPONENT_STAT_MODIFIER';
@@ -61,6 +62,7 @@ export interface RangerReducerState {
   screen: boolean;
   choiceItem: boolean;
   adaptability: boolean;
+  terastallized: boolean;
   statModifier: number;
   opponentStatModifier: number;
   otherPowerModifier: number;
@@ -248,6 +250,13 @@ type SetAdaptabilityAction = {
   };
 };
 
+type SetTerastallizedAction = {
+  type: typeof SET_TERASTALLIZED;
+  payload: {
+    terastallized: boolean;
+  };
+};
+
 type SetOpponentStatModifierAction = {
   type: typeof SET_OPPONENT_STAT_MODIFIER;
   payload: {
@@ -297,6 +306,7 @@ export type RangerReducerAction =
   SetScreenAction |
   SetChoiceItemAction |
   SetAdaptabilityAction |
+  SetTerastallizedAction |
   SetOtherPowerModifierAction |
   SetStatModifierAction |
   SetOpponentStatModifierAction |

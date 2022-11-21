@@ -7738,10 +7738,10 @@ rehype-sanitize@^4.0.0:
   dependencies:
     hast-util-sanitize "^3.0.0"
 
-relicalc@^1.0.14:
-  version "1.0.14"
-  resolved "https://registry.yarnpkg.com/relicalc/-/relicalc-1.0.14.tgz#5274e3826254c1ae9588ff6b614a9ed6e234fa80"
-  integrity sha512-4nRAKeAPssUytd4niL4wJKREG/47jeA8mLZD6iib4x5GpxUCP7IbD+EYEOnt0aiWJzih/AXBgf0eM5/5oQHmWw==
+relicalc@^1.0.15:
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/relicalc/-/relicalc-1.0.15.tgz#af3ffba1415948d7445e7423bfcb24566a290e5d"
+  integrity sha512-49nP97/CBDCBBQg57FP0WjXrRbd5F5us74LVFtPIaSIRpgy6hYYVoy5PWvPScpYdzAZbe5IMTtqKmcZFtv12qw==
   dependencies:
     js-combinatorics "^1.5.4"
 

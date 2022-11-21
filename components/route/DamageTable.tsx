@@ -113,6 +113,7 @@ interface DamageTableProps {
   screen?: string;
   choiceItem?: string;
   adaptability?: string;
+  terastallized?: string;
   otherPowerModifier?: string;
   statModifier?: string;
   opponentStatModifier?: string;
@@ -146,6 +147,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   screen = 'false',
   choiceItem = 'false',
   adaptability = 'false',
+  terastallized = 'false',
   otherPowerModifier = 1,
   statModifier = 1,
   opponentStatModifier = 1,
@@ -241,6 +243,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
         screen: screen.toLowerCase() === 'true',
         choiceItem: choiceItem.toLowerCase() === 'true',
         adaptability: adaptability.toLowerCase() === 'true',
+        terastallized: terastallized.toLowerCase() === 'true',
         statModifier: Number(statModifier),
         opponentStatModifier: Number(opponentStatModifier),
         otherPowerModifier: Number(otherPowerModifier),
@@ -263,7 +266,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
 
       return {};
     }
-  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem, adaptability, statModifier, opponentStatModifier]);
+  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem, adaptability, terastallized, statModifier, opponentStatModifier]);
 
   useEffect(() => {
     if (error.current === null && Object.keys(state.trackers).length > 0) {

@@ -6,7 +6,7 @@ import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox, Card } from '../components/Layout';
 import { Button } from '../components/Button';
-import { resetState, setAdaptability, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOpponentStatModifier, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setStatModifier, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setAdaptability, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOpponentStatModifier, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setStatModifier, setTerastallized, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
 import { DisplayModeToggle } from '../components/DisplayModeToggle';
@@ -47,6 +47,7 @@ const Home: NextPage = () => {
   const handleSetScreen = useCallback(() => dispatch(setScreen(!state.screen)), [state.screen, dispatch]);
   const handleSetChoiceItem = useCallback(() => dispatch(setChoiceItem(!state.choiceItem)), [state.choiceItem, dispatch]);
   const handleSetAdaptability = useCallback(() => dispatch(setAdaptability(!state.adaptability)), [state.adaptability, dispatch]);
+  const handleSetTerastallized = useCallback(() => dispatch(setTerastallized(!state.terastallized)), [state.terastallized, dispatch]);
   const handleSetOtherPowerModifier = useCallback(event => dispatch(setOtherPowerModifier(Number(event.target.value))), [dispatch]);
   const handleSetStatModifier = useCallback(event => dispatch(setStatModifier(Number(event.target.value))), [dispatch]);
   const handleSetOpponentStatModifier = useCallback(event => dispatch(setOpponentStatModifier(Number(event.target.value))), [dispatch]);
@@ -141,6 +142,16 @@ const Home: NextPage = () => {
             <label htmlFor="stab">STAB?</label>
             <Checkbox id="stab" data-checked={state.stab} onClick={handleSetSTAB} />
           </InputRow>
+
+          {state.generation === 9 && (
+            <InputRow>
+              <label htmlFor="terastallized">Terastallized?</label>
+              <Checkbox id="terastallized" data-checked={state.terastallized} onClick={handleSetTerastallized} />
+              <HelpText>
+                This modifier only applies if the move matches the attacker&apos;s Tera type.
+              </HelpText>
+            </InputRow>
+          )}
 
           <InputRow>
             <label htmlFor="otherPowerModifier">Base Power Modifier</label>
@@ -244,7 +255,8 @@ const Home: NextPage = () => {
               <option value={3}>3 (Ruby/Sapphire/Emerald)</option>
               <option value={4}>4 (Diamond/Pearl/Platinum)</option>
               <option value={5}>5 (Black/White and Black 2/White 2)</option>
-              <option value={6}>6+ (X/Y and beyond)</option>
+              <option value={6}>6-8 (X/Y, (Ultra) Sun/Moon, Sword/Shield)</option>
+              <option value={9}>9 (Scarlet/Violet)</option>
               <option value="lgpe">Let&apos;s Go</option>
             </select>
             <HelpText>The Gen 3 damage formula is slightly different than the Gen 4+ formula. Critical hits deal less damage in Gen 6+.</HelpText>
@@ -259,7 +271,14 @@ const Home: NextPage = () => {
             <Button onClick={handleSetDisplayRolls}>{state.displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
           </div>
         </Header>
-
+        {state.generation === 9 && (
+          <Card variant="warning">
+            <p>
+              Gen 9 calculations may not perfectly match in-game damage until further research is
+              done to verify Ranger&apos;s implementation of Gen 9 mechanics.
+            </p>
+          </Card>
+        )}
         {calculationError && (
         <Card variant="error">
           <h3>Unable to calculate damage ranges.</h3>
