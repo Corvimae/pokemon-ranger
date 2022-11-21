@@ -1,6 +1,6 @@
 {
   "name": "pokemon-ranger",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "main": "app/background.js",
   "scripts": {
