@@ -140,6 +140,12 @@ const RECOGNIZED_GAME_TITLES: Record<string, GameTitleMetadata> = {
     generation: 8,
     aliases: ['pla', 'legends arceus', 'arceus'],
   },
+  scavi: {
+    title: 'Pokémon Scarlet & Violet',
+    shortTitle: 'Scarlet & Violet',
+    generation: 9,
+    aliases: ['scavi', 'sv'],
+  },
 };
 
 function normalizeString(value: string): string {
