@@ -23,6 +23,7 @@ import { VariableBlock } from '../components/route/VariableBlock';
 import { CalculationDirective } from '../components/route/CalculationDirective';
 import { LevelDirective } from '../directives/LevelDirective';
 import { DebugText } from '../components/route/DebugText';
+import { DropdownBlock } from '../components/route/DropdownBlock';
 
 const schema = merge(gh, {
   tagNames: [
@@ -39,6 +40,7 @@ const schema = merge(gh, {
     'calc',
     'level',
     'debug',
+    'dropdown',
   ],
   attributes: {
     tracker: [
@@ -111,6 +113,7 @@ const schema = merge(gh, {
     calc: ['position', 'line', 'color', 'contents', 'source', 'level', 'evolution', 'format'],
     level: ['position', 'line', 'source', 'value'],
     debug: ['title', 'contents'],
+    dropdown: ['title', 'theme'],
   },
 });
 
@@ -131,6 +134,7 @@ const FULL_COMPONENT_SET = {
   calc: CalculationDirective,
   level: LevelDirective,
   debug: DebugText,
+  dropdown: DropdownBlock,
 };
 
 const TRACKER_ONLY_COMPONENT_SET = {

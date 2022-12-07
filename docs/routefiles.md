@@ -497,6 +497,25 @@ Inline info provides additional context to a line, such as a speed range, a kill
 
 `color` (string) - The color of the text. Valid colors are `black`, `red`, `blue`, `green`, `yellow`, `gray`, and `pink`. If no color is specified or the specified color is invalid, `black` is used.
 
+## Dropdown Cards
+
+Dropdown cards function like [conditional cards](#conditional-cards), except instead of only displaying when a condition is met they only display their contents when clicked. Dropdown cards are useful for storing supplimental info that is useful to new runners, but is unnecessary and takes up space for experienced runners. 
+### Syntax
+```
+:::dropdown{title="Secret Strats click here" theme="error"}
+don't miss :)
+:::
+```
+
+The content of the dropdown card can be any valid Markdown, including Ranger directives.
+
+### Attributes
+
+`title` (string) - The message to display next to the dropdown arrow. This message is always shown, even when the dropdown is expanded.
+
+
+`theme` (string, optional) - The color theme to apply to the card. Valid themes are `info`, `error`, `warning`, `success`, `borderless`, `faint`, and `neutral`. If no theme is specified, or the specified theme is invalid, `info` is used. The `borderless` and `faint` themes appear "inline", with no special styling around the card.
+
 ## Debug Text
 
 Debug text is hidden unless the "Show Debug Info" is enabled in the options. Debug text should not contain any information that is required to follow the route.
