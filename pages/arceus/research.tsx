@@ -364,6 +364,7 @@ const TaskName = styled.div`
   display: flex;
   align-items: center;
   margin: 0 0.5rem;
+  height: min-content !important;
 `;
 
 const TaskValueSpacer = styled.div<{ columns: number }>`
