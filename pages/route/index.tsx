@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { GetServerSidePropsContext, NextPage } from 'next';
+import { NextPage, NextPageContext } from 'next';
 import Head from 'next/head';
 import fetch from 'isomorphic-fetch';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { ParsedUrlQuery } from 'querystring';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { loadFile, resetRoute, RouteContext, setShowOptions } from '../../reducers/route/reducer';
@@ -233,8 +232,10 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
   );
 };
 
-export const getInitialProps = async (context: GetServerSidePropsContext<ParsedUrlQuery>): Promise<unknown> => {
-  const repo = context.query.repo ? decodeURIComponent(context.query.repo as string) : null;
+const ConnectedRouteView = RouteContext.connect(RouteView) as NextPage<RouteViewParams>;
+
+ConnectedRouteView.getInitialProps = async (context: NextPageContext): Promise<RouteViewParams> => {
+  const repo = context.query.repo ? decodeURIComponent(context.query.repo as string) : undefined;
   let routeMetadata: RouteMetadata | null = null;
 
   if (repo?.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
@@ -244,14 +245,12 @@ export const getInitialProps = async (context: GetServerSidePropsContext<ParsedU
   }
 
   return {
-    props: {
-      repo,
-      routeMetadata,
-    },
+    repo,
+    routeMetadata,
   };
 };
 
-export default RouteContext.connect(RouteView);
+export default ConnectedRouteView;
 
 const Container = styled.div<{ ivHorizontalLayout: boolean; }>`
   position: relative;
