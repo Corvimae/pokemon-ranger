@@ -132,10 +132,20 @@ const Home: NextPage = () => {
             <select id="typeEffectiveness" value={state.typeEffectiveness} onChange={handleSetTypeEffectiveness}>
               <option value={0.25}>&times;0.25</option>
               <option value={0.5}>&times;0.5</option>
-              <option value={1}>&times;1</option>
+              {state.generation === 4 ? (
+                <>
+                  <option value={1}>&times;1 (Neutral; 2&times;, 0.5&times;)</option>
+                  <option value={1.1}>&times;1 (0.5&times;, 2&times;)</option>
+                </>
+              ) : <option value={1}>&times;1</option>}
               <option value={2}>&times;2</option>
               <option value={4}>&times;4</option>
             </select>
+            {state.generation === 4 && (
+              <HelpText>
+                In Gen IV, type effectiveness is calculated individually for each type of the target, and the order matters.
+              </HelpText>
+            )}
           </InputRow>
 
           <InputRow>

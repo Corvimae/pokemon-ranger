@@ -14,7 +14,7 @@ const defaultState: RangerReducerState = {
   movePower: 50,
   typeEffectiveness: 1,
   stab: false,
-  generation: 4,
+  generation: 9,
   criticalHit: false,
   torrent: false,
   multiTarget: false,
