@@ -143,7 +143,14 @@ const Home: NextPage = () => {
             </select>
             {state.generation === 4 && (
               <HelpText>
-                In Gen IV, type effectiveness is calculated individually for each type of the target, and the order matters.
+                <p>
+                  In Gen IV, type effectiveness is calculated individually for each type of the target, and the order matters; order is determined with
+                  the priority:
+                </p>
+                <p>Normal, Fire, Water, Electric, Grass, Ice<sup>*</sup>, Fight, Poison, Ground, Flying, Psychic, Bug, Rock, Ghost, Dragon, Dark, Steel</p>
+                <p>
+                  <sup>*</sup>Exception: If offensive type is Ice and the defensive type includes Fire, calculate Fire as the last defensive type.
+                </p>
               </HelpText>
             )}
           </InputRow>
