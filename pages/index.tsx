@@ -288,14 +288,6 @@ const Home: NextPage = () => {
             <Button onClick={handleSetDisplayRolls}>{state.displayRolls ? 'Hide Rolls' : 'Show Rolls'}</Button>
           </div>
         </Header>
-        {state.generation === 9 && (
-          <Card variant="warning">
-            <p>
-              Gen 9 calculations may not perfectly match in-game damage until further research is
-              done to verify Ranger&apos;s implementation of Gen 9 mechanics.
-            </p>
-          </Card>
-        )}
         {calculationError && (
         <Card variant="error">
           <h3>Unable to calculate damage ranges.</h3>
