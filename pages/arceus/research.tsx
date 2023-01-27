@@ -270,8 +270,8 @@ const ResearchCalculator: NextPage = () => {
       const isPerfected = completedSegments === speciesDefinition.tasks.reduce((total, task) => total + task.values.length, 0);
 
       return {
-        completeEntries: isComplete ? [...acc.completeEntries, speciesDefinition.name] : acc.perfectedEntries,
-        perfectedEntries: isPerfected ? [...acc.perfectedEntries, speciesDefinition.name] : acc.completeEntries,
+        completeEntries: isComplete ? [...acc.completeEntries, speciesDefinition.name] : acc.completeEntries,
+        perfectedEntries: isPerfected ? [...acc.perfectedEntries, speciesDefinition.name] : acc.perfectedEntries,
         incompleteEntries: !isComplete && completionPoints > 0 ? [...acc.incompleteEntries, speciesDefinition.name] : acc.incompleteEntries,
         researchPointsFromTasks: acc.researchPointsFromTasks + rankPoints,
         researchPointsByTask: {
