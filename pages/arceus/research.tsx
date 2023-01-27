@@ -2,10 +2,10 @@ import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { NextPage } from 'next';
 import { useDropzone } from 'react-dropzone';
-import { Header, HelpText, InputRow } from '../../components/Layout';
+import { Checkbox, Header, HelpText, InputRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { useDebounce, useOnMount } from '../../utils/hooks';
-import { ArceusResearchContext, importSavedResearch, resetState, setSearchTerm, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
+import { ArceusResearchContext, importSavedResearch, resetState, setSearchTerm, setShowCompletedEntries, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
 
 interface ResearchTask {
   name: string;
@@ -21,9 +21,15 @@ interface ResearchEntry {
 
 interface CalculatedResearchData {
   completeEntries: string[];
+  perfectedEntries: string[];
   incompleteEntries: string[];
   researchPointsFromTasks: number;
   researchPointsByTask: Record<number, number>;
+}
+
+interface EntryStatus {
+  completionPoints: number;
+  completedSegments: number;
 }
 
 const RESEARCH_PATH = '/reference/pla-research.json';
@@ -42,6 +48,29 @@ function calculatePointsToNextRank(totalResearchPoints: number): number {
   const nextRankRequirement = [500, 1800, 3500, 6000, 8500].find(value => totalResearchPoints < value) ?? totalResearchPoints - 1;
 
   return nextRankRequirement - totalResearchPoints;
+}
+
+function calculateEntryStatus(tasks: Record<string, number>, species: ResearchEntry): EntryStatus {
+  return Object.entries(tasks).reduce((acc, [taskName, taskValue]) => {
+    const taskDefinition = species.tasks.find(({ name }) => name === taskName);
+
+    if (!taskDefinition) return acc;
+
+    const completedSegments = taskDefinition.values.filter(item => item <= taskValue).length;
+    
+    // Arceus research has only one entry.
+    if (Number(species.id) === 238) {
+      return {
+        completionPoints: completedSegments * 10,
+        completedSegments: 1,
+      };
+    }
+    
+    return {
+      completionPoints: acc.completionPoints + completedSegments * (taskDefinition.isBoosted ? 2 : 1),
+      completedSegments: acc.completedSegments + completedSegments,
+    };
+  }, { completedSegments: 0, completionPoints: 0 });
 }
 
 interface TaskValueProps {
@@ -79,6 +108,10 @@ const ResearchCalculator: NextPage = () => {
   const handleSearchTermChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchTerm(event.target.value));
   }, [dispatch]);
+
+  const toggleShowCompletedEntries = useCallback(() => {
+    dispatch(setShowCompletedEntries(!state.showCompletedEntries));
+  }, [state.showCompletedEntries, dispatch]);
 
   const debouncedHandleSearchTermChange = useDebounce(handleSearchTermChange, 250);
 
@@ -156,15 +189,42 @@ const ResearchCalculator: NextPage = () => {
     multiple: false,
   });
 
+  const { completeEntries, perfectedEntries, incompleteEntries, researchPointsFromTasks, researchPointsByTask } = useMemo(() => (
+    Object.entries(state.activeTasks).reduce<CalculatedResearchData>((acc, [speciesId, tasks]) => {
+      const speciesDefinition = researchData.find(({ id }) => id === Number(speciesId));
+
+      if (!speciesDefinition) return acc;
+
+      const { completionPoints, completedSegments } = calculateEntryStatus(tasks, speciesDefinition);
+      
+      const isComplete = completionPoints >= 10;
+      const rankPoints = completionPoints * 10;
+      const isPerfected = completedSegments === speciesDefinition.tasks.reduce((total, task) => total + task.values.length, 0);
+
+      return {
+        completeEntries: isComplete ? [...acc.completeEntries, speciesDefinition.name] : acc.perfectedEntries,
+        perfectedEntries: isPerfected ? [...acc.perfectedEntries, speciesDefinition.name] : acc.completeEntries,
+        incompleteEntries: !isComplete && completionPoints > 0 ? [...acc.incompleteEntries, speciesDefinition.name] : acc.incompleteEntries,
+        researchPointsFromTasks: acc.researchPointsFromTasks + rankPoints,
+        researchPointsByTask: {
+          ...acc.researchPointsByTask,
+          [speciesId]: rankPoints + (isComplete ? 100 : 0),
+        },
+      };
+    }, { completeEntries: [], perfectedEntries: [], incompleteEntries: [], researchPointsFromTasks: 0, researchPointsByTask: {} })
+  ), [researchData, state.activeTasks]);
+
   const filteredResearchData = useMemo(() => {
-    if (!state.searchTerm) return researchData;
+    const relevantTasks = state.showCompletedEntries ? researchData : researchData.filter(species => completeEntries.indexOf(species.name) === -1);
+
+    if (!state.searchTerm) return relevantTasks;
 
     let normalizedSearchTerm = state.searchTerm.toLowerCase().trim();
 
     if (normalizedSearchTerm.startsWith('task:')) {
       normalizedSearchTerm = normalizedSearchTerm.replace('task:', '').trim();
 
-      return researchData.reduce<ResearchEntry[]>((acc, entry) => {
+      return relevantTasks.reduce<ResearchEntry[]>((acc, entry) => {
         const filteredTasks = entry.tasks.filter(task => task.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1);
 
         if (filteredTasks.length > 0) {
@@ -181,7 +241,7 @@ const ResearchCalculator: NextPage = () => {
       }, []);
     }
 
-    return researchData.reduce<ResearchEntry[]>((acc, entry) => {
+    return relevantTasks.reduce<ResearchEntry[]>((acc, entry) => {
       const normalizedName = entry.name.toLowerCase();
 
       if (normalizedName.indexOf(normalizedSearchTerm) !== -1 || normalizedSearchTerm.indexOf(normalizedName) !== -1) {
@@ -190,43 +250,7 @@ const ResearchCalculator: NextPage = () => {
 
       return acc;
     }, []);
-  }, [researchData, state.searchTerm]);
-
-  const { completeEntries, incompleteEntries, researchPointsFromTasks, researchPointsByTask } = useMemo(() => (
-    Object.entries(state.activeTasks).reduce<CalculatedResearchData>((acc, [speciesId, tasks]) => {
-      const speciesDefinition = researchData.find(({ id }) => id === Number(speciesId));
-
-      if (!speciesDefinition) return acc;
-
-      const completionPoints = Object.entries(tasks).reduce((total, [taskName, taskValue]) => {
-        const taskDefinition = speciesDefinition.tasks.find(({ name }) => name === taskName);
-
-        if (!taskDefinition) return total;
-
-        const completedSegments = taskDefinition.values.filter(item => item <= taskValue).length;
-        
-        // Arceus research has only one entry.
-        if (Number(speciesId) === 238) {
-          return completedSegments * 10;
-        }
-
-        return total + completedSegments * (taskDefinition.isBoosted ? 2 : 1);
-      }, 0);
-      
-      const isComplete = completionPoints >= 10;
-      const rankPoints = completionPoints * 10;
-
-      return {
-        completeEntries: isComplete ? [...acc.completeEntries, speciesDefinition.name] : acc.completeEntries,
-        incompleteEntries: !isComplete && completionPoints > 0 ? [...acc.incompleteEntries, speciesDefinition.name] : acc.incompleteEntries,
-        researchPointsFromTasks: acc.researchPointsFromTasks + rankPoints,
-        researchPointsByTask: {
-          ...acc.researchPointsByTask,
-          [speciesId]: rankPoints + (isComplete ? 100 : 0),
-        },
-      };
-    }, { completeEntries: [], incompleteEntries: [], researchPointsFromTasks: 0, researchPointsByTask: {} })
-  ), [researchData, state.activeTasks]);
+  }, [researchData, state.searchTerm, state.showCompletedEntries, completeEntries]);
 
   const totalResearchPoints = researchPointsFromTasks + completeEntries.length * 100;
   const nextRank = calculateNextRank(totalResearchPoints);
@@ -255,6 +279,12 @@ const ResearchCalculator: NextPage = () => {
         <RankData>
           Rank {nextRank}. Points to next rank: {pointsToNextRank === -1 ? '-' : pointsToNextRank}.
         </RankData>
+        {perfectedEntries.length > 0 && (
+          <p>
+            Perfected {perfectedEntries.length} {perfectedEntries.length === 1 ? 'entry' : 'entries'}
+            {perfectedEntries.length > 0 ? `: ${perfectedEntries.join(', ')}` : ''}.
+          </p>
+        )}
         <p>
           Completed {completeEntries.length} {completeEntries.length === 1 ? 'entry' : 'entries'}
           {completeEntries.length > 0 ? `: ${completeEntries.join(', ')}` : ''}.
@@ -263,6 +293,7 @@ const ResearchCalculator: NextPage = () => {
           Partially completed {incompleteEntries.length} {incompleteEntries.length === 1 ? 'entry' : 'entries'}
           {incompleteEntries.length > 0 ? `: ${incompleteEntries.join(', ')}` : ''}.
         </p>
+
         <ResultsHelpText>
           Drag an exported research file anywhere onto this page to import it.
         </ResultsHelpText>
@@ -282,6 +313,14 @@ const ResearchCalculator: NextPage = () => {
             placeholder="Filter..."
             autoComplete="off"
           />
+          <CheckboxContainer>
+            <Checkbox
+              id="showCompletedEntries"
+              data-checked={state.showCompletedEntries}
+              onClick={toggleShowCompletedEntries}
+            />
+            <label htmlFor="showCompletedEntries">Show completed entries</label>
+          </CheckboxContainer>
           <Button onClick={handleReset}>Reset</Button>
         </ActionRow>
         <TaskGrid>
@@ -439,4 +478,18 @@ const ImportError = styled.div`
   color: ${({ theme }) => theme.error};
   font-weight: 700;
   margin-top: 1rem;
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+
+  & ${Checkbox} {
+    margin-bottom: 0;
+  }
+  
+  & label {
+    margin-left: 0.25rem;
+    margin-bottom: 0;
+  }
 `;
