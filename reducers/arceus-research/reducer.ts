@@ -1,9 +1,9 @@
 import { prepareContextualReducer } from '../../utils/hooks';
-import { ArceusResearchReducerAction, ArceusResearchReducerState, SET_SEARCH_TERM, SET_TASK_ACTIVE, SET_TASK_INACTIVE, RESET_STATE, IMPORT_SAVED_RESEARCH, SET_SHOW_COMPLETED_ENTRIES } from './types';
+import { ArceusResearchReducerAction, ArceusResearchReducerState, SET_SEARCH_TERM, SET_TASK_ACTIVE, SET_TASK_INACTIVE, RESET_STATE, IMPORT_SAVED_RESEARCH, SET_SHOW_COMPLETED_TASKS } from './types';
 
 const defaultState: ArceusResearchReducerState = {
   searchTerm: '',
-  showCompletedEntries: true,
+  showCompletedTasks: true,
   activeTasks: {},
 };
 
@@ -15,10 +15,10 @@ const reducer = (state: ArceusResearchReducerState, action: ArceusResearchReduce
         searchTerm: action.payload.searchTerm,
       };
 
-    case SET_SHOW_COMPLETED_ENTRIES:
+    case SET_SHOW_COMPLETED_TASKS:
       return {
         ...state,
-        showCompletedEntries: action.payload.value,
+        showCompletedTasks: action.payload.value,
       };
 
     case SET_TASK_ACTIVE:
@@ -73,13 +73,12 @@ export function setSearchTerm(searchTerm: string): ArceusResearchReducerAction {
   };
 }
 
-export function setShowCompletedEntries(value: boolean): ArceusResearchReducerAction {
+export function setShowCompletedTasks(value: boolean): ArceusResearchReducerAction {
   return {
-    type: SET_SHOW_COMPLETED_ENTRIES,
+    type: SET_SHOW_COMPLETED_TASKS,
     payload: { value },
   };
 }
-
 export function setTaskActive(speciesId: number, taskName: string, value: number): ArceusResearchReducerAction {
   return {
     type: SET_TASK_ACTIVE,

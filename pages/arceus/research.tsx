@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { Checkbox, Header, HelpText, InputRow } from '../../components/Layout';
 import { Button } from '../../components/Button';
 import { useDebounce, useOnMount } from '../../utils/hooks';
-import { ArceusResearchContext, importSavedResearch, resetState, setSearchTerm, setShowCompletedEntries, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
+import { ArceusResearchContext, importSavedResearch, resetState, setSearchTerm, setShowCompletedTasks, setTaskActive, setTaskInactive } from '../../reducers/arceus-research/reducer';
 
 interface ResearchTask {
   name: string;
@@ -73,6 +73,33 @@ function calculateEntryStatus(tasks: Record<string, number>, species: ResearchEn
   }, { completedSegments: 0, completionPoints: 0 });
 }
 
+interface TaskRowProps {
+  task: ResearchTask;
+  speciesId: number;
+  activeValue: number;
+  showCompletedTasks: boolean;
+}
+
+const TaskRow: React.FC<TaskRowProps> = ({ task, speciesId, activeValue, showCompletedTasks }) => {
+  if (!showCompletedTasks && task.values[task.values.length - 1] <= activeValue) return null;
+  
+  return (
+    <TaskRowContainer>
+      {task.isBoosted ? <BoostedImage /> : <div />}
+      <TaskName>{task.name}</TaskName>
+      <TaskValueSpacer columns={5 - task.values.length} />
+      {task.values.map(value => (
+        <TaskValue
+          key={`${task.name}_${value}`}
+          speciesId={speciesId}
+          taskName={task.name}
+          value={value}
+          activeValue={activeValue}
+        />
+      ))}
+    </TaskRowContainer>
+  );
+};
 interface TaskValueProps {
   speciesId: number;
   taskName: string;
@@ -109,9 +136,9 @@ const ResearchCalculator: NextPage = () => {
     dispatch(setSearchTerm(event.target.value));
   }, [dispatch]);
 
-  const toggleShowCompletedEntries = useCallback(() => {
-    dispatch(setShowCompletedEntries(!state.showCompletedEntries));
-  }, [state.showCompletedEntries, dispatch]);
+  const toggleShowCompletedTasks = useCallback(() => {
+    dispatch(setShowCompletedTasks(!state.showCompletedTasks));
+  }, [state.showCompletedTasks, dispatch]);
 
   const debouncedHandleSearchTermChange = useDebounce(handleSearchTermChange, 250);
 
@@ -189,6 +216,47 @@ const ResearchCalculator: NextPage = () => {
     multiple: false,
   });
 
+  const filteredResearchData = useMemo(() => {
+    if (!state.searchTerm) return researchData;
+
+    let normalizedSearchTerm = state.searchTerm.toLowerCase().trim();
+
+    if (normalizedSearchTerm.startsWith('task:')) {
+      normalizedSearchTerm = normalizedSearchTerm.replace('task:', '').trim();
+
+      return researchData.reduce<ResearchEntry[]>((acc, entry) => {
+        const filteredTasks = entry.tasks.filter(task => {
+          const doesNameMatch = task.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1;
+          const isComplete = task.values[task.values.length - 1] <= state.activeTasks[entry.id]?.[task.name] ?? 0;
+
+          return doesNameMatch && (state.showCompletedTasks || !isComplete);
+        });
+
+        if (filteredTasks.length > 0) {
+          return [
+            ...acc,
+            {
+              ...entry,
+              tasks: filteredTasks,
+            },
+          ];
+        }
+
+        return acc;
+      }, []);
+    }
+
+    return researchData.reduce<ResearchEntry[]>((acc, entry) => {
+      const normalizedName = entry.name.toLowerCase();
+
+      if (normalizedName.indexOf(normalizedSearchTerm) !== -1 || normalizedSearchTerm.indexOf(normalizedName) !== -1) {
+        return [...acc, entry];
+      }
+
+      return acc;
+    }, []);
+  }, [researchData, state.searchTerm, state.showCompletedTasks, state.activeTasks]);
+
   const { completeEntries, perfectedEntries, incompleteEntries, researchPointsFromTasks, researchPointsByTask } = useMemo(() => (
     Object.entries(state.activeTasks).reduce<CalculatedResearchData>((acc, [speciesId, tasks]) => {
       const speciesDefinition = researchData.find(({ id }) => id === Number(speciesId));
@@ -213,44 +281,6 @@ const ResearchCalculator: NextPage = () => {
       };
     }, { completeEntries: [], perfectedEntries: [], incompleteEntries: [], researchPointsFromTasks: 0, researchPointsByTask: {} })
   ), [researchData, state.activeTasks]);
-
-  const filteredResearchData = useMemo(() => {
-    const relevantTasks = state.showCompletedEntries ? researchData : researchData.filter(species => completeEntries.indexOf(species.name) === -1);
-
-    if (!state.searchTerm) return relevantTasks;
-
-    let normalizedSearchTerm = state.searchTerm.toLowerCase().trim();
-
-    if (normalizedSearchTerm.startsWith('task:')) {
-      normalizedSearchTerm = normalizedSearchTerm.replace('task:', '').trim();
-
-      return relevantTasks.reduce<ResearchEntry[]>((acc, entry) => {
-        const filteredTasks = entry.tasks.filter(task => task.name.toLowerCase().indexOf(normalizedSearchTerm) !== -1);
-
-        if (filteredTasks.length > 0) {
-          return [
-            ...acc,
-            {
-              ...entry,
-              tasks: filteredTasks,
-            },
-          ];
-        }
-
-        return acc;
-      }, []);
-    }
-
-    return relevantTasks.reduce<ResearchEntry[]>((acc, entry) => {
-      const normalizedName = entry.name.toLowerCase();
-
-      if (normalizedName.indexOf(normalizedSearchTerm) !== -1 || normalizedSearchTerm.indexOf(normalizedName) !== -1) {
-        return [...acc, entry];
-      }
-
-      return acc;
-    }, []);
-  }, [researchData, state.searchTerm, state.showCompletedEntries, completeEntries]);
 
   const totalResearchPoints = researchPointsFromTasks + completeEntries.length * 100;
   const nextRank = calculateNextRank(totalResearchPoints);
@@ -315,11 +345,11 @@ const ResearchCalculator: NextPage = () => {
           />
           <CheckboxContainer>
             <Checkbox
-              id="showCompletedEntries"
-              data-checked={state.showCompletedEntries}
-              onClick={toggleShowCompletedEntries}
+              id="showCompletedTasks"
+              data-checked={state.showCompletedTasks}
+              onClick={toggleShowCompletedTasks}
             />
-            <label htmlFor="showCompletedEntries">Show completed entries</label>
+            <label htmlFor="showCompletedTasks">Show completed tasks</label>
           </CheckboxContainer>
           <Button onClick={handleReset}>Reset</Button>
         </ActionRow>
@@ -331,20 +361,13 @@ const ResearchCalculator: NextPage = () => {
                 {completeEntries.indexOf(data.name) !== -1 && <CompletedImage />}
               </SectionName>
               {data.tasks.map((task, index) => (
-                <TaskRow key={task.name || index}>
-                  {task.isBoosted ? <BoostedImage /> : <div />}
-                  <TaskName>{task.name}</TaskName>
-                  <TaskValueSpacer columns={5 - task.values.length} />
-                  {task.values.map(value => (
-                    <TaskValue
-                      key={`${task.name}_${value}`}
-                      speciesId={data.id}
-                      taskName={task.name}
-                      value={value}
-                      activeValue={state.activeTasks[data.id]?.[task.name] ?? 0}
-                    />
-                  ))}
-                </TaskRow>
+                <TaskRow
+                  key={task.name || index}
+                  task={task}
+                  speciesId={data.id}
+                  showCompletedTasks={state.showCompletedTasks}
+                  activeValue={state.activeTasks[data.id]?.[task.name] ?? 0}
+                />
               ))}
             </TaskSection>
           ))}
@@ -387,7 +410,7 @@ const TaskSection = styled.div`
   }
 `;
 
-const TaskRow = styled.div`
+const TaskRowContainer = styled.div`
   display: contents;
 
   & > div {
