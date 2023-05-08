@@ -7,8 +7,8 @@ const defaultState: CassetteBeastsExperienceReducerState = {
   selfExpGradient: 1,
   selfExpBaseLevel: 0,
   opponentLevel: 1,
-  opponentFormExpYield: 0,
-  opponentCharacterExpYield: 1,
+  opponentFormExpYield: 40,
+  opponentCharacterExpYield: 80,
 };
 
 const reducer = (state: CassetteBeastsExperienceReducerState, action: CassetteBeastsExperienceReducerAction): CassetteBeastsExperienceReducerState => {

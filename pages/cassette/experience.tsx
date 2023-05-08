@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
-import { Header, InputRow, InputSection, InputSubheader } from '../../components/Layout';
+import { Header, HelpText, InputRow, InputSection, InputSubheader } from '../../components/Layout';
 import { CassetteBeastsExperienceContext, setOpponentCharacterExpYield, setOpponentFormExpYield, setOpponentLevel, setSelfExpBaseLevel, setSelfExpGradient, setSelfLevel, useCassetteBeastsExperienceReducer } from '../../reducers/cassette/reducer';
 
 // From BattleFormulas.gd
@@ -12,9 +12,9 @@ function getExperienceToLevel(level: number, expGradient: number, expBaseLevel: 
 }
 
 function getExperienceYieldInner(level: number, formExpYield: number, characterExpYield: number) {
-  const effectiveLevel = (75 + level) * (level / 96) + 1;
+  const effectiveLevel = Math.floor(((75 + level) * level) / 96) + 1;
     
-  return ((formExpYield + characterExpYield) * effectiveLevel * 2) / 35;
+  return Math.floor(((formExpYield + characterExpYield) * effectiveLevel * 2) / 35);
 }
 
 function getExperienceYield(level: number, formExpYield: number, characterExpYield: number) {
@@ -27,7 +27,7 @@ function getExperienceYield(level: number, formExpYield: number, characterExpYie
   const target = getExperienceYieldInner(threshold, formExpYield, characterExpYield);
   const start = getExperienceYieldInner(level, formExpYield, characterExpYield);
 
-  return Math.floor(start + (target - start) / 3);
+  return Math.floor(start + Math.floor((target - start) / 3));
 }
 
 const CassetteBeastsExpCalculator: NextPage = () => {
@@ -81,11 +81,12 @@ const CassetteBeastsExpCalculator: NextPage = () => {
             <input id="opponentLevel" type="number" value={state.opponentLevel} onChange={handleSetOpponentLevel} />
           </InputRow>
           <InputRow>
-            <label htmlFor="opponentCharacterExpYield">Opponent Species Experience Yield</label>
+            <label htmlFor="opponentCharacterExpYield">Opponent Character Experience Yield</label>
             <input id="opponentCharacterExpYield" type="number" value={state.opponentCharacterExpYield} onChange={handleSetOpponentCharacterExpYield} />
+            <HelpText>For random encounters, this value is 80.</HelpText>
           </InputRow>
           <InputRow>
-            <label htmlFor="opponentFormExpYield">Opponent Form Experience Yield</label>
+            <label htmlFor="opponentFormExpYield">Opponent Species Experience Yield</label>
             <input id="opponentFormExpYield" type="number" value={state.opponentFormExpYield} onChange={handleSetOpponentFormExpYield} />
           </InputRow>
         </InputSection>
