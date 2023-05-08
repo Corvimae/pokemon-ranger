@@ -34,6 +34,11 @@ spec:
       containers:
       - name: pokemon-ranger
         image: corvimae/pokemon-ranger:latest
+        resources:
+          limits:
+            cpu: 102m
+          requests:
+            cpu: 102m
         envFrom:
         - secretRef:
             name: ranger-backend
