@@ -6,7 +6,7 @@ const LGPE_FRIENDSHIP_EVENTS: Record<LGPEFriendshipEvent, [number, number]> = {
   level: [2, 1],
   candy: [5, 3],
   xItem: [1, 1],
-  gymFight: [4, 4],
+  gymFight: [4, 3],
 };
 
 export function calculateLGPEFriendship(baseFriendship: number, friendshipEvents: LGPEFriendshipEvent[]): number {
