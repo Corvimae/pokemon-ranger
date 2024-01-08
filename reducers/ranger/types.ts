@@ -14,6 +14,7 @@ export const SET_TYPE_EFFECTIVENESS = 'SET_TYPE_EFFECTIVENESS';
 export const SET_STAB = 'SET_STAB';
 export const SET_GENERATION = 'SET_GENERATION';
 export const SET_CRITICAL_HIT = 'SET_CRITICAL_HIT';
+export const SET_DOUBLES = 'SET_DOUBLES';
 export const SET_TORRENT = 'SET_TORRENT';
 export const SET_MULTI_TARGET = 'SET_MULTI_TARGET';
 export const SET_WEATHER_BOOSTED = 'SET_WEATHER_BOOSTED';
@@ -50,6 +51,7 @@ export interface RangerReducerState {
   generation: Generation;
   criticalHit: boolean;
   torrent: boolean;
+  doubles: boolean;
   multiTarget: boolean;
   weatherBoosted: boolean;
   weatherReduced: boolean;
@@ -149,6 +151,13 @@ type SetCriticalHitAction = {
   type: typeof SET_CRITICAL_HIT;
   payload: {
     criticalHit: boolean;
+  };
+};
+
+type SetDoublesAction = {
+  type: typeof SET_DOUBLES;
+  payload: {
+    doubles: boolean;
   };
 };
 
@@ -293,6 +302,7 @@ export type RangerReducerAction =
   SetSTABAction |
   SetGenerationAction |
   SetCriticalHitAction |
+  SetDoublesAction |
   SetTorrentAction |
   SetMultiTargetAction |
   SetWeatherBoostedAction |

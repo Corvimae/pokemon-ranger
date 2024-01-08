@@ -6,7 +6,7 @@ import { ExpandedDisplay } from '../components/ExpandedDisplay';
 import { CompactDisplay } from '../components/CompactDisplay';
 import { Header, InputSection, InputRow, InputSubheader, HelpText, Checkbox, Card } from '../components/Layout';
 import { Button } from '../components/Button';
-import { resetState, setAdaptability, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOpponentStatModifier, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setStatModifier, setTerastallized, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
+import { resetState, setAdaptability, setBaseStat, setChoiceItem, setCombatStages, setCriticalHit, setDisplayMode, setDisplayRolls, setDoubles, setEVs, setFriendship, setGeneration, setHealthThreshold, setLevel, setMovePower, setMultiTarget, setOffensiveMode, setOpponentCombatStages, setOpponentLevel, setOpponentStat, setOpponentStatModifier, setOtherModifier, setOtherPowerModifier, setScreen, setSTAB, setStatModifier, setTerastallized, setTorrent, setTypeEffectiveness, setWeatherBoosted, setWeatherReduced, useRangerReducer } from '../reducers/ranger/reducer';
 import { OneShotDisplay } from '../components/OneShotDisplay';
 import { DisplayMode } from '../reducers/ranger/types';
 import { DisplayModeToggle } from '../components/DisplayModeToggle';
@@ -34,6 +34,7 @@ const Home: NextPage = () => {
     dispatch(setGeneration(event.target.value === 'lgpe' ? event.target.value : Number(event.target.value)));
   }, [dispatch]);
   const handleSetCriticalHit = useCallback(() => dispatch(setCriticalHit(!state.criticalHit)), [state.criticalHit, dispatch]);
+  const handleSetDoubles = useCallback(() => dispatch(setDoubles(!state.doubles)), [state.doubles, dispatch]);
   const handleSetTorrent = useCallback(() => dispatch(setTorrent(!state.torrent)), [state.torrent, dispatch]);
   const handleSetMultiTarget = useCallback(() => dispatch(setMultiTarget(!state.multiTarget)), [state.multiTarget, dispatch]);
   const handleSetWeatherBoosted = useCallback(() => dispatch(setWeatherBoosted(!state.weatherBoosted)), [state.weatherBoosted, dispatch]);
@@ -207,6 +208,12 @@ const Home: NextPage = () => {
           </InputRow>
 
           <InputSubheader>Modifiers</InputSubheader>
+
+          <InputRow>
+            <label htmlFor="doubles">Double Battle?</label>
+            <Checkbox id="doubles" data-checked={state.doubles} onClick={handleSetDoubles} />
+            <HelpText>Spread moves deal less damage in doubles battles, and screens are less effective.</HelpText>
+          </InputRow>
 
           <InputRow>
             <label htmlFor="criticalHit">Critical Hit?</label>
