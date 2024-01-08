@@ -264,8 +264,6 @@ const ExperienceRoute: NextPage = () => {
   }, []);
   
   const handleSetSelectedSpecies = useCallback(async value => {
-    console.log(value);
-    
     if (!value) return;
 
     pendingDetailsRequestUrl.current = value;
@@ -274,8 +272,6 @@ const ExperienceRoute: NextPage = () => {
     
     const speciesData = await speciesDataRequest.json();
 
-
-    console.log(speciesData);
     if (speciesDataRequest.url !== pendingDetailsRequestUrl.current) return;
 
     setSpeciesNameValue(speciesData.name[0].toUpperCase() + speciesData.name.substr(1));
