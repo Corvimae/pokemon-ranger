@@ -239,7 +239,10 @@ ConnectedRouteView.getInitialProps = async (context: NextPageContext): Promise<R
   let routeMetadata: RouteMetadata | null = null;
 
   if (repo?.startsWith(CENTRAL_ROUTE_REPO_PREFIX)) {
-    const response = await fetch(`/api/route/${repo.replace(CENTRAL_ROUTE_REPO_PREFIX, '')}`);
+    const protocol = context.req?.headers['x-forwarded-proto'] || 'http';
+    const baseUrl = context.req ? `${protocol}://${context.req.headers.host}` : '';
+
+    const response = await fetch(`${baseUrl}/api/route/${repo.replace(CENTRAL_ROUTE_REPO_PREFIX, '')}`);
     
     routeMetadata = await response.json();
   }

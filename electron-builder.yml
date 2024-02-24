@@ -1,6 +1,6 @@
 appId: com.corvimae.ranger
 productName: Pokemon Ranger
-copyright: Copyright © 2022 Corvimae
+copyright: Copyright © 2024 Corvimae
 directories:
   output: dist
   buildResources: resources
