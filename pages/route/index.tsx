@@ -72,7 +72,7 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
 
   const content = useMemo(() => {
     if (!fileContent) return null;
-
+    
     try {
       return {
         error: false,
@@ -118,7 +118,11 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
     };
   });
 
-  const calculationSets = useMemo(() => buildAllTrackerCalculationSets(state), [state]);
+  const calculationSets = useMemo(() => {
+    if (state.routeErrors.length > 0) return {};
+
+    return buildAllTrackerCalculationSets(state);
+  }, [state]);
   const authorString = useMemo(() => {
     if (!activeRouteMetadata || !activeRouteMetadata.author) return 'a Pokémon speedrunner';
 
@@ -212,20 +216,24 @@ const RouteView: NextPage<RouteViewParams> = ({ repo, routeMetadata }) => {
           ivHorizontalLayout={state.options.ivHorizontalLayout}
           hasContent={!(content?.error ?? true)}
         >
-          <TrackerInputContainer>
-            {Object.values(state.trackers).map(tracker => (
-              <IVTracker
-                key={tracker.name}
-                tracker={tracker}
-                manualEVInput={state.options.manualEVInput}
-              />
-            ))}
-          </TrackerInputContainer>
-          <div>
-            {Object.values(state.trackers).map(tracker => (
-              <IVDisplay key={tracker.name} tracker={tracker} compactIVs={state.options.compactIVs} />
-            ))}
-          </div>
+          {state.routeErrors.length === 0 && (
+            <>
+              <TrackerInputContainer>
+                {Object.values(state.trackers).map(tracker => (
+                  <IVTracker
+                    key={tracker.name}
+                    tracker={tracker}
+                    manualEVInput={state.options.manualEVInput}
+                  />
+                ))}
+              </TrackerInputContainer>
+              <div>
+                {Object.values(state.trackers).map(tracker => (
+                  <IVDisplay key={tracker.name} tracker={tracker} compactIVs={state.options.compactIVs} />
+                ))}
+              </div>
+            </>
+          )}
         </Sidebar>
       </Container>
     </RouteCalculationsContext.Provider>

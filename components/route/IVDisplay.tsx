@@ -43,13 +43,13 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
   return (
     <Container generation={tracker.generation} calculateHiddenPower={tracker.calculateHiddenPower} compactIVs={compactIVs}>
       {!compactIVs && <TrackerName>{tracker.name}</TrackerName>}
-      {STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense').map(stat => (
+      {STATS.filter(stat => tracker.generation !== 1 || stat !== 'spDefense').map(stat => (
         <StatDisplay key={stat}>
           <StatName
             positive={stat === confirmedPositive && stat !== confirmedNegative}
             negative={stat === confirmedNegative && stat !== confirmedPositive}
           >
-            {tracker.generation <= 2 && stat === 'spAttack' ? 'SPEC' : formatStatName(stat, true)}
+            {tracker.generation === 1 && stat === 'spAttack' ? 'SPEC' : formatStatName(stat, true)}
             {stat !== 'hp' && getSymbolForStat(ivRanges[stat], stat, confirmedPositive, confirmedNegative)}
           </StatName>
           <div>
@@ -61,7 +61,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
           </div>
         </StatDisplay>
       ))}
-      {tracker.generation > 2 && (
+      {tracker.generation !== 1 && (
         <StatDisplay>
           <StatName>Nature</StatName>
           <div>
@@ -74,7 +74,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
           <StatName>Hidden Power</StatName>
           <div>
             {calculationSet.hiddenPowerType ? capitalize(calculationSet.hiddenPowerType) : 'N/A'}
-            {tracker.generation <= 5 ? ` (${calculationSet.hiddenPowerBasePower})` : ''}
+            {(tracker.generation !== 'lgpe' && tracker.generation <= 5) ? ` (${calculationSet.hiddenPowerBasePower})` : ''}
           </div>
         </StatDisplay>
       )}
@@ -84,7 +84,7 @@ export const IVDisplay: React.FC<IVDisplayProps> = ({ tracker, compactIVs }) => 
 
 const Container = styled.div<{ generation: Generation; calculateHiddenPower?: boolean; compactIVs: boolean }>`
   display: grid;
-  grid-template-columns: repeat(${props => props.generation <= 2 ? 5 : 7}, 5.25rem) ${props => props.calculateHiddenPower && 'max-content'};
+  grid-template-columns: repeat(${props => props.generation === 1 ? 5 : 7}, 5.25rem) ${props => props.calculateHiddenPower && 'max-content'};
   padding: ${props => props.compactIVs && '0.25rem 0'};
 
   & + & {

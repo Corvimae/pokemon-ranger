@@ -49,7 +49,7 @@ interface IVTrackerProps {
 export const IVTracker: React.FC<IVTrackerProps> = ({ tracker, manualEVInput }) => {
   const dispatch = RouteContext.useDispatch();
   const [resetConfirmActive, setResetConfirmActive] = useState(false);
-
+  
   const handleSetStat = useCallback((stat: Stat, value: number) => {
     dispatch(setStat(tracker.name, stat, tracker.currentLevel, value));
   }, [tracker.currentLevel, dispatch, tracker.name]);
@@ -140,7 +140,7 @@ export const IVTracker: React.FC<IVTrackerProps> = ({ tracker, manualEVInput }) 
     );
   }
   
-  const relevantStats = STATS.filter(stat => tracker.generation > 2 || stat !== 'spDefense');
+  const relevantStats = STATS.filter(stat => tracker.generation !== 1 || stat !== 'spDefense');
 
   return (
     <Container>
