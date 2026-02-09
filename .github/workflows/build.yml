@@ -24,7 +24,7 @@ jobs:
         include:
           - os: macos-latest
             script: electron:build:macos
-            asset_name: Pokemon Ranger-${{needs.extract_version.outputs.version}}.dmg
+            asset_name: Pokemon Ranger-${{needs.extract_version.outputs.version}}-arm64.dmg
           - os: ubuntu-latest
             script: electron:build:linux
             asset_name: Pokemon Ranger-${{needs.extract_version.outputs.version}}.AppImage
