@@ -110,6 +110,7 @@ interface DamageTableProps {
   offensive?: string;
   special?: string;
   friendship?: string;
+  criticalHit?: string;
   screen?: string;
   choiceItem?: string;
   adaptability?: string;
@@ -148,6 +149,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
   choiceItem = 'false',
   adaptability = 'false',
   terastallized = 'false',
+  criticalHit = 'false',
   otherPowerModifier = 1,
   statModifier = 1,
   opponentStatModifier = 1,
@@ -237,7 +239,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
         multiTarget: multiTarget.toLowerCase() === 'true',
         otherModifier: Number(otherModifier),
         generation,
-        criticalHit: false,
+        criticalHit: criticalHit.toLowerCase() === 'true',
         offensiveMode,
         friendship: Number(friendship),
         screen: screen.toLowerCase() === 'true',
@@ -266,7 +268,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
 
       return {};
     }
-  }, [baseStats, calculationSet, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem, adaptability, terastallized, statModifier, opponentStatModifier]);
+  }, [baseStats, calculationSet, criticalHit, relevantStat, level, offensive, trackerEvs, combatStage, movePower, effectiveness, stab, opponentStat, opponentCombatStage, torrent, weatherBoosted, weatherReduced, multiTarget, otherModifier, friendship, opponentLevel, screen, otherPowerModifier, source, state.trackers, opponentRelevantStat, pokemonContext, moveType, hpThreshold, choiceItem, adaptability, terastallized, statModifier, opponentStatModifier]);
 
   useEffect(() => {
     if (error.current === null && Object.keys(state.trackers).length > 0) {

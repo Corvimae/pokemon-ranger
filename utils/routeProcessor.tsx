@@ -98,6 +98,7 @@ const schema = merge(gh, {
       'multiTarget',
       'otherModifier',
       'friendship',
+      'criticalHit',
       'offensive',
       'special',
       'healthThreshold',

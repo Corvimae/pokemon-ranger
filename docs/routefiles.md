@@ -137,6 +137,8 @@ The content within the square brackets is displayed as a header above the table,
 
 `adaptability` (boolean, default: `false`) - Whether the attacker has the ability Adaptability.
 
+`criticalHit` (boolean, default: `false`) - Whether to calculate the attack as if it were a critical hit.
+
 `otherPowerModifier` (number, default: `1`) - An additional multiplier to apply to the base power of the move, such as from a type-boosting item.
 
 `statModifier` (number, default: `1`) - An additional multiplier to apply to the runner's Pokémon's relevant stat, such as from the Huge Power ability. 
