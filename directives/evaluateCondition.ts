@@ -111,6 +111,10 @@ export function calculatePossibleStatsAtLevel(
   evolution: number,
 ): number[] {
   if (isIVStat(stat)) {
+    if (!tracker.evSegments[tracker.startingLevel][level]) {
+      throw new Error(`There is no EV spread specified for level ${level} (starting level: ${tracker.startingLevel}).`);
+    }
+
     const { valid } = calculateAllPossibleStatValues(
       stat,
       level,
