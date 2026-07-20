@@ -236,6 +236,7 @@ export const DamageTable: React.FC<DamageTableProps> = ({
         torrent: torrent.toLowerCase() === 'true',
         weatherBoosted: weatherBoosted.toLowerCase() === 'true',
         weatherReduced: weatherReduced.toLowerCase() === 'true',
+        doubles: multiTarget.toLowerCase() === 'true',
         multiTarget: multiTarget.toLowerCase() === 'true',
         otherModifier: Number(otherModifier),
         generation,
